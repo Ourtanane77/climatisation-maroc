@@ -10,11 +10,52 @@ Sources:
 
 ---
 
-## 0. Decisions needed from you
+## 0. Decisions
 
-These are places where the design files contradict each other, contradict the
-brief, or contain placeholders. The proposed default is in **bold**; I will
-apply it unless you say otherwise.
+### Resolved on 2026-10-06 (these override the proposals below)
+
+- **File list confirmed.** 30 pages and 2 design boards.
+- **Prices and references.** `data/catalog.json` (106 real SKUs from the live
+  site) is the seed and the price authority.
+  - Rows are grouped into families with variants. The grouping is in
+    `docs/catalog-grouping.md`.
+  - `price` is the regular price; `promo_price` is the selling price when
+    discounted.
+  - `php artisan catalog:download-images` copies the old site's images into
+    local storage, so the new site never hotlinks.
+  - Design-only products (cassette, cuivre, gaz) are seeded from the design
+    values with `needs_verification`.
+  - Category pages show every real family. Nothing is cut to match the
+    design's card count.
+- **Calculator.** One shared function, using the calculator page's model,
+  serves the calculator page, the home finder and the article block.
+- **Pages without copy.** They are built and kept unpublished. They are
+  excluded from menus, the sitemap and internal link blocks.
+- **Quote links.** All go to `/demander-un-devis`, except the on-page form on
+  sector pages.
+- **Pro prices.** A reseller sees `pro_price` where set, otherwise the public
+  price.
+
+### Technical decisions (phase 2)
+
+- **Images.** Next.js 16 refuses to optimise images from private hosts, and
+  the API sits on the internal `nginx` host.
+  - Laravel generates responsive WebP renditions when images are imported or
+    uploaded. The front end uses them through `srcset`, with
+    `images.unoptimized`.
+  - Uploaded files are served by nginx at `/storage/`.
+- **Front end in Docker development.** It runs `next dev --webpack` with
+  polling, because file events don't reach the container through Windows or
+  macOS bind mounts. Host development keeps Turbopack (`npm run dev`).
+- **Laravel in Docker development.** `vendor/` lives in a named volume, since a
+  bind-mounted `vendor/` is far too slow on Windows.
+- **Routing.** Only `/api/v1` is routed to Laravel. Next.js owns the other
+  `/api/*` routes (BFF auth, forms, revalidation).
+- **Libraries resolved at install.** Laravel 13.35, Filament 5.9, Sanctum 4,
+  spatie/laravel-permission 8, spatie/laravel-settings 3, Pest 4, Larastan 3,
+  Next.js 16.3, React 19.2, Tailwind 4, Vitest 5, Playwright 1.63.
+
+### Original proposals (phase 1)
 
 1. **Page count.** The index lists 32 unique files, not 31: 30 site pages plus
    2 design boards (`Structure et navigation`, `Plan du site`). The boards

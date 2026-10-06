@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens extracted from design/*.dc.html (see docs/plan.md §1).
+ * Breakpoints follow the design scripts:
+ *   md  = 760  (mobile → tablet)
+ *   lg  = 1000 (full header nav)
+ *   xl  = 1100 (desktop layouts: sidebars, two-column heroes)
+ */
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-md: 760px;
+  --breakpoint-lg: 1000px;
+  --breakpoint-xl: 1100px;
+  --breakpoint-2xl: 1340px;
+
+  --font-sans: var(--font-figtree), system-ui, sans-serif;
+
+  --color-brand: #0b5cad;
+  --color-brand-hover: #084683;
+  --color-accent: #f4731f;
+  --color-accent-hover: #d85a17;
+  --color-promo: #c4501a;
+  --color-ink: #1a1a1a;
+  --color-ink-2: #3c4043;
+  --color-muted: #5f6368;
+  --color-muted-2: #7a828b;
+  --color-line-strong: #9aa3ad;
+  --color-bg: #f4f6f8;
+  --color-tint-blue: #e8eff8;
+  --color-tint-blue-2: #dce8f5;
+  --color-tint-thumb: #eef3fa;
+  --color-tint-select: #f1f5fa;
+  --color-tint-orange: #fdebdd;
+  --color-tint-orange-2: #fdf0e6;
+  --color-tint-orange-3: #fce6d6;
+  --color-border: #e3e8ee;
+  --color-border-2: #e6ebf0;
+  --color-divider: #eef1f4;
+  --color-input: #d3dde8;
+  --color-control: #d5dce3;
+  --color-check: #c3ceda;
+  --color-step-line: #dce5ef;
+  --color-hover-line: #c9d3de;
+  --color-zebra: #f7f9fb;
+  --color-zebra-2: #f9fafc;
+  --color-whatsapp: #25d366;
+  --color-success: #1f9d57;
+  --color-success-bg: #e3f5ea;
+  --color-error-bg: #fff7f2;
+  --color-reco: #12a6e8;
+  --color-reco-bg: #e6f5fd;
+  --color-footer-text: #c9daee;
+  --color-footer-text-2: #e3ecf7;
+  --color-upload-line: #b9c6d4;
+  --color-hairline: #e6e9ec;
+  --color-facebook: #1877f2;
+  --color-instagram: #e4405f;
+
+  --radius-6: 6px;
+  --radius-7: 7px;
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-12: 12px;
+  --radius-14: 14px;
+  --radius-16: 16px;
+  --radius-18: 18px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-28: 28px;
+
+  --shadow-card-hover: 0 24px 50px -32px rgba(14, 40, 70, 0.45);
+  --shadow-feature-hover: 0 30px 60px -36px rgba(14, 40, 70, 0.45);
+  --shadow-dropdown: 0 24px 50px -20px rgba(14, 40, 70, 0.4), 0 0 0 1px #e6ebf0;
+  --shadow-mega: 0 30px 60px -30px rgba(14, 40, 70, 0.45);
+  --shadow-sticky-header: 0 10px 30px -18px rgba(14, 40, 70, 0.35);
+  --shadow-bottom-bar: 0 -12px 32px -16px rgba(14, 40, 70, 0.35);
+  --shadow-tile-hover: 0 20px 40px -28px rgba(14, 40, 70, 0.4);
+  --shadow-hairline: 0 1px 0 #e6e9ec;
+
+  --ease-design: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --animate-rise: rise 0.25s ease;
+  @keyframes rise {
+    0% {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* The design files keep the browser default line-height; Tailwind's preflight sets 1.5. */
+    line-height: normal;
+  }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a {
+    color: var(--color-brand);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-accent);
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+    color: inherit;
+  }
+  /* Visible focus for keyboard users (not in the design files, required for accessibility). */
+  :focus-visible {
+    outline: 3px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility sr-only-focusable {
+  &:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

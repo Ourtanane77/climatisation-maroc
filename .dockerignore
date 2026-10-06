@@ -1,0 +1,13 @@
+**/node_modules
+**/.next
+backend/vendor
+backend/storage/logs
+backend/storage/framework/cache
+backend/storage/framework/sessions
+backend/storage/framework/views
+backend/.env
+.env*
+!.env.example
+.git
+docs
+data/*.sql

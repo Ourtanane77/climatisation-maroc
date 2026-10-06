@@ -1,0 +1,226 @@
+import type { ArtKey } from "@/lib/types";
+
+/**
+ * Line illustrations used when a product has no photo. Port of design/art.js (window.AFDraw)
+ * plus the "iso" (Armaflex) and "console" drawings inlined in Cuivre et gaz / Climatisation.
+ */
+
+const B = "#0B5CAD";
+const O = "#F4731F";
+const CU = "#C9743A";
+const CU2 = "#E39A62";
+const ST = "#CDD6E0";
+
+interface Props {
+  art: ArtKey;
+  dark?: boolean;
+  className?: string;
+  title?: string;
+}
+
+export function ProductArt({ art, dark = false, className, title }: Props) {
+  const body = renderArt(art, dark);
+  if (!body) return null;
+  const [viewBox, children] = body;
+  return (
+    <svg
+      viewBox={viewBox}
+      className={className}
+      style={{ display: "block", maxWidth: "100%", maxHeight: "100%", overflow: "visible" }}
+      role={title ? "img" : undefined}
+      aria-label={title}
+      aria-hidden={title ? undefined : true}
+    >
+      {children}
+    </svg>
+  );
+}
+
+function renderArt(k: ArtKey, dark: boolean): [string, React.ReactNode] | null {
+  switch (k) {
+    case "mural": {
+      const bodyFill = dark ? "#1C2229" : "#fff";
+      const edge = dark ? "#1C2229" : ST;
+      const soft = dark ? "#2A323C" : "#EEF2F6";
+      return [
+        "0 0 400 132",
+        <>
+          <rect x={4} y={4} width={392} height={108} rx={28} fill={bodyFill} stroke={edge} strokeWidth={1.5} />
+          <rect x={18} y={16} width={364} height={8} rx={4} fill={soft} />
+          <path d="M20 78H380" stroke={dark ? "#2E3740" : "#E1E7EE"} strokeWidth={1.5} />
+          <rect x={30} y={90} width={340} height={9} rx={4.5} fill={dark ? "#0E1216" : "#2B3640"} />
+          <rect x={36} y={100} width={328} height={7} rx={3.5} fill={soft} />
+          <rect x={326} y={40} width={36} height={18} rx={5} fill={dark ? "#0E1216" : "#F3F6F9"} />
+          <circle cx={370} cy={30} r={3} fill={B} />
+        </>,
+      ];
+    }
+    case "gainable":
+      return [
+        "0 0 400 150",
+        <>
+          <rect x={4} y={30} width={24} height={86} rx={4} fill="#E1E7EE" />
+          <rect x={372} y={30} width={24} height={86} rx={4} fill="#E1E7EE" />
+          <rect x={20} y={20} width={360} height={106} rx={10} fill="#fff" stroke={ST} strokeWidth={1.5} />
+          <rect x={44} y={42} width={220} height={62} rx={6} fill="#EEF2F6" />
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <rect key={i} x={54} y={50 + i * 9} width={200} height={3} rx={1.5} fill="#D7DFE7" />
+          ))}
+          <rect x={284} y={42} width={72} height={62} rx={6} fill="#EEF2F6" />
+        </>,
+      ];
+    case "cassette":
+      return [
+        "0 0 240 240",
+        <>
+          <rect x={8} y={8} width={224} height={224} rx={24} fill="#fff" stroke={ST} strokeWidth={1.5} />
+          <rect x={70} y={70} width={100} height={100} rx={12} fill="#EEF2F6" />
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <rect key={i} x={82} y={82 + i * 15} width={76} height={4} rx={2} fill="#D7DFE7" />
+          ))}
+          <rect x={40} y={30} width={160} height={10} rx={5} fill="#2B3640" />
+          <rect x={40} y={200} width={160} height={10} rx={5} fill="#2B3640" />
+          <rect x={30} y={40} width={10} height={160} rx={5} fill="#2B3640" />
+          <rect x={200} y={40} width={10} height={160} rx={5} fill="#2B3640" />
+        </>,
+      ];
+    case "solaire":
+      return [
+        "0 0 320 260",
+        <>
+          <polygon points="20,230 140,70 300,70 180,230" fill={B} />
+          {[1, 2, 3].map((i) => (
+            <path key={i} d={`M${20 + i * 40} 230L${140 + i * 40} 70`} stroke="#fff" strokeWidth={2} opacity={0.55} />
+          ))}
+          <rect x={150} y={22} width={160} height={52} rx={26} fill="#fff" stroke={ST} strokeWidth={1.5} />
+          <rect x={60} y={228} width={8} height={26} fill="#9AA6B3" />
+          <rect x={250} y={150} width={8} height={104} fill="#9AA6B3" />
+        </>,
+      ];
+    case "vent":
+      return [
+        "0 0 300 180",
+        <>
+          <rect x={4} y={62} width={40} height={56} rx={6} fill="#C2CCD6" />
+          <rect x={256} y={62} width={40} height={56} rx={6} fill="#C2CCD6" />
+          <rect x={40} y={28} width={220} height={124} rx={62} fill="#E4EAF0" stroke={ST} strokeWidth={1.5} />
+          <circle cx={150} cy={90} r={38} fill="#fff" stroke={ST} strokeWidth={1.5} />
+          <circle cx={150} cy={90} r={8} fill={B} />
+        </>,
+      ];
+    case "flex":
+      return [
+        "0 0 320 160",
+        <>
+          <path d="M20 110C80 110 90 50 160 50S240 110 300 110" stroke="#C9D2DB" strokeWidth={56} fill="none" strokeLinecap="round" />
+          <path d="M20 110C80 110 90 50 160 50S240 110 300 110" stroke="#E9EEF3" strokeWidth={44} fill="none" strokeLinecap="round" strokeDasharray="3 9" />
+        </>,
+      ];
+    case "coilS":
+      return [
+        "0 0 200 200",
+        <>
+          <circle cx={100} cy={100} r={60} fill="none" stroke={CU} strokeWidth={7} />
+          <circle cx={100} cy={100} r={51} fill="none" stroke={CU2} strokeWidth={7} />
+          <circle cx={100} cy={100} r={42} fill="none" stroke={CU} strokeWidth={7} />
+          <path d="M160 100h28" stroke={CU} strokeWidth={7} strokeLinecap="round" />
+        </>,
+      ];
+    case "coilL":
+      return [
+        "0 0 200 200",
+        <>
+          <circle cx={100} cy={100} r={84} fill="none" stroke={CU} strokeWidth={13} />
+          <circle cx={100} cy={100} r={68} fill="none" stroke={CU2} strokeWidth={13} />
+          <circle cx={100} cy={100} r={52} fill="none" stroke={CU} strokeWidth={13} />
+          <circle cx={100} cy={100} r={36} fill="none" stroke={CU2} strokeWidth={13} />
+        </>,
+      ];
+    case "duo":
+      return [
+        "0 0 260 200",
+        <>
+          <circle cx={96} cy={100} r={78} fill="none" stroke={CU} strokeWidth={12} />
+          <circle cx={96} cy={100} r={62} fill="none" stroke={CU2} strokeWidth={12} />
+          <circle cx={96} cy={100} r={46} fill="none" stroke={CU} strokeWidth={12} />
+          <circle cx={190} cy={128} r={52} fill="#E8EFF8" stroke="#fff" strokeWidth={6} />
+          <circle cx={190} cy={128} r={46} fill="none" stroke={CU} strokeWidth={6} />
+          <circle cx={190} cy={128} r={37} fill="none" stroke={CU2} strokeWidth={6} />
+          <circle cx={190} cy={128} r={28} fill="none" stroke={CU} strokeWidth={6} />
+        </>,
+      ];
+    case "gaz":
+      return [
+        "0 0 170 240",
+        <>
+          <rect x={66} y={6} width={38} height={30} rx={6} fill="#9AA6B3" />
+          <rect x={56} y={28} width={58} height={14} rx={4} fill="#7D8995" />
+          <rect x={22} y={40} width={126} height={192} rx={40} fill={B} />
+          <rect x={22} y={110} width={126} height={52} fill="#fff" />
+          <rect x={40} y={126} width={90} height={8} rx={4} fill="#D7DFE7" />
+          <rect x={40} y={140} width={60} height={8} rx={4} fill="#D7DFE7" />
+        </>,
+      ];
+    case "support":
+      return [
+        "0 0 240 180",
+        <>
+          <rect x={30} y={10} width={18} height={150} rx={3} fill="#9AA6B3" />
+          <rect x={30} y={142} width={86} height={18} rx={3} fill="#9AA6B3" />
+          <path d="M48 40L108 142" stroke="#B7C1CB" strokeWidth={10} strokeLinecap="round" />
+          <rect x={140} y={10} width={18} height={150} rx={3} fill="#9AA6B3" />
+          <rect x={140} y={142} width={86} height={18} rx={3} fill="#9AA6B3" />
+          <path d="M158 40L218 142" stroke="#B7C1CB" strokeWidth={10} strokeLinecap="round" />
+        </>,
+      ];
+    case "scotch":
+      return [
+        "0 0 200 200",
+        <>
+          <circle cx={100} cy={100} r={84} fill="#D2D9E0" stroke="#B9C3CD" strokeWidth={2} />
+          <circle cx={100} cy={100} r={62} fill="none" stroke="#E6EBF0" strokeWidth={2} />
+          <circle cx={100} cy={100} r={42} fill="#E8EFF8" stroke="#B9C3CD" strokeWidth={2} />
+          <path d="M184 100h14v40h-14" fill="#D2D9E0" />
+        </>,
+      ];
+    case "remote":
+      return [
+        "0 0 130 240",
+        <>
+          <rect x={20} y={8} width={90} height={224} rx={30} fill="#fff" stroke={ST} strokeWidth={1.5} />
+          <rect x={36} y={30} width={58} height={36} rx={8} fill="#2B3640" />
+          {[0, 1, 2].map((i) => (
+            <circle key={`a${i}`} cx={45 + i * 20} cy={96} r={7} fill="#D7DFE7" />
+          ))}
+          {[0, 1, 2].map((i) => (
+            <circle key={`b${i}`} cx={45 + i * 20} cy={124} r={7} fill="#D7DFE7" />
+          ))}
+          <circle cx={65} cy={180} r={14} fill={B} />
+        </>,
+      ];
+    case "iso":
+      // Armaflex tube (design/Cuivre et gaz.dc.html).
+      return [
+        "0 0 120 80",
+        <>
+          <rect x={6} y={28} width={108} height={24} rx={12} fill="#2B3640" />
+          <ellipse cx={110} cy={40} rx={6} ry={12} fill="#1A1A1A" />
+          <ellipse cx={110} cy={40} rx={3} ry={6} fill="#C46A3A" />
+        </>,
+      ];
+    case "console":
+      // Floor cabinet (design/Climatisation.dc.html, "Console et armoire" tile).
+      return [
+        "0 0 160 240",
+        <g key="console" fill="none" stroke={B} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+          <rect x={20} y={8} width={120} height={212} rx={14} />
+          <path d="M34 30h92 M34 42h92 M34 54h92" />
+          <rect x={98} y={72} width={28} height={14} rx={4} />
+          <path d="M34 112h92 M34 124h92 M34 136h92 M34 148h92 M34 160h92 M34 172h92 M34 184h92" stroke={O} />
+          <path d="M32 220v12 M128 220v12 M14 232h132" />
+        </g>,
+      ];
+    default:
+      return null;
+  }
+}
