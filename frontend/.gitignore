@@ -42,5 +42,6 @@ next-env.d.ts
 
 # synced from design/uploads by scripts/sync-design-assets.mjs
 /public/brand/
+/public/design/
 /test-results/
 /playwright-report/

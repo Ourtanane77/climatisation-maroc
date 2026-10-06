@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property string $slug
  * @property bool $is_published
  * @property bool $needs_verification
+ * @property list<array{title?: string, icon?: string}>|null $highlights
  * @property-read Collection<int, ProductVariant> $variants
  */
 class Product extends Model implements HasPublicUrl

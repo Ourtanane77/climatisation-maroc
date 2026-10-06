@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Resellers;
 use App\Enums\ResellerStatus;
 use App\Filament\Resources\Resellers\Pages\EditResellerAccount;
 use App\Filament\Resources\Resellers\Pages\ListResellerAccounts;
+use App\Mail\ResellerRefused;
+use App\Mail\ResellerValidated;
 use App\Models\ResellerAccount;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -20,6 +22,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Mail;
 use UnitEnum;
 
 class ResellerAccountResource extends Resource
@@ -109,9 +112,12 @@ class ResellerAccountResource extends Resource
             ->color('success')
             ->visible(fn (ResellerAccount $record) => $record->status !== ResellerStatus::Valide)
             ->requiresConfirmation()
-            ->modalDescription('Le revendeur pourra se connecter et verra les tarifs revendeur.')
+            ->modalDescription('Le revendeur pourra se connecter et verra les tarifs revendeur. Il est prévenu par e-mail.')
             ->action(function (ResellerAccount $record) {
                 $record->update(['status' => ResellerStatus::Valide, 'decided_at' => now(), 'decided_by' => auth()->id(), 'refusal_reason' => null]);
+                if ($record->user->email) {
+                    Mail::to($record->user->email)->queue(new ResellerValidated($record));
+                }
                 Notification::make()->title("Compte {$record->company} validé")->success()->send();
             });
     }
@@ -127,6 +133,9 @@ class ResellerAccountResource extends Resource
             ->action(function (ResellerAccount $record, array $data) {
                 $record->update(['status' => ResellerStatus::Refuse, 'decided_at' => now(), 'decided_by' => auth()->id(), 'refusal_reason' => $data['reason'] ?? null]);
                 $record->user->tokens()->delete();
+                if ($record->user->email) {
+                    Mail::to($record->user->email)->queue(new ResellerRefused($record));
+                }
                 Notification::make()->title("Compte {$record->company} refusé")->send();
             });
     }

@@ -1,0 +1,16 @@
+import { chromium } from "@playwright/test";
+const b = await chromium.launch();
+const p = await b.newPage();
+p.on("request", (r) => r.method() === "POST" && console.log("POST", r.url()));
+p.on("response", async (r) => r.request().method() === "POST" && console.log("resp", r.status(), (await r.text()).slice(0, 300)));
+p.on("pageerror", (e) => console.log("pageerror:", e.message));
+await p.goto("http://localhost:8080/demander-un-devis", { waitUntil: "networkidle", timeout: 180000 });
+await p.locator("#q-name").fill("Karim Benali");
+await p.locator("#q-phone").fill("06 61 23 45 67");
+console.log("values", await p.locator("#q-name").inputValue(), await p.locator("#q-phone").inputValue());
+await p.waitForTimeout(3200);
+const [resp] = await Promise.all([p.waitForResponse((r) => r.url().includes("/api/forms/quote"), { timeout: 120000 }), p.getByRole("button", { name: "Envoyer ma demande" }).click()]);
+await p.waitForTimeout(500);
+p.on("framenavigated", () => console.log("navigated"));
+console.log("sent?", await p.getByText("Demande envoyée").count(), "errors", await p.locator("[role=alert]").allInnerTexts());
+await b.close();

@@ -793,7 +793,7 @@ Each phase ends with:
 - a comparison against the design file at 1440 and 390 (Playwright
   screenshots side by side with the design page rendered locally);
 - a list of deliberate deviations in `docs/deviations.md`;
-- a commit.
+- a report to the owner, who reviews and commits (agents never commit).
 
 | Phase | Scope |
 |---|---|

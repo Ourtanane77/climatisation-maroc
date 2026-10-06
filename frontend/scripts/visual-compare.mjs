@@ -3,10 +3,12 @@
 //   npx http-server ../design -p 5500   (or: python -m http.server 5500 -d ../design)
 //   node scripts/visual-compare.mjs <phase> [site=http://localhost:8080] [design=http://localhost:5500]
 //
-// Pairs are listed per phase below; output goes to test-results/visual/<phase>/.
+// Pairs are listed per phase below, or in scripts/visual/<phase>.mjs (default export: the pairs
+// array; optional named export `actions`). Output goes to test-results/visual/<phase>/.
 import { chromium } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const [phase = "phase-2", site = "http://localhost:8080", design = "http://localhost:5500"] = process.argv.slice(2);
 
@@ -32,6 +34,13 @@ const actions = {
     await page.waitForTimeout(300);
   },
 };
+
+const extra = path.resolve("scripts/visual", `${phase}.mjs`);
+if (existsSync(extra)) {
+  const mod = await import(pathToFileURL(extra).href);
+  PAIRS[phase] = mod.default;
+  Object.assign(actions, mod.actions ?? {});
+}
 
 const out = path.resolve("test-results/visual", phase);
 mkdirSync(out, { recursive: true });

@@ -72,3 +72,20 @@ export function computePower(input: PowerInput): PowerResult {
 
   return { need, tierIndex, tier: POWER_TIERS[tierIndex], reasons, explanation };
 }
+
+/** Call to action of the result: the murals of that power, or the gainables beyond 24 000 BTU. */
+export function powerCta(tierIndex: number): { label: string; href: string } {
+  const tier = POWER_TIERS[tierIndex];
+  return tierIndex < 4
+    ? { label: `Voir les climatiseurs ${tier.label}`, href: `/climatisation/mural?puissance=${tier.btu}` }
+    : { label: "Voir les gainables", href: "/climatisation/gainable" };
+}
+
+/**
+ * The two-setting widgets (home power finder, article calculator): surface and sun only.
+ * `bumped` is true when a very sunny room moves the result up a tier ("Conseillé · soleil").
+ */
+export function quickPower(surface: number, sun: Sun): { tierIndex: number; bumped: boolean } {
+  const { tierIndex } = computePower({ surface, sun });
+  return { tierIndex, bumped: sun === "forte" && tierIndex > computePower({ surface }).tierIndex };
+}

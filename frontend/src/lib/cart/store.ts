@@ -5,7 +5,7 @@
  * server, see docs/plan.md §6). The cookie lets server components render the header count.
  */
 import { useSyncExternalStore } from "react";
-import { CART_COOKIE, MAX_QTY, parseCart, serializeCart, type CartLine } from "./cookie";
+import { CART_COOKIE, MAX_QTY, VISIT_COOKIE, parseCart, serializeCart, type CartLine } from "./cookie";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -50,6 +50,12 @@ export function removeFromCart(sku: string) {
 
 export function clearCart() {
   write([]);
+  setTechnicalVisit(false);
+}
+
+/** Remembers the technical visit option (`cm_visit`) between the product page and the checkout. */
+export function setTechnicalVisit(on: boolean) {
+  document.cookie = on ? `${VISIT_COOKIE}=1; Path=/; Max-Age=${60 * 60 * 24 * 30}; SameSite=Lax` : `${VISIT_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
 }
 
 function subscribe(listener: Listener) {
@@ -61,6 +67,11 @@ const EMPTY: CartLine[] = [];
 
 export function useCart(): CartLine[] {
   return useSyncExternalStore(subscribe, getCart, () => EMPTY);
+}
+
+/** Basket lines, or null during server rendering and hydration (the caller supplies its own). */
+export function useCartLines(): CartLine[] | null {
+  return useSyncExternalStore(subscribe, getCart, () => null);
 }
 
 export function useCartCount(initial = 0): number {

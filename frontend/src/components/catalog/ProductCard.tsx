@@ -127,8 +127,9 @@ export function ProductCard({
             {added ? "Ajouté au panier ✓" : "Ajouter au panier"}
           </button>
         )}
-        {compareSlot}
       </div>
+      {/* Category page: "Comparer" checkbox on its own row, bottom right (design). */}
+      {compareSlot ? <div className="-mt-1 flex justify-end">{compareSlot}</div> : null}
     </article>
   );
 }

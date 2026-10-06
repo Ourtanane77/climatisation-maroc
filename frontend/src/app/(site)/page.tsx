@@ -1,18 +1,73 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { ProductCard } from "@/components/catalog/ProductCard";
+import { Bento } from "@/components/home/Bento";
+import { BrandMarquee } from "@/components/home/BrandMarquee";
+import { HomeHero } from "@/components/home/HomeHero";
+import { DuctCard, InstallCard, SupplyCard } from "@/components/home/MiniCards";
+import { ProBlock } from "@/components/home/ProBlock";
+import { PromotionsRail } from "@/components/home/PromotionsRail";
+import { RailSection } from "@/components/home/Rail";
+import { SLOT } from "@/components/home/slot";
+import { cn } from "@/lib/cn";
+import { getHome } from "@/lib/home/api";
+import { SITE_NAME } from "@/lib/site";
 
-/** Home page placeholder: the full design (hero, power finder, bento, rails) is built in phase 7. */
-export default function HomePage() {
+export const metadata: Metadata = {
+  title: { absolute: `${SITE_NAME} · Jusqu'à -30 % sur les climatiseurs · Ariha Froid` },
+  alternates: { canonical: "/" },
+};
+
+/** Home page (design/Accueil.dc.html). Sections without data are left out. */
+export default async function HomePage() {
+  const home = await getHome();
+
   return (
-    <section className="flex flex-col gap-6 py-16">
-      <h1 className="m-0 max-w-[900px] text-[38px] leading-[1.02] font-extrabold tracking-[-0.035em] text-balance md:text-[52px] xl:text-[62px]">
-        Jusqu&apos;à -30 % sur toute la gamme de climatiseurs
-      </h1>
-      <p className="m-0 text-xl font-semibold">Le confort au cœur de votre quotidien</p>
-      {process.env.NODE_ENV !== "production" && (
-        <p className="text-muted m-0">
-          Site en construction. Composants : <Link href="/styleguide">/styleguide</Link>
-        </p>
+    <>
+      <HomeHero hero={home.hero} whatsapp={home.whatsapp} />
+      {home.bento.length > 0 && <Bento tiles={home.bento} />}
+
+      {home.newProducts.length > 0 && (
+        <RailSection id="nouveautes" headingId="h-new" title="Nouveaux produits">
+          {home.newProducts.map((p) => (
+            <div key={p.href} className={cn(SLOT, "flex *:w-full")}>
+              <ProductCard product={p} imageHeight={180} />
+            </div>
+          ))}
+        </RailSection>
       )}
-    </section>
+
+      {home.promotions.products.length > 0 && <PromotionsRail brands={home.promotions.brands} products={home.promotions.products} />}
+
+      {home.ducts.length > 0 && (
+        <RailSection
+          id="gaines"
+          headingId="h-gai"
+          title="Gaines circulaires"
+          arrows
+          actions={
+            <Link href="/gaines" className="text-[15px] font-bold underline">
+              Voir toutes les gaines
+            </Link>
+          }
+        >
+          {home.ducts.map((d) => (
+            <DuctCard key={d.sku} duct={d} />
+          ))}
+        </RailSection>
+      )}
+
+      {home.supplies.length > 0 && (
+        <RailSection id="cuivre" headingId="h-ins" title="Cuivre, gaz et pièces de rechange" arrows align="end">
+          {home.supplies.map((p) => (
+            <SupplyCard key={p.href} product={p} />
+          ))}
+          <InstallCard />
+        </RailSection>
+      )}
+
+      <BrandMarquee brands={home.brands} />
+      <ProBlock phone={home.pro.phone} />
+    </>
   );
 }

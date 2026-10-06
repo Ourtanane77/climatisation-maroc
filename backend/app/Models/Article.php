@@ -9,10 +9,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Blog article. `body` holds Filament Builder blocks [{type, data}]: paragraph, h2, h3, callout,
  * tip, figure, calculator, power_table, products.
+ *
+ * @property array<int, array<string, mixed>>|null $body
+ * @property Carbon|null $published_at
  */
 class Article extends Model implements HasPublicUrl
 {

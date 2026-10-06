@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $slug
  * @property string|null $logo
  * @property bool $is_official_distributor
+ * @property list<array{title: string, text: string, icon: string}>|null $features
  */
 class Brand extends Model implements HasPublicUrl
 {
@@ -26,6 +27,7 @@ class Brand extends Model implements HasPublicUrl
     {
         return [
             'logo_aspect' => 'float',
+            'features' => 'array',
             'is_official_distributor' => 'boolean',
             'is_active' => 'boolean',
         ];

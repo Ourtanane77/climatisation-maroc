@@ -97,7 +97,7 @@ export function PasswordInput({ invalid, id, ...rest }: Omit<InputProps, "type">
         type="button"
         onClick={() => setShown(!shown)}
         aria-pressed={shown}
-        className="rounded-10 text-brand hover:bg-tint-blue absolute top-1.5 right-1.5 h-10 px-3 text-sm font-bold"
+        className="rounded-10 bg-bg text-ink hover:bg-tint-blue absolute top-1 right-1 h-11 px-3.5 text-sm font-bold"
       >
         {shown ? "Masquer" : "Afficher"}
       </button>

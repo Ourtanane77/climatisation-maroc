@@ -102,7 +102,20 @@ export interface ProductCardData {
   dark?: boolean;
   badge?: { text: string; tone: "promo" | "brand" } | null;
   options?: ProductOption[];
+  /** At least one variant can be ordered. */
+  inStock?: boolean;
 }
+
+/** GET /api/v1/resolve?path= : what a free-form path is (catch-all routes). */
+export type Resolved =
+  | { type: "category"; path: string; template: "landing" | "listing" | "dense"; isRoot: boolean }
+  | { type: "page"; slug: string; kind: "legal" | "about" | "delivery" | "other" }
+  | { type: "city"; slug: string }
+  | { type: "redirect"; to: string; status: number }
+  | { type: "none" };
+
+/** Search params as Next passes them to pages. */
+export type SearchParams = Record<string, string | string[] | undefined>;
 
 export interface DenseRowData {
   name: string;

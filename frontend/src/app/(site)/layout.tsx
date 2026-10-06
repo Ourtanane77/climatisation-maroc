@@ -1,13 +1,15 @@
+import { AccountBar } from "@/components/layout/AccountBar";
 import { PromoBar } from "@/components/layout/PromoBar";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ToastHost } from "@/components/ui/Toast";
 import { initialCartCount, logoSrc } from "@/lib/chrome";
 import { getNavigation } from "@/lib/navigation";
+import { getReseller } from "@/lib/pro/session";
 
 /** Standard page chrome: promo bar, header, footer (every page except the checkout). */
 export default async function SiteLayout({ children }: LayoutProps<"/">) {
-  const [nav, count] = await Promise.all([getNavigation(), initialCartCount()]);
+  const [nav, count, reseller] = await Promise.all([getNavigation(), initialCartCount(), getReseller().catch(() => null)]);
   const logo = logoSrc();
   return (
     <>
@@ -16,6 +18,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       </a>
       <PromoBar promo={nav.promoBar} />
       <SiteHeader nav={nav} logoSrc={logo} initialCartCount={count} />
+      {reseller && <AccountBar reseller={reseller} />}
       <main id="contenu" className="mx-auto box-border px-4 pb-10 md:px-10 md:pb-14">
         {children}
       </main>

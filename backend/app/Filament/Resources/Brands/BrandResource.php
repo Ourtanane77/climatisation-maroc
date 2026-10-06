@@ -9,6 +9,8 @@ use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -54,6 +56,13 @@ class BrandResource extends Resource
                 Toggle::make('is_official_distributor')->label('Distributeur officiel'),
                 Toggle::make('is_active')->label('Active')->default(true),
             ]),
+            Repeater::make('features')->label('Technologies (page marque)')->columnSpanFull()->columns(2)
+                ->schema([
+                    TextInput::make('title')->label('Titre')->required(),
+                    Select::make('icon')->label('Icône')->options(Fields::ICON_KEYS)->required(),
+                    Textarea::make('text')->label('Texte')->rows(2)->required()->columnSpanFull(),
+                ])
+                ->defaultItems(0)->collapsible()->reorderable(),
             Fields::faq()->columnSpanFull(),
             Fields::seo()->columnSpanFull(),
         ]);

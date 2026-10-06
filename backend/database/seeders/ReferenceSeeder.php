@@ -80,6 +80,13 @@ class ReferenceSeeder extends Seeder
         }
 
         $lg = Brand::query()->where('slug', 'lg')->firstOrFail();
+        // "Les technologies LG" (design: Marque LG).
+        $lg->update(['features' => [
+            ['title' => 'Dual Inverter', 'text' => 'Le compresseur ajuste sa vitesse : moins de bruit, jusqu’à 70 % d’électricité en moins.', 'icon' => 'fan'],
+            ['title' => 'Tropical T3', 'text' => 'Conçu pour fonctionner par fortes chaleurs.', 'icon' => 'unit'],
+            ['title' => 'Wi-Fi ThinQ', 'text' => 'Pilotez le climatiseur depuis votre téléphone avec LG ThinQ.', 'icon' => 'list'],
+            ['title' => 'Fonctionnement silencieux', 'text' => 'Un appareil discret, de jour comme de nuit.', 'icon' => 'snow'],
+        ]]);
         $lg->seo()->updateOrCreate([], [
             'title' => 'Climatiseurs LG au Maroc · Distributeur officiel',
             'h1' => 'Climatiseurs LG au Maroc',

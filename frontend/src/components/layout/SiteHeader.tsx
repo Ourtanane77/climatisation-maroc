@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "@/components/ui/Toast";
 import { BurgerIcon, CartIcon, ChevronDownIcon, CloseIcon, SearchIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { addToCart, useCartCount } from "@/lib/cart/store";
@@ -168,14 +169,9 @@ export function SiteHeader({
                 )}
               </div>
               {scope !== nav.searchScopes[0] && <input type="hidden" name="gamme" value={scope} />}
-              <input
-                name="q"
-                type="search"
-                placeholder={placeholder}
-                aria-label="Rechercher"
-                autoComplete="off"
-                className="h-full min-w-0 flex-1 border-0 bg-transparent px-[18px] text-base outline-none"
-              />
+              <Suspense fallback={<SearchInput placeholder={placeholder} />}>
+                <SearchInputWithTerm placeholder={placeholder} />
+              </Suspense>
               <button
                 type="submit"
                 aria-label="Lancer la recherche"
@@ -409,4 +405,27 @@ export function SiteHeader({
       <MobileDrawer open={drawer} onClose={() => setDrawer(false)} nav={nav} logoSrc={logoSrc} />
     </>
   );
+}
+
+const searchInputClass = "h-full min-w-0 flex-1 border-0 bg-transparent px-[18px] text-base outline-none";
+
+function SearchInput({ placeholder, defaultValue }: { placeholder: string; defaultValue?: string }) {
+  return (
+    <input
+      key={defaultValue}
+      name="q"
+      type="search"
+      placeholder={placeholder}
+      defaultValue={defaultValue}
+      aria-label="Rechercher"
+      autoComplete="off"
+      className={searchInputClass}
+    />
+  );
+}
+
+/** On the results page the box keeps the searched term (design: Recherche). */
+function SearchInputWithTerm({ placeholder }: { placeholder: string }) {
+  const term = useSearchParams().get("q") ?? "";
+  return <SearchInput placeholder={placeholder} defaultValue={term} />;
 }

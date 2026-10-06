@@ -1,6 +1,8 @@
 /** Cart cookie format, shared by the client store and server components. */
 
 export const CART_COOKIE = "cm_cart";
+/** "1" when the technical visit was ticked on a product page; pre-ticks the checkout option. */
+export const VISIT_COOKIE = "cm_visit";
 export const MAX_QTY = 999;
 export const MAX_LINES = 100;
 

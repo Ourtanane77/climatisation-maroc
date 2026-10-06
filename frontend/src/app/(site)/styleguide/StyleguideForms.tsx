@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Checkbox, ChipGroup, Field, FileDrop, PasswordInput, SegmentedToggle, Select, TextInput, Textarea } from "@/components/forms/fields";
 import { Button } from "@/components/ui/Button";
 import { PHONE_ERROR_CHECKOUT, isValidMoroccanPhone } from "@/lib/phone";
@@ -74,9 +75,9 @@ export function StyleguideForms() {
       <ChipGroup label="Type de projet" options={PROJETS} value={projet} onChange={setProjet} />
       <Checkbox checked={cgv} onChange={setCgv}>
         J&apos;accepte les{" "}
-        <a href="/cgv" className="underline">
+        <Link href="/cgv" className="underline">
           conditions générales de vente
-        </a>
+        </Link>
       </Checkbox>
       <Button variant="orange" className="self-start">
         Envoyer ma demande

@@ -25,7 +25,9 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
 - **Prices are always computed on the server.** A reseller sees the pro price
   where set; the public never does.
 - The plan lives in `docs/plan.md`. Update it when a decision changes.
-- Run the tests and linters before committing. Make **one commit per phase**.
+- **Never commit, push or create branches.** The owner commits. Leave changes
+  in the working tree, run the tests and linters, and report what changed so
+  the owner can review and commit.
 
 ## Stack
 
