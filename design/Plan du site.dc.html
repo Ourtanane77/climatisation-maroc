@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F4F6F8;font-family:'Figtree',system-ui,sans-serif;color:#1A1A1A}a{color:#0B5CAD;text-decoration:none}a:hover{color:#F4731F}</style>
+</helmet>
+<section data-screen-label="Plan du site" style="padding:80px">
+<div style="width:1760px;background:#fff;border-radius:28px;padding:56px;box-sizing:border-box;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+<div><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:56px;display:block;margin-bottom:20px"><h1 style="margin:0;font-size:44px;letter-spacing:-0.03em;font-weight:700">Plan du site</h1></div>
+<div style="display:flex;gap:18px;font-size:14px;color:#5F6368"><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:4px;background:#0B5CAD"></span>Page</span><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:4px;background:#E8EFF8;box-shadow:inset 0 0 0 1.5px #0B5CAD"></span>Sous-page</span><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:4px;background:#FDEBDD;box-shadow:inset 0 0 0 1.5px #F4731F"></span>Sur devis</span></div>
+</div>
+<div style="display:flex;justify-content:center"><a href="Accueil v9.dc.html" style="background:#0B5CAD;color:#fff;border-radius:16px;padding:16px 40px;font-size:22px;font-weight:700">Accueil</a></div>
+<div style="height:2px;background:#E3E8EE;margin:0 90px"></div>
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:20px;align-items:start">
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="6">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="background:#0B5CAD;color:#fff;border-radius:14px;padding:14px 18px;font-size:19px;font-weight:700">{{ g.t }}</div>
+<sc-for list="{{ g.items }}" as="it" hint-placeholder-count="5">
+<div style="margin-left:14px;border-left:2px solid #E3E8EE;padding-left:14px;display:flex;flex-direction:column;gap:6px">
+<div style="background:{{ it.bg }};box-shadow:inset 0 0 0 1.5px {{ it.line }};border-radius:12px;padding:10px 14px;font-size:16px;font-weight:700">{{ it.t }}</div>
+<sc-if value="{{ it.hasSub }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 6px">
+<sc-for list="{{ it.sub }}" as="s" hint-placeholder-count="3"><span style="font-size:13px;color:#3C4043;background:#F4F6F8;border-radius:999px;padding:5px 10px">{{ s }}</span></sc-for>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const G=[
+['Catalogue',[['Climatisation',['Mural','Gainable','Cassette','Console et armoire']],['Chauffe-eau',['À gaz','Électrique','Solaire','Chaudière']],['Ventilation et gaines',['Ventilateurs de gaine','Multizone','Gaines circulaires','Grilles et diffuseurs']],['Cuivre et gaz',['Cuivre','Kits duo','Isolant','Gaz frigorifique']],['Pièces et consommables',['Télécommandes','Supports','Adhésifs et mastics','Trappes de visite','Outillage']],['Froid et chambres froides',['Sur devis'],'devis'],['Promotions',[]],['Marques',['LG','Carrier','CIAT','Fitco','Simsek']]]],
+['Services',[['Installation',['Sur devis'],'devis'],['Visite technique',['300 Dhs']],['Service après-vente et garantie',[]],['Livraison et paiement',[]]]],
+['Guides',[['Calculateur de puissance',[]],['Bien choisir son climatiseur',[]],['Inverter ou On/Off',[]],['Mural, gainable ou cassette',[]]]],
+['Professionnels',[['Présentation',[]],['Devenir revendeur',[]],['Connexion',[]],['Commande rapide par référence',[]],['Projets et chantiers',[]]]],
+['Achat',[['Panier',['Commande','Confirmation']],['Suivre ma commande',[]],['Demander un devis',['Particulier','Professionnel'],'devis']]],
+['Entreprise',[['À propos',[]],['Nos magasins et contact',[]],['Conditions de vente',[]],['Mentions légales',[]],['Confidentialité',[]]]]];
+class Component extends DCLogic {
+  renderVals(){return{groups:G.map(([t,items])=>({t,items:items.map(([n,sub,k])=>({t:n,sub,hasSub:sub.length>0,bg:k==='devis'?'#FDEBDD':'#E8EFF8',line:k==='devis'?'#F4731F':'#0B5CAD'}))}))};}
+}
+</script>
+</body>
+</html>

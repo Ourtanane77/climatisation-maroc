@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Quelle puissance de climatiseur pour ma pièce ? · Climatisation Maroc</title>
+<meta name="description" content="Climatisation Maroc, boutique d'Ariha Froid à Marrakech depuis 2008. Climatiseurs LG, Carrier, CIAT, Fitco, chauffe-eau, gaines, cuivre et pièces. Livraison gratuite partout au Maroc, paiement à la livraison.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script src="./art.js"></script>
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:#F4F6F8;font-family:'Figtree',system-ui,sans-serif;color:#1A1A1A;font-size:16px;-webkit-font-smoothing:antialiased}
+a{color:#0B5CAD;text-decoration:none}
+a:hover{color:#F4731F}
+button,input,select{font-family:inherit;color:inherit}
+@keyframes rise{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<div style="background:#0B5CAD;color:#fff;font-size:14px;font-weight:600;min-height:40px;display:flex;align-items:center;justify-content:center;gap:14px;padding:6px 16px;text-align:center;flex-wrap:wrap">
+<span>Super promo : jusqu'à -30 % sur les climatiseurs</span><a href="Promotions.dc.html" style="color:#fff;text-decoration:underline;font-weight:700" style-hover="color:#FDEBDD">Voir les promotions</a>
+</div>
+
+<div style="height:{{ spacerH }}px"></div>
+<header onMouseLeave="{{ closeMega }}" style="position:{{ headPos }};top:0;left:0;right:0;z-index:30;transform:translateY({{ headY }});transition:transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .3s;background:#fff;box-shadow:{{ navShadow }}">
+<div style="max-width:{{ cmax }}px;box-sizing:border-box;margin:0 auto;padding:0 {{ gutter }}px">
+<div style="height:{{ headH }}px;transition:height .3s ease;display:flex;align-items:center;gap:clamp(12px,2vw,28px)">
+<sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleDrawer }}" aria-label="Menu" style="flex-shrink:0;width:44px;height:44px;border-radius:50%;border:0;background:#F4F6F8;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round"><path d="{{ burger }}"></path></svg></button></sc-if>
+<a href="Accueil.dc.html" style="display:flex;flex-shrink:0"><img src="uploads/pasted-1791221833312-0.png" alt="Climatisation Maroc · Ariha Froid" style="height:{{ logoH }}px;display:block"></a>
+<sc-if value="{{ showSearch }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;min-width:0;max-width:600px;height:48px;border-radius:999px;border:1.5px solid #E3E8EE;background:#F4F6F8;display:flex;align-items:center;position:relative" style-hover="border-color:#C9D3DE">
+<div data-dd="1" style="position:relative;height:100%;flex-shrink:0;display:flex;align-items:center"><button type="button" onClick="{{ scopeDD.toggle }}" aria-haspopup="listbox" aria-expanded="{{ scopeDD.open }}" style="height:100%;border:0;border-right:1.5px solid #E3E8EE;background:#fff;border-radius:999px 0 0 999px;padding:0 14px 0 20px;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap">{{ scope }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate({{ scopeDD.rot }}deg);transition:transform .2s"><path d="M6 9l6 6 6-6"></path></svg></button>
+<sc-if value="{{ scopeDD.isOpen }}" hint-placeholder-val="{{ false }}"><div role="listbox" style="position:absolute;top:calc(100% + 8px);left:0;min-width:240px;z-index:50;background:#fff;border-radius:18px;padding:6px;box-shadow:0 24px 50px -20px rgba(14,40,70,0.4), 0 0 0 1px #E6EBF0;display:flex;flex-direction:column;gap:2px;animation:rise .18s ease">
+<sc-for list="{{ scopeDD.items }}" as="it" hint-placeholder-count="3"><button type="button" role="option" aria-selected="{{ it.sel }}" onClick="{{ it.pick }}" style="height:42px;padding:0 14px;border-radius:12px;border:0;background:{{ it.bg }};color:{{ it.color }};display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:15px;font-weight:600;text-align:left;cursor:pointer;white-space:nowrap" style-hover="background:#E8EFF8;color:#0B5CAD">{{ it.l }}<span style="color:#0B5CAD;font-weight:800">{{ it.mark }}</span></button></sc-for>
+</div></sc-if></div>
+<input value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onQKey }}" placeholder="{{ qPh }}" aria-label="Rechercher" style="flex:1;min-width:0;height:100%;border:0;background:transparent;padding:0 18px;font-size:16px;outline:none">
+<span style="width:40px;height:40px;margin-right:4px;border-radius:50%;background:#0B5CAD;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M10.5 18a7.5 7.5 0 1 0 0-15a7.5 7.5 0 1 0 0 15z M16 16l5 5"></path></svg></span>
+</div>
+</sc-if>
+<div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+<sc-if value="{{ showWA }}" hint-placeholder-val="{{ true }}">
+<a href="https://wa.me/212666854184" style="display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:#1A1A1A;white-space:nowrap" style-hover="color:#0B5CAD"><span style="width:36px;height:36px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="" width="19" height="19" style="display:block"></span>0666-854184</a>
+</sc-if>
+<sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleMS }}" aria-label="Rechercher" style="width:44px;height:44px;border-radius:50%;border:0;background:#F4F6F8;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round"><path d="M10.5 18a7.5 7.5 0 1 0 0-15a7.5 7.5 0 1 0 0 15z M16 16l5 5"></path></svg></button></sc-if>
+<a href="Panier.dc.html" style="height:{{ cartH }}px;padding:0 6px 0 {{ cartPadL }}px;border-radius:999px;background:#F4731F;color:#fff;display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;transition:background .2s" style-hover="background:#D85A17;color:#fff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 8H6.2"></path><path d="M9 20.5a1 1 0 1 0 0.01 0 M17 20.5a1 1 0 1 0 0.01 0"></path></svg>{{ cartLabel }}<span style="min-width:36px;height:36px;border-radius:18px;background:#fff;color:#C4501A;font-size:14px;display:flex;align-items:center;justify-content:center;padding:0 6px">{{ count }}</span></a>
+<sc-if value="{{ never }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleDrawer }}" aria-label="Menu" style="width:48px;height:48px;border-radius:50%;border:0;background:#F4F6F8;font-size:15px;font-weight:700;cursor:pointer">{{ drawerIcon }}</button></sc-if>
+</div>
+</div>
+<sc-if value="{{ msOpen }}" hint-placeholder-val="{{ false }}"><div style="padding:0 0 12px"><div style="height:48px;border-radius:999px;border:1.5px solid #0B5CAD;background:#fff;display:flex;align-items:center;padding:0 6px 0 18px"><input value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onQKey }}" placeholder="Rechercher un produit ou une référence" aria-label="Rechercher" style="flex:1;min-width:0;border:0;outline:none;font-size:16px;background:transparent"><button onClick="{{ toggleMS }}" aria-label="Fermer" style="width:36px;height:36px;border-radius:50%;border:0;background:#F4F6F8;font-size:16px;cursor:pointer">✕</button></div></div></sc-if>
+<sc-if value="{{ tabletNav }}" hint-placeholder-val="{{ false }}"><nav aria-label="Principal" style="height:52px;display:flex;align-items:center;gap:8px;border-top:1px solid #EEF1F4;font-size:15px;font-weight:600;white-space:nowrap">
+<div style="flex:1;min-width:0;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;margin-left:-10px;-webkit-mask-image:linear-gradient(to right,#000 90%,transparent);mask-image:linear-gradient(to right,#000 90%,transparent)"><sc-for list="{{ navL }}" as="n" hint-placeholder-count="7"><a href="{{ n.href }}" style="flex-shrink:0;color:{{ n.color }};padding:10px 10px;border-radius:999px" style-hover="background:#E8EFF8">{{ n.l }}</a></sc-for></div>
+<div data-dd="1" style="position:relative;flex-shrink:0"><button type="button" onClick="{{ plusDD.toggle }}" aria-expanded="{{ plusDD.open }}" style="height:40px;padding:0 14px;border-radius:999px;border:1.5px solid #D5DCE3;background:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">Plus<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg></button>
+<sc-if value="{{ plusDD.isOpen }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:0;top:calc(100% + 8px);z-index:50;min-width:220px;background:#fff;border-radius:18px;padding:6px;box-shadow:0 24px 50px -20px rgba(14,40,70,0.4), 0 0 0 1px #E6EBF0;display:flex;flex-direction:column"><sc-for list="{{ navR }}" as="n" hint-placeholder-count="3"><a href="{{ n.href }}" style="height:44px;padding:0 14px;border-radius:12px;display:flex;align-items:center;font-size:15px;font-weight:600;color:{{ n.color }}" style-hover="background:#E8EFF8">{{ n.l }}</a></sc-for></div></sc-if>
+</div>
+</nav></sc-if>
+<sc-if value="{{ fullHeader }}" hint-placeholder-val="{{ true }}">
+<nav aria-label="Principal" style="height:52px;display:flex;align-items:center;gap:0;border-top:1px solid #EEF1F4;font-size:{{ navFs }}px;font-weight:600;white-space:nowrap;margin:0 -10px">
+<sc-for list="{{ navL }}" as="n" hint-placeholder-count="7"><a href="{{ n.href }}" onMouseEnter="{{ n.enter }}" onFocus="{{ n.enter }}" style="color:{{ n.color }};padding:9px {{ navPad }}px;border-radius:999px;background:{{ n.bg }};transition:background .2s" style-hover="background:#E8EFF8">{{ n.l }}</a></sc-for>
+<span style="flex:1"></span>
+<sc-for list="{{ navR }}" as="n" hint-placeholder-count="3"><a href="{{ n.href }}" onMouseEnter="{{ closeMega }}" style="color:{{ n.color }};padding:9px {{ navPad }}px;border-radius:999px" style-hover="background:#E8EFF8">{{ n.l }}</a></sc-for>
+</nav>
+</sc-if>
+</div>
+<sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:0;right:0;top:100%;padding:0 {{ gutter }}px">
+<div style="margin:0 auto;background:#fff;border-radius:0 0 24px 24px;box-shadow:0 30px 60px -30px rgba(14,40,70,0.45);padding:28px;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 340px;gap:32px;animation:rise .25s ease">
+<div><div style="font-size:14px;color:#5F6368;margin-bottom:10px">{{ mega.t }}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+<sc-for list="{{ mega.subs }}" as="sb" hint-placeholder-count="4"><a href="{{ mega.href }}" style="padding:12px 14px;border-radius:12px;font-size:17px;font-weight:600;color:#1A1A1A" style-hover="background:#E8EFF8;color:#0B5CAD">{{ sb }}</a></sc-for>
+</div>
+<a href="{{ mega.href }}" style="display:inline-block;margin:14px 0 0 14px;font-size:15px;font-weight:700">Voir toute la gamme →</a>
+</div>
+<div><div style="font-size:14px;color:#5F6368;margin-bottom:10px">Marques</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{ mega.brands }}" as="mb" hint-placeholder-count="3"><a href="{{ mb.href }}" style="height:44px;padding:0 18px;border-radius:999px;background:#F4F6F8;color:#1A1A1A;display:flex;align-items:center;font-size:15px;font-weight:700" style-hover="background:#E8EFF8;color:#0B5CAD">{{ mb.n }}</a></sc-for></div>
+</div>
+<div style="background:#E8EFF8;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px">
+<div style="height:170px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box">{{ mega.art }}</div>
+<div style="font-size:16px;font-weight:600;line-height:1.3">{{ mega.pName }}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-size:22px;font-weight:800">{{ mega.pPrice }}</span><button onClick="{{ mega.add }}" style="height:42px;padding:0 16px;border-radius:999px;border:0;background:#0B5CAD;color:#fff;font-size:14px;font-weight:700;cursor:pointer" style-hover="background:#084683">Ajouter au panier</button></div>
+</div>
+</div>
+</div>
+</sc-if>
+
+</header>
+<sc-if value="{{ drawer }}" hint-placeholder-val="{{ false }}">
+<nav aria-label="Menu mobile" style="position:fixed;inset:0;z-index:60;background:#fff;overflow-y:auto;padding:0 16px 32px;display:flex;flex-direction:column">
+<div style="position:sticky;top:0;z-index:2;background:#fff;height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #EEF1F4;margin:0 -16px 8px;padding:0 16px"><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:36px;display:block"><button onClick="{{ toggleDrawer }}" aria-label="Fermer le menu" style="width:44px;height:44px;border-radius:50%;border:0;background:#F4F6F8;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12 M18 6L6 18"></path></svg></button></div>
+<sc-for list="{{ accs }}" as="a" hint-placeholder-count="6"><div style="border-bottom:1px solid #EEF1F4">
+<button onClick="{{ a.toggle }}" aria-expanded="{{ a.open }}" style="width:100%;min-height:56px;border:0;background:none;display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;cursor:pointer;padding:0 4px">{{ a.t }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.4" stroke-linecap="round" style="transform:rotate({{ a.rot }}deg);transition:transform .2s"><path d="M6 9l6 6 6-6"></path></svg></button>
+<sc-if value="{{ a.isOpen }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;padding:0 4px 12px"><sc-for list="{{ a.subs }}" as="sb" hint-placeholder-count="4"><a href="{{ sb.href }}" style="min-height:44px;display:flex;align-items:center;font-size:16px;color:#3C4043">{{ sb.l }}</a></sc-for><a href="{{ a.href }}" style="min-height:44px;display:flex;align-items:center;font-size:16px;font-weight:700">Voir toute la gamme</a></div></sc-if>
+</div></sc-for>
+<sc-for list="{{ drawerMore }}" as="n" hint-placeholder-count="4"><a href="{{ n.href }}" style="min-height:56px;display:flex;align-items:center;padding:0 4px;border-bottom:1px solid #EEF1F4;font-size:17px;font-weight:700;color:{{ n.color }}">{{ n.l }}</a></sc-for>
+<a href="tel:+212666854184" style="margin-top:20px;min-height:52px;border-radius:999px;border:1.5px solid #1A1A1A;color:#1A1A1A;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Appeler le 0666-854184</a>
+<a href="https://wa.me/212666854184" style="margin-top:10px;min-height:52px;border-radius:999px;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">WhatsApp</a>
+</nav>
+</sc-if>
+
+<main style="max-width:{{ cmax }}px;box-sizing:border-box;margin:0 auto;padding:0 {{ gutter }}px {{ secGap }}px">
+<nav aria-label="Fil d'Ariane" style="padding-top:24px;display:flex;gap:8px;flex-wrap:wrap;font-size:14px;color:#5F6368"><sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="3"><a href="{{ c.href }}" style="color:{{ c.color }};font-weight:{{ c.w }}" style-hover="color:#0B5CAD">{{ c.l }}</a><span style="color:#9AA3AD">{{ c.sep }}</span></sc-for></nav>
+<header style="padding-top:24px;display:flex;flex-direction:column;gap:16px;max-width:900px"><span style="align-self:flex-start;font-size:14px;font-weight:700;color:#0B5CAD;background:#E8EFF8;border-radius:8px;padding:4px 10px;line-height:1.2">Guides d’achat</span><h1 style="margin:0;font-size:{{ h1Size }}px;line-height:1.05;letter-spacing:-0.03em;font-weight:700;text-wrap:balance">Quelle puissance de climatiseur pour ma pièce ?</h1><div style="display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;font-size:15px;color:#5F6368"><span>[DATE]</span><span style="display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5F6368" stroke-width="2" stroke-linecap="round"><path d="M12 21a9 9 0 1 0 0-18a9 9 0 1 0 0 18z M12 7v5l3 2"></path></svg>6 min de lecture</span></div></header>
+<div style="padding-top:32px;display:grid;grid-template-columns:{{ artCols }};gap:56px;align-items:start">
+<article style="min-width:0;max-width:720px;display:flex;flex-direction:column;gap:20px">
+<aside aria-label="En bref" style="background:#fff;border-radius:20px;padding:24px 28px;display:flex;flex-direction:column;gap:12px;box-shadow:inset 0 0 0 1.5px #DCE5EF"><h2 style="margin:0;font-size:20px;font-weight:700">En bref</h2><ul style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px"><li style="font-size:18px;line-height:1.7;padding-left:4px">Comptez environ 600 BTU par m² de pièce.</li><li style="font-size:18px;line-height:1.7;padding-left:4px">12 000 BTU couvrent une pièce jusqu'à 20 m².</li><li style="font-size:18px;line-height:1.7;padding-left:4px">Prenez la puissance au-dessus si la pièce est très ensoleillée ou sous le toit.</li></ul></aside>
+<sc-if value="{{ mobToc }}" hint-placeholder-val="{{ false }}"><nav aria-label="Sommaire" style="background:#fff;border-radius:20px;overflow:hidden"><button onClick="{{ togToc }}" aria-expanded="{{ tocOpenA }}" style="width:100%;min-height:56px;border:0;background:none;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;color:#1A1A1A">Sommaire<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.4" stroke-linecap="round" style="transform:rotate({{ tocRot }}deg);transition:transform .2s"><path d="M6 9l6 6 6-6"></path></svg></button><sc-if value="{{ tocOpen }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;padding:0 20px 16px"><sc-for list="{{ toc }}" as="tc" hint-placeholder-count="5"><a href="{{ tc.href }}" onClick="{{ tc.go }}" aria-current="{{ tc.cur }}" style="min-height:40px;display:flex;align-items:center;padding:6px 0 6px 14px;border-left:3px solid {{ tc.bd }};font-size:15px;font-weight:{{ tc.w }};color:{{ tc.c }};line-height:1.35" style-hover="color:#0B5CAD">{{ tc.l }}</a></sc-for></div></sc-if></nav></sc-if>
+<p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">La puissance d'un climatiseur se mesure en BTU. Trop faible, l'appareil tourne sans arrêt sans jamais rafraîchir la pièce. Trop forte, il coûte plus cher à l'achat et refroidit par à-coups. Bonne nouvelle : pour une pièce d'habitation, le calcul tient en une ligne.</p>
+<h2 id="regle" style="margin:48px 0 0;font-size:{{ ah2 }}px;font-weight:700;letter-spacing:-0.02em;line-height:1.15;scroll-margin-top:110px;text-wrap:balance">La règle simple : 600 BTU par m²</h2>
+<p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Multipliez la surface de la pièce par 600. Une chambre de 15 m² demande environ 9 000 BTU, un salon de 20 m² environ 12 000 BTU. Cette règle vaut pour une hauteur sous plafond classique, autour de 2,5 m, et une exposition moyenne.</p>
+<figure style="margin:8px 0;display:flex;flex-direction:column;gap:10px"><div style="background:#DCE8F5;border-radius:20px;aspect-ratio:16 / 8;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box"><img src="uploads/clima-cut2.png" alt="Climatiseur mural LG Dual Inverter" style="width:86%;display:block;filter:drop-shadow(0 18px 22px rgba(14,40,70,0.22))"></div><figcaption style="font-size:15px;color:#5F6368;line-height:1.5">Un climatiseur mural LG Dual Inverter. La puissance figure dans le nom du modèle : 9 000, 12 000, 18 000 ou 24 000 BTU.</figcaption></figure>
+<div id="calcul" style="scroll-margin-top:110px;background:#0B5CAD;color:#fff;border-radius:24px;padding:{{ calcPad }}px;display:flex;flex-direction:column;gap:18px;margin:8px 0">
+<h3 style="margin:0;font-size:22px;font-weight:700;color:#fff">Calculez votre puissance</h3>
+<div style="display:grid;grid-template-columns:{{ calcCols }};gap:12px">
+<label style="display:flex;flex-direction:column;gap:8px;font-size:15px;font-weight:700">Surface de la pièce<div style="height:52px;border-radius:12px;background:#fff;display:flex;align-items:center;color:#1A1A1A"><button onClick="{{ surfDec }}" aria-label="Moins" style="width:48px;height:48px;border:0;background:none;font-size:20px;cursor:pointer">−</button><input value="{{ surface }}" onChange="{{ onSurface }}" inputmode="numeric" aria-label="Surface en m²" style="flex:1;min-width:0;border:0;outline:none;text-align:center;font-size:18px;font-weight:800;background:transparent;font-family:inherit"><span style="font-size:15px;font-weight:700;color:#5F6368">m²</span><button onClick="{{ surfInc }}" aria-label="Plus" style="width:48px;height:48px;border:0;background:none;font-size:20px;cursor:pointer">+</button></div></label>
+<div style="display:flex;flex-direction:column;gap:8px;font-size:15px;font-weight:700"><span>Ensoleillement</span><div role="radiogroup" style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ suns }}" as="sn" hint-placeholder-count="3"><button role="radio" aria-checked="{{ sn.on }}" onClick="{{ sn.pick }}" style="flex:1 1 auto;height:52px;padding:0 14px;border-radius:12px;border:1.5px solid {{ sn.bd }};background:{{ sn.bg }};color:{{ sn.color }};font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">{{ sn.l }}</button></sc-for></div></div>
+</div>
+<div style="background:#fff;color:#1A1A1A;border-radius:18px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;color:#3C4043">Puissance conseillée :</span><span style="font-size:30px;font-weight:800;letter-spacing:-0.02em">{{ rec }}</span><span style="font-size:14px;color:#3C4043">{{ recNote }}</span></div><a href="{{ recHref }}" style="height:56px;padding:0 28px;border-radius:999px;border:0;background:#F4731F;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;text-align:center;text-decoration:none;white-space:nowrap" style-hover="background:#D85A17;color:#fff;height:52px;padding:0 22px">{{ recCta }}</a></div>
+</div>
+<h2 id="tableau" style="margin:48px 0 0;font-size:{{ ah2 }}px;font-weight:700;letter-spacing:-0.02em;line-height:1.15;scroll-margin-top:110px;text-wrap:balance">Tableau des puissances</h2>
+<p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Les correspondances ci-dessous valent pour une pièce à exposition moyenne.</p>
+<div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px #E6EBF0"><table style="width:100%;border-collapse:collapse;font-size:17px"><thead><tr style="background:#F4F6F8"><th scope="col" style="text-align:left;padding:14px 20px;font-size:15px;font-weight:700;color:#3C4043">Puissance</th><th scope="col" style="text-align:left;padding:14px 20px;font-size:15px;font-weight:700;color:#3C4043">Surface de la pièce</th></tr></thead><tbody><tr style="border-top:1px solid #EEF1F4;background:{{ tb0 }}"><th scope="row" style="text-align:left;padding:14px 20px;font-weight:800;white-space:nowrap">9 000 BTU</th><td style="padding:14px 20px">Jusqu’à 15 m²</td></tr><tr style="border-top:1px solid #EEF1F4;background:{{ tb1 }}"><th scope="row" style="text-align:left;padding:14px 20px;font-weight:800;white-space:nowrap">12 000 BTU</th><td style="padding:14px 20px">Jusqu’à 20 m²</td></tr><tr style="border-top:1px solid #EEF1F4;background:{{ tb2 }}"><th scope="row" style="text-align:left;padding:14px 20px;font-weight:800;white-space:nowrap">18 000 BTU</th><td style="padding:14px 20px">Jusqu’à 30 m²</td></tr><tr style="border-top:1px solid #EEF1F4;background:{{ tb3 }}"><th scope="row" style="text-align:left;padding:14px 20px;font-weight:800;white-space:nowrap">24 000 BTU</th><td style="padding:14px 20px">Jusqu’à 40 m²</td></tr><tr style="border-top:1px solid #EEF1F4;background:{{ tb4 }}"><th scope="row" style="text-align:left;padding:14px 20px;font-weight:800;white-space:nowrap">30 000 BTU et plus</th><td style="padding:14px 20px">Au-delà de 40 m²</td></tr></tbody></table></div>
+<h2 id="au-dessus" style="margin:48px 0 0;font-size:{{ ah2 }}px;font-weight:700;letter-spacing:-0.02em;line-height:1.15;scroll-margin-top:110px;text-wrap:balance">Quand prendre la puissance au-dessus</h2>
+<p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Certaines pièces chauffent plus que d'autres. Dans ces cas, choisissez la puissance supérieure à celle du tableau.</p>
+<h3 style="margin:12px 0 0;font-size:21px;font-weight:700;line-height:1.3">Pièce très ensoleillée</h3><p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Grandes baies vitrées, façade plein sud ou ouest : le soleil de l'après-midi ajoute beaucoup de chaleur.</p>
+<h3 style="margin:12px 0 0;font-size:21px;font-weight:700;line-height:1.3">Dernier étage</h3><p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Sous un toit ou une terrasse, le plafond accumule la chaleur toute la journée et la restitue le soir.</p>
+<h3 style="margin:12px 0 0;font-size:21px;font-weight:700;line-height:1.3">Cuisine ouverte</h3><p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Si le salon donne sur la cuisine, la cuisson réchauffe l'ensemble de l'espace. Comptez la surface totale.</p>
+<h3 style="margin:12px 0 0;font-size:21px;font-weight:700;line-height:1.3">Grande hauteur sous plafond</h3><p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Au-delà de 2,5 m, le volume d'air à refroidir augmente. Un riad ou une villa avec double hauteur demande plus de puissance.</p>
+<aside style="background:#FDF0E6;border-radius:20px;padding:20px 24px;display:flex;gap:16px;align-items:flex-start;margin:8px 0"><span style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F4731F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"></path></svg></span><div style="display:flex;flex-direction:column;gap:4px"><strong style="font-size:17px">Astuce</strong><p style="margin:0;font-size:17px;line-height:1.65">Hésitez entre deux puissances ? Avec un modèle Inverter, la puissance supérieure reste économe : l'appareil ralentit une fois la température atteinte.</p></div></aside>
+<p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Pour une pièce de 15 à 20 m², ces deux modèles 12 000 BTU sont parmi les plus demandés :</p>
+<div style="display:grid;grid-template-columns:{{ pcCols }};gap:12px;margin:8px 0"><sc-for list="{{ inl }}" as="p" hint-placeholder-count="2"><article style="background:#fff;border-radius:20px;padding:16px;display:flex;align-items:center;gap:16px;box-shadow:0 0 0 1px #E6EBF0"><a href="{{ p.href }}" style="width:110px;height:84px;border-radius:14px;background:#EEF3FA;display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box;flex-shrink:0">{{ p.art }}</a><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><a href="{{ p.href }}" style="font-size:16px;font-weight:700;line-height:1.3;color:#1A1A1A" style-hover="color:#0B5CAD">{{ p.name }}</a><div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span style="font-size:22px;font-weight:800">{{ p.price }}</span><span style="font-size:14px;color:#7A828B;text-decoration:line-through">{{ p.was }}</span></div><button onClick="{{ p.add }}" style="align-self:flex-start;height:40px;padding:0 14px;border-radius:999px;border:1.5px solid {{ p.bl }};background:{{ p.bf }};color:{{ p.bi }};font-size:14px;font-weight:700;cursor:pointer;font-family:inherit" style-hover="border-color:#1A1A1A">{{ p.lab }}</button></div></article></sc-for></div>
+<h2 id="inverter" style="margin:48px 0 0;font-size:{{ ah2 }}px;font-weight:700;letter-spacing:-0.02em;line-height:1.15;scroll-margin-top:110px;text-wrap:balance">Inverter ou On/Off</h2>
+<p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Un climatiseur On/Off fonctionne à pleine puissance puis s'arrête, et ainsi de suite. Un modèle Inverter fait varier la vitesse de son compresseur : il refroidit vite, puis maintient la température en douceur.</p>
+<p style="margin:0;font-size:18px;line-height:1.75;color:#1A1A1A;text-wrap:pretty">Résultat : moins de bruit, une température plus stable et une consommation réduite. Pour une pièce occupée tous les jours, l'Inverter est le meilleur choix. L'On/Off reste une option économique à l'achat pour une pièce utilisée de temps en temps.</p>
+<div style="border-top:1px solid #DCE5EF;margin-top:32px;padding-top:24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span style="font-size:16px;font-weight:700;margin-right:4px">Partager</span><a href="{{ shWa }}" target="_blank" rel="noopener" aria-label="Partager sur WhatsApp" style="height:44px;padding:0 16px;border-radius:999px;background:#25D366;color:#fff;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700" style-hover="color:#fff;filter:brightness(0.95)"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="" width="18" height="18">WhatsApp</a><a href="{{ shFb }}" target="_blank" rel="noopener" aria-label="Partager sur Facebook" style="height:44px;padding:0 16px;border-radius:999px;background:#1877F2;color:#fff;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700" style-hover="color:#fff;filter:brightness(0.95)"><img src="https://cdn.simpleicons.org/facebook/ffffff" alt="" width="18" height="18">Facebook</a><button onClick="{{ copy }}" style="height:44px;padding:0 16px;border-radius:999px;border:1.5px solid #D5DCE3;background:#fff;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit" style-hover="border-color:#1A1A1A"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1 M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>{{ copyLab }}</button></div>
+</article>
+<sc-if value="{{ deskToc }}" hint-placeholder-val="{{ true }}"><nav aria-label="Sommaire" style="position:sticky;top:110px;display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;font-weight:700;letter-spacing:0.04em;color:#5F6368;margin-bottom:8px">SOMMAIRE</span><sc-for list="{{ toc }}" as="tc" hint-placeholder-count="5"><a href="{{ tc.href }}" onClick="{{ tc.go }}" aria-current="{{ tc.cur }}" style="min-height:40px;display:flex;align-items:center;padding:6px 0 6px 14px;border-left:3px solid {{ tc.bd }};font-size:15px;font-weight:{{ tc.w }};color:{{ tc.c }};line-height:1.35" style-hover="color:#0B5CAD">{{ tc.l }}</a></sc-for><a href="#calcul" onClick="{{ goCalc }}" style="margin-top:20px;background:#E8EFF8;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:4px;color:#1A1A1A" style-hover="color:#0B5CAD"><strong style="font-size:15px">Calculateur</strong><span style="font-size:14px;color:#3C4043">Votre puissance en deux réglages</span></a></nav></sc-if>
+</div>
+<section style="padding-top:{{ secGap }}px"><h2 style="margin:0 0 24px;font-size:{{ h2Size }}px;letter-spacing:-0.03em;font-weight:700;line-height:1.05;text-wrap:balance">À lire aussi</h2><div style="display:grid;grid-template-columns:{{ c3 }};gap:16px"><sc-for list="{{ also }}" as="a" hint-placeholder-count="3"><a href="{{ a.href }}" style="background:#fff;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;color:#1A1A1A;transition:box-shadow .35s, transform .35s cubic-bezier(.2,.7,.2,1)" style-hover="box-shadow:0 24px 50px -32px rgba(14,40,70,0.45);transform:translateY(-4px);color:#1A1A1A"><div style="aspect-ratio:16 / 10;background:{{ a.bg }};display:flex;align-items:center;justify-content:center;overflow:hidden;padding:20px;box-sizing:border-box">{{ a.art }}</div><div style="padding:18px 20px 22px;display:flex;flex-direction:column;gap:10px;flex:1"><span style="align-self:flex-start;font-size:14px;font-weight:700;color:#0B5CAD;background:#E8EFF8;border-radius:8px;padding:4px 10px;line-height:1.2">{{ a.cat }}</span><h3 style="margin:0;font-size:20px;font-weight:700;line-height:1.3;letter-spacing:-0.01em;text-wrap:pretty">{{ a.t }}</h3><span style="margin-top:auto;display:flex;align-items:center;gap:6px;font-size:14px;color:#5F6368"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5F6368" stroke-width="2" stroke-linecap="round"><path d="M12 21a9 9 0 1 0 0-18a9 9 0 1 0 0 18z M12 7v5l3 2"></path></svg>{{ a.rt }}</span></div></a></sc-for></div></section>
+<section style="padding-top:{{ secGap }}px"><div style="background:#E8EFF8;border-radius:28px;padding:{{ proPad }}px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:8px;max-width:620px"><h2 style="margin:0;font-size:{{ h2Size }}px;letter-spacing:-0.03em;font-weight:700;line-height:1.05">Besoin d’aide pour choisir ?</h2><p style="margin:0;font-size:17px;line-height:1.55;color:#3C4043">Conseil : 0666-088348, du lundi au samedi de 9h à 19h.</p></div><div style="display:flex;flex-direction:{{ btnDir }};gap:12px;width:{{ btnW }}"><a href="{{ waHref }}" style="height:56px;padding:0 28px;border-radius:999px;border:0;background:#25D366;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;text-align:center;text-decoration:none;white-space:nowrap" style-hover="filter:brightness(0.95);color:#fff"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="" width="20" height="20" style="display:block">Nous écrire sur WhatsApp</a><a href="Demander un devis.dc.html" style="height:56px;padding:0 28px;border-radius:999px;border:0;background:#F4731F;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;text-align:center;text-decoration:none;white-space:nowrap" style-hover="background:#D85A17;color:#fff">Demander un devis</a></div></div></section>
+</main>
+
+<footer style="background:#0B5CAD;color:#fff;padding-bottom:{{ footBottom }}px">
+<div style="box-sizing:border-box;padding:{{ footTop }}px {{ gutter }}px 0;display:flex;flex-direction:column;gap:{{ footGap }}px">
+<div style="display:grid;grid-template-columns:{{ fTop }};gap:40px">
+<div style="display:flex;flex-direction:column;gap:20px;max-width:420px">
+<span style="align-self:flex-start;background:#fff;border-radius:14px;padding:8px 14px;display:flex"><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:48px;display:block"></span>
+<p style="margin:0;font-size:15px;line-height:24px;color:#E3ECF7;text-wrap:pretty">Climatisation Maroc est un site e-commerce spécialisé dans la vente des systèmes de climatisation, avec livraison gratuite sur tout le Maroc. Le site est une propriété de la société Ariha Froid, fournisseur de climatisation et de froid à Marrakech depuis 2008, pour les professionnels comme les particuliers.</p>
+<div style="display:flex;gap:8px"><sc-for list="{{ socials }}" as="so" hint-placeholder-count="4"><a href="{{ so.href }}" aria-label="{{ so.n }}" style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;transition:transform .2s" style-hover="transform:translateY(-2px)">{{ so.img }}</a></sc-for></div>
+</div>
+<nav aria-label="Plan du site" style="display:grid;grid-template-columns:{{ fLinks }};gap:32px 24px">
+<sc-for list="{{ sitemap }}" as="col" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:12px;border-bottom:{{ col.line }}"><button onClick="{{ col.toggle }}" style="all:unset;cursor:{{ col.cur }};display:flex;justify-content:space-between;align-items:center;min-height:{{ col.minH }}"><h3 style="margin:{{ col.h3m }};font-size:{{ col.h3fs }};font-weight:700;letter-spacing:0.04em;color:{{ col.h3c }}">{{ col.t }}</h3><span style="display:{{ col.chev }};color:#fff;font-size:20px;transform:rotate({{ col.rot }}deg);transition:transform .2s">+</span></button><sc-if value="{{ col.open }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:12px;padding-bottom:{{ col.pb }}"><sc-for list="{{ col.links }}" as="lk" hint-placeholder-count="5"><a href="{{ lk.href }}" style="font-size:15px;line-height:20px;color:#fff;min-height:{{ col.lh }};display:flex;align-items:center" style-hover="color:#FDEBDD">{{ lk.l }}</a></sc-for></div></sc-if></div></sc-for>
+</nav>
+</div>
+<div style="display:grid;grid-template-columns:{{ fMid }};gap:24px;padding:32px 0;border-top:1px solid rgba(255,255,255,0.18);border-bottom:1px solid rgba(255,255,255,0.18)">
+<div><h3 style="margin:0 0 16px;font-size:13px;font-weight:700;letter-spacing:0.04em;color:#C9DAEE">Téléphones</h3>
+<div style="display:grid;grid-template-columns:{{ fPhones }};gap:12px 32px">
+<sc-for list="{{ phones }}" as="ph" hint-placeholder-count="6"><a href="{{ ph.href }}" style="display:flex;justify-content:space-between;align-items:center;min-height:{{ phH }};gap:16px;color:#fff" style-hover="color:#FDEBDD"><span style="font-size:14px;color:#C9DAEE">{{ ph.l }}</span><span style="font-size:15px;font-weight:700;white-space:nowrap">{{ ph.v }}</span></a></sc-for>
+</div></div>
+<div><h3 style="margin:0 0 16px;font-size:13px;font-weight:700;letter-spacing:0.04em;color:#C9DAEE">Magasins à Marrakech</h3>
+<div style="display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:22px;color:#fff">
+<address style="font-style:normal">Lot Sakar Villa 107, Marrakech 40070</address>
+<address style="font-style:normal">Magasin 60-2, Imm 50 Al Manar, Marrakech 40100</address>
+<span style="color:#C9DAEE">Lundi – Samedi, 9h – 19h</span>
+</div></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap;padding:0 0 32px;font-size:14px;color:#C9DAEE">
+<span>© 2026 Ariha Froid · Climatisation Maroc</span>
+<div style="display:flex;gap:8px 20px;flex-wrap:wrap"><sc-for list="{{ legal }}" as="lg" hint-placeholder-count="6"><a href="{{ lg.href }}" style="color:#C9DAEE" style-hover="color:#FDEBDD">{{ lg.l }}</a></sc-for></div>
+</div>
+</div>
+</footer>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:50%;bottom:{{ toastBottom }}px;transform:translateX(-50%);z-index:40;background:#1A1A1A;color:#fff;border-radius:999px;padding:12px 20px;font-size:15px;animation:rise .3s ease;max-width:90vw;text-align:center">{{ toast }}</div></sc-if>
+
+<sc-if value="{{ never }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:8px;right:8px;bottom:8px;z-index:30;height:64px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:6px;border-radius:999px;background:#fff;box-shadow:0 12px 32px -10px rgba(14,40,70,0.4);font-size:15px;font-weight:700;box-sizing:border-box">
+<a href="tel:+212666854184" style="display:flex;align-items:center;justify-content:center;color:#1A1A1A;border-radius:999px;background:#F4F6F8">Appeler</a>
+<a href="https://wa.me/212666854184" style="display:flex;align-items:center;justify-content:center;background:#25D366;color:#fff;border-radius:999px">WhatsApp</a>
+<a href="Panier.dc.html" style="display:flex;align-items:center;justify-content:center;color:#fff;background:#F4731F;border-radius:999px">Panier {{ count }}</a>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const B='#0B5CAD',O='#F4731F',IM='https://climatisationmaroc.com/';
+const circ=(cx,cy,r)=>`M${cx-r} ${cy}a${r} ${r} 0 1 0 ${2*r} 0a${r} ${r} 0 1 0 ${-2*r} 0`;
+const IC={
+ snow:['M10 13.5V5a2 2 0 0 0-4 0v8.5a4 4 0 1 0 4 0z','M8 9v7 M18 3v8 M14.5 5l7 4 M14.5 9l7-4'],
+ unit:['M3 5h18v8H3z M6 10h12','M7 16v3 M12 16v4 M17 16v3'],
+ drop:['M12 4c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z','M9.5 15a2.5 2.5 0 0 0 2.5 2.5'],
+ fan:[circ(12,12,9),'M12 12c0-4 2-6 4-6 M12 12c3.5 2 4.5 4.5 3.5 6.3 M12 12c-3.5 2-6 1.5-7-.3'],
+ duct:['M4 6h7a9 9 0 0 1 9 9v5 M4 12h7a3 3 0 0 1 3 3v5','M4 6a1.2 3 0 0 0 0 6 M8 6v6 M12.5 6.2l-1.4 5.9 M16.6 8.4l-3.6 4.6 M19 12l-5.3 1.9'],
+ coil:[circ(12,12,9)+' '+circ(12,12,5.5),circ(12,12,2)],
+ gear:['M12 3v3 M12 18v3 M3 12h3 M18 12h3 M5.6 5.6l2.1 2.1 M16.3 16.3l2.1 2.1 M5.6 18.4l2.1-2.1 M16.3 7.7l2.1-2.1',circ(12,12,3.5)],
+ tag:['M3 12V4h8l10 10-8 8z',circ(7.5,8.5,1.5)],
+ box:['M3 7l9-4 9 4v10l-9 4-9-4z','M3 7l9 4 9-4 M12 11v10'],
+ list:['M8 6h13 M8 12h13 M8 18h13','M3 6h.01 M3 12h.01 M3 18h.01']};
+const MAT={truck:'M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z',
+ cash:'M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z',
+ verified:'M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z',
+ phone:'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z',
+ star:'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'};
+const FAM=[
+ {id:'lg-dual',name:'LG Dual Inverter',brand:'LG',opts:[
+  {l:'9 000',ref:'D10AWH.NW0',price:5400,was:6200,img:IM+'prodimg/20260811161311.png'},
+  {l:'12 000',ref:'D13AJH.N',price:5700,was:6500,img:'uploads/New_DZ2.png'},
+  {l:'18 000',ref:'D19AKH.NK0',price:7600,was:8100,img:IM+'prodimg/20260811164300.png'},
+  {l:'24 000',ref:'D24AKH-N',price:8900,was:9500,img:IM+'prodimg/20260811164620.png'}]},
+ {id:'fitco',name:'Fitco Mural Inverter',brand:'Fitco',opts:[{l:'12 000 · Blanc',ref:'FSW12T24PM/N',price:4000,was:4900},{l:'24 000 · Noir',ref:'FSW24T23PM/N',price:7000,was:7800,dark:true}]},
+ {id:'carrier-mural',name:'Carrier Mural Inverter R32',brand:'Carrier',opts:[{l:'9 000',ref:'42QHG009D8SC-R32',price:4200,was:5050}]},
+ {id:'ciat',name:'CIAT Mural Inverter',brand:'CIAT',opts:[{l:'9 000',ref:'38HG09VSA',price:3800,was:4700}]},
+ {id:'carrier-miroir',name:'Carrier Miroir Inverter Noir R32',brand:'Carrier',opts:[{l:'12 000',ref:'42QHG012D8S-BM',price:5600,was:6600,dark:true}]},
+ {id:'lg-artcool',name:'LG Artcool Smart Inverter',brand:'LG',opts:[{l:'18 000',ref:'UA19MKH0.NJ0',price:9900,was:10500,dark:true}]}];
+const NEWS=[
+ {name:'LG Gainable Inverter 36000 BTU',brand:'LG',ref:'ABNW36GM2S1.ENWBME',price:14200,was:15200,art:'gainable',w:'100%'},
+ {name:'LG Gainable Inverter 48000 BTU',brand:'LG',ref:'ABNW50LM3S1.ENWBLM',price:19800,was:21100,art:'gainable',w:'100%'},
+ {name:'Chauffe-eau solaire Simsek 300 L circuit fermé',brand:'Simsek',ref:'CHAUFF0061',price:13200,art:'solaire',img:'uploads/chauffe-eau-b0352fa9.png',w:'86%'},
+ {name:'Chauffe-eau solaire Simsek 500 L circuit fermé',brand:'Simsek',ref:'CHAUFF0065',price:19700,art:'solaire',img:'uploads/chauffe-eau-b0352fa9.png',w:'100%'}];
+const DUCTS=[
+ {name:'Flexible calorifugé Q160 Arfro 10 m',ref:'CLIM00319',price:280,d:160,f:'calo'},
+ {name:'Flexible souple Q125 Esbo 10 m',ref:'VENT0135',price:180,d:125,f:'souple'},
+ {name:'Flexible souple Q160 Esbo 10 m',ref:'CLIM00323',price:200,d:160,f:'souple'},
+ {name:'Flexible souple Q200 Esbo 10 m',ref:'VENT0136',price:220,d:200,f:'souple'},
+ {name:'Flexible souple Q250 Esbo 10 m',ref:'CLIM00377',price:240,d:250,f:'souple'},
+ {name:'Flexible isolé thermique aluminium Q200 10 m',ref:'CLIM00320',price:320,d:200,f:'alu'}];
+const SUP=[
+ {id:'CUIV0005',name:'Cuivre 1/4 Lafarga 15 m',price:495,art:'coilS'},{id:'CUIV0006',name:'Cuivre 3/8 Lafarga 15 m',price:750,art:'coilL'},
+ {id:'CUIV0018',name:'Kit duo 1/4-3/8 20 m',price:1130,art:'duo'},{id:'GAZ00042',name:'Gaz R410 GS 11,3 kg',price:5000,art:'gaz'},
+ {id:'CLIM00076',name:'Support GT',price:55,art:'support'},{id:'CLIM00080',name:'Télécommande universelle',price:70,art:'remote'}];
+const RANGES={
+ clim:{t:'Climatisation',href:'Climatisation.dc.html',subs:['Mono split','Gainable','Cassette','Console et armoire'],brands:['LG','Carrier','CIAT','Fitco'],p:{name:'LG Dual Inverter 12000 BTU',price:5700,img:'uploads/clima-cut2.png',art:'mural'}},
+ eau:{t:'Chauffe-eau',href:'Chauffe-eau.dc.html',subs:['Électrique','À gaz','Solaire','Chaudière'],brands:['Simsek'],p:{name:'Chauffe-eau solaire Simsek 300 L circuit fermé',price:13200,img:'uploads/chauffe-eau-b0352fa9.png',art:'solaire'}},
+ vent:{t:'Ventilation',href:'Ventilation.dc.html',subs:['Ventilateurs de gaine','Multizone','Grilles et diffuseurs'],brands:['Nanyo'],p:{name:'Ventilateur de gaine Q125 Nanyo galvanisé',price:600,img:'uploads/ventilateur-cut.png',art:'vent'}},
+ gaines:{t:'Gaines',href:'Gaines.dc.html',subs:['Gaines circulaires','Flexibles souples','Flexibles isolés'],brands:['Esbo','Arfro'],p:{name:'Flexible calorifugé Q160 Arfro 10 m',price:280,img:'uploads/gaines-cut.png',art:'flex'}},
+ cuivre:{t:'Cuivre et gaz',href:'Cuivre et gaz.dc.html',subs:['Cuivre','Kits duo','Isolant','Gaz frigorifique'],brands:['Lafarga','GS'],p:{name:'Cuivre 3/8 Lafarga 15 m',price:750,img:'uploads/cuivre-cut2.png',art:'duo'}},
+ pieces:{t:'Pièces de rechange',href:'Pieces de rechange.dc.html',subs:['Télécommandes','Supports','Adhésifs et mastics','Trappes de visite','Outillage'],brands:['Alpha'],p:{name:'Télécommande universelle',price:70,img:'uploads/telecommande-cut2.png',art:'remote'}}};
+const TIERS=[[9000,'9 000 BTU','Jusqu\u2019à 15 m²'],[12000,'12 000 BTU','Jusqu\u2019à 20 m²'],[18000,'18 000 BTU','Jusqu\u2019à 30 m²'],[24000,'24 000 BTU','Jusqu\u2019à 40 m²'],[30000,'30 000 +','Au-delà de 40 m²']];
+const SCOPES=['Toutes','Climatisation','Chauffe-eau','Ventilation','Gaines','Cuivre et gaz','Pièces de rechange','Froid'];
+const fmt=n=>Math.round(n).toLocaleString('fr-FR').replace(/[\s\u202f\u00a0]/g,'\u00a0');
+const dh=n=>fmt(n)+'\u00a0Dhs';
+function sizeFor(s,sun){let i=s<=15?0:s<=20?1:s<=30?2:s<=40?3:4;const bump=sun==='fort'&&i<4;if(sun==='fort')i=Math.min(i+1,4);return{i,bump};}
+const L=(arr)=>arr.map(([l,href])=>({l,href}));
+
+const ART=[
+ {id:'puissance',t:'Quelle puissance de climatiseur pour ma pièce ?',cat:'Guides d\u2019achat',rt:6,bg:'#DCE8F5',img:'uploads/clima-cut2.png',href:'Article puissance climatiseur.dc.html',sum:'Surface, ensoleillement, étage : la méthode simple pour choisir entre 9 000, 12 000, 18 000 et 24 000 BTU, avec le tableau des puissances.'},
+ {id:'inverter',t:'Climatiseur Inverter ou On/Off : lequel choisir ?',cat:'Guides d\u2019achat',rt:5,bg:'#E8EFF8',art:'mural'},
+ {id:'types',t:'Mural, gainable ou cassette : quel climatiseur choisir ?',cat:'Guides d\u2019achat',rt:7,bg:'#FDF0E6',art:'cassette',w:'46%'},
+ {id:'gaz',t:'R32 ou R410A : comprendre les gaz frigorigènes',cat:'Installation',rt:5,bg:'#DCE8F5',art:'gaz',w:'30%'},
+ {id:'conso',t:'Comment réduire la consommation de son climatiseur',cat:'Conseils d\u2019utilisation',rt:4,bg:'#FCE6D6',art:'remote',w:'22%'},
+ {id:'entretien',t:'Entretien d\u2019un climatiseur : ce qu\u2019il faut faire chaque année',cat:'Conseils d\u2019utilisation',rt:5,bg:'#E8EFF8',art:'mural',dark:true},
+ {id:'solaire',t:'Chauffe-eau solaire : quelle capacité pour ma famille ?',cat:'Guides d\u2019achat',rt:5,bg:'#FDF0E6',img:'uploads/chauffe-eau-b0352fa9.png',w:'60%'},
+ {id:'cuivre',t:'Quel diamètre de cuivre pour quel climatiseur ?',cat:'Installation',rt:4,bg:'#FCE6D6',art:'duo',w:'52%'},
+ {id:'resto',t:'Climatiser un restaurant : les erreurs à éviter',cat:'Professionnels',rt:6,bg:'#DCE8F5',scene:true}];
+const CATS=[['Tous','Blog.dc.html'],['Guides d\u2019achat','Blog categorie.dc.html?c=guides'],['Conseils d\u2019utilisation','Blog categorie.dc.html?c=conseils'],['Installation','Blog categorie.dc.html?c=installation'],['Professionnels','Blog categorie.dc.html?c=pros']];
+const CATK={guides:'Guides d\u2019achat',conseils:'Conseils d\u2019utilisation',installation:'Installation',pros:'Professionnels'};
+const CATX={'Guides d\u2019achat':'Puissance, technologie, type d\u2019appareil : les repères pour choisir le bon équipement.','Conseils d\u2019utilisation':'Réglages, entretien et économies d\u2019énergie au quotidien.','Installation':'Cuivre, gaz, supports : ce qu\u2019il faut savoir avant la pose.','Professionnels':'Restaurants, hôtels, bureaux : les points clés d\u2019un projet.'};
+const RESTO_SCN=['M16 140h208 M64 104h112 M120 104v36 M100 140h40 M56 140V92 M56 114h18v26 M184 140V92 M184 114h-18v26','M120 14v22 M106 50a14 14 0 0 1 28 0z M104 92h12v12h-12z M128 96h14v8h-14z M150 22h60v12h-60z M158 40l-4 6 M180 40v7 M202 40l4 6'];
+class Component extends DCLogic {
+  state={dd:null,added:{},mega:null,drawer:false,q:'',scope:'Toutes',count:0,toast:'',tier:null,surface:18,sun:'moyen',brandF:null,sel:{},w:1440,sy:false,imgFail:{},logoFail:{}};
+  railRef=React.createRef();gaiRef=React.createRef();marqueeRef=React.createRef();
+  componentDidMount(){
+    this.onR=()=>this.setState({w:document.documentElement.clientWidth||window.innerWidth||1440});try{const P=new URLSearchParams(location.search);if(P.get('menu'))setTimeout(()=>this.setState({mega:P.get('menu')}),300);if(P.get('drawer'))setTimeout(()=>this.setState({drawer:true,acc:P.get('drawer')==='1'?'clim':P.get('drawer')}),300);}catch(e){}this.onR();window.addEventListener('resize',this.onR);
+    this.lastY=0;this.onS=()=>{const Y=window.scrollY,y=Y>140;const dir=Y>this.lastY+4?'down':Y<this.lastY-4?'up':null;const hide=y&&dir==='down'&&Y>320?true:dir==='up'||!y?false:this.state.hideH;this.lastY=Y;if(y!==this.state.sy||hide!==this.state.hideH)this.setState({sy:y,hideH:hide,mega:null,dd:null});};window.addEventListener('scroll',this.onS,{passive:true});
+    this.onDoc=e=>{if(this.state.dd&&!(e.target.closest&&e.target.closest('[data-dd]')))this.setState({dd:null});};document.addEventListener('mousedown',this.onDoc);
+    setTimeout(()=>{const el=this.marqueeRef.current;if(el&&el.animate)this.mq=el.animate([{transform:'translateX(0)'},{transform:'translateX(-50%)'}],{duration:30000,iterations:Infinity});},300);
+    if(!window.AFDraw){this.dt=setInterval(()=>{if(window.AFDraw){clearInterval(this.dt);this.forceUpdate();}},100);}
+  }
+  componentWillUnmount(){this._toc&&window.removeEventListener('scroll',this._toc);window.removeEventListener('resize',this.onR);window.removeEventListener('scroll',this.onS);clearInterval(this.dt);clearTimeout(this.tt);this.mq&&this.mq.cancel();document.removeEventListener('mousedown',this.onDoc);}
+  draw(k,w,dark){return window.AFDraw?window.AFDraw(k,w,dark):null;}
+  pic(src,art,alt,w,dark){
+    const h=React.createElement;
+    const inner=src&&!this.state.imgFail[src]?h('img',{src,alt,loading:'lazy',onError:()=>this.setState(s=>({imgFail:{...s.imgFail,[src]:true}})),style:{width:'100%',height:'100%',maxHeight:'100%',objectFit:'contain',display:'block',mixBlendMode:'multiply'}}):this.draw(art,'100%',dark);
+    return h('div',{style:{width:w,maxWidth:'100%',height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}},h('div',{style:{width:'100%',flex:'1 1 0',minHeight:0,display:'flex',alignItems:'center',justifyContent:'center'}},inner),h('div',{style:{width:'70%',height:12,marginTop:-2,borderRadius:'50%',background:'rgba(14,40,70,0.2)',filter:'blur(8px)'}}));
+  }
+  duct(d,f){
+    const h=React.createElement,sw=18+d*0.17,path='M30 112C80 112 92 56 150 56S206 80 222 80';
+    const body=f==='alu'?'#C5CCD3':f==='calo'?'#F2F4F6':'#D6DCE2',rib=f==='alu'?'#E9EDF0':f==='calo'?'#D9DFE5':'#BAC4CD';
+    const kids=[];
+    if(f==='calo')kids.push(h('path',{key:'j',d:path,stroke:'#E3E8ED',strokeWidth:sw+16,fill:'none',strokeLinecap:'butt'}));
+    kids.push(h('path',{key:'b',d:path,stroke:body,strokeWidth:sw,fill:'none',strokeLinecap:'butt'}));
+    kids.push(h('path',{key:'r',d:path,stroke:rib,strokeWidth:sw,fill:'none',strokeDasharray:'2.5 7'}));
+    const er=(f==='calo'?sw+16:sw)/2;
+    kids.push(h('ellipse',{key:'e',cx:224,cy:80,rx:er*0.34,ry:er,fill:f==='calo'?'#E3E8ED':body}));
+    kids.push(h('ellipse',{key:'i',cx:225,cy:80,rx:sw*0.13,ry:sw*0.4,fill:f==='alu'?'#8E99A4':'#5E6B78'}));
+    if(f==='calo')kids.push(h('ellipse',{key:'a',cx:225,cy:80,rx:sw*0.2,ry:sw*0.5,fill:'none',stroke:'#C5CCD3',strokeWidth:3}));
+    return h('div',{style:{width:'100%',height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}},h('svg',{viewBox:'0 0 260 170',preserveAspectRatio:'xMidYMid meet',style:{display:'block',width:'100%',height:'auto',maxHeight:'calc(100% - 14px)',flex:'0 1 auto',minHeight:0}},...kids),h('div',{style:{width:'60%',height:10,marginTop:4,flexShrink:0,borderRadius:'50%',background:'rgba(14,40,70,0.18)',filter:'blur(7px)'}}));
+  }
+  addK(k,label){this.setState(s=>({added:{...s.added,[k]:true}}));clearTimeout(this['ak'+k]);this['ak'+k]=setTimeout(()=>this.setState(s=>({added:{...s.added,[k]:false}})),1800);this.add(label);}
+  add(label){this.setState(s=>({count:s.count+1,toast:label+' ajouté au panier'}));clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:''}),2200);}
+  renderVals(){const v=this.post(this.rv());v.brandsLoop=[...v.brands,...v.brands].map((b,i)=>({...b,mark:React.cloneElement(b.mark,{key:i})}));return v;}
+  post(v){
+    const s=this.state,set=o=>this.setState(o),W=s.w,mobile=W<760,tab=W>=760&&W<1000,tablet=W<1100,midT=W>=760&&W<1100;
+    const plusOpen=s.dd==='plus';
+    Object.assign(v,{showSearch:W>=760,showWA:W>=760&&!s.sy,never:false,tabletNav:tab&&!s.sy,
+      burger:s.drawer?'M6 6l12 12 M18 6L6 18':'M4 7h16 M4 12h16 M4 17h16',toggleDrawer:()=>{const o=!s.drawer;document.body.style.overflow=o?'hidden':'';set({drawer:o,ms:false,acc:null});},
+      toggleMS:()=>set({ms:!s.ms,drawer:false}),msOpen:mobile&&!!s.ms,cartH:mobile?44:48,cartPadL:mobile?12:16,
+      plusDD:{isOpen:plusOpen,open:plusOpen?'true':'false',toggle:()=>set({dd:plusOpen?null:'plus'})},
+      drawer:!!s.drawer&&mobile,footBottom:mobile?0:v.footBottom,toastBottom:24,drawerTop:s.sy?64:76,
+      accs:['clim','eau','vent','gaines','cuivre','pieces'].map(k=>{const Rg=RANGES[k],o=s.acc===k;return{t:Rg.t,href:Rg.href,isOpen:o,open:o?'true':'false',rot:o?180:0,toggle:()=>set({acc:o?null:k}),subs:Rg.subs.map(l=>({l,href:Rg.href+'?type='+encodeURIComponent(l)}))};}),
+      drawerMore:[{l:'Promotions',href:'Promotions.dc.html',color:'#C4501A'},{l:'Demander un devis',href:'Demander un devis.dc.html',color:'#1A1A1A'},{l:'Contact',href:'Contact.dc.html',color:'#1A1A1A'},{l:'Devenir revendeur',href:'Devenir revendeur.dc.html',color:'#1A1A1A'}],
+      heroBtnDir:mobile?'column':'row',smallFs:mobile?14:13,chipFs:mobile?14:13,reJust:mobile?'flex-start':'center',tileIcon:mobile?'none':'flex',chipWrap:mobile?'nowrap':'wrap',proBtnW:mobile?'100%':'auto',phH:mobile?'44px':'0',
+      tierOv:mobile?'auto':'visible',tierFlex:mobile?'0 0 auto':'1 1 0',tierMin:mobile?'112px':'0',ctaW:mobile?'100%':'auto'});
+    v.heroBg=true;v.heroStrip=false;v.heroShade=mobile?'linear-gradient(180deg, rgba(8,45,92,0.82) 0%, rgba(8,45,92,0.62) 55%, rgba(8,45,92,0.35) 100%)':tablet?'linear-gradient(90deg, rgba(8,45,92,0.8) 0%, rgba(8,45,92,0.6) 50%, rgba(8,45,92,0.2) 85%)':'linear-gradient(90deg, rgba(8,45,92,0.66) 0%, rgba(8,45,92,0.52) 38%, rgba(8,45,92,0.15) 62%, rgba(8,45,92,0) 80%)';v.heroBgPos=mobile?'72% center':'right center';if(tablet){v.heroH=mobile?560:520;v.heroPad=mobile?'40px 0 72px':'56px 0 96px';v.heroTextW=mobile?'100%':'520px';}
+    if(tablet){v.h1Size=mobile?32:44;v.ctaOrder=mobile?5:4;v.ctaMl='0';v.tierBasis=mobile?'100%':'calc(100% - 140px)';}
+    if(mobile){v.barMargin='16px 0 0';}
+    if(midT||mobile){v.slotW=mobile?'76%':'calc((100% - 32px) / 3)';v.railMask='linear-gradient(to right,#000 90%,transparent)';}
+    if(mobile){v.fLinks='1fr';}
+    if(midT){v.bentoCols='repeat(2,minmax(0,1fr))';v.bentoRow=240;}
+    if(mobile){v.bentoCols='1fr';v.bentoRow=168;}
+    v.cats=v.cats.map((c,i)=>{let o={...c};
+      if(midT){o.col=i===0?'1 / -1':'span 1';o.row=i===0?'span 2':'span 1';if(i===1){o.artPos='right:-4%;bottom:-6%;width:60%';o.typesDir='row';o.subW='100%';}}
+      if(mobile){o.col='1 / -1';o.row=i===0?'span 2':'span 1';if(i>0){o.artPos='right:12px;top:12px;bottom:12px;width:40%';o.subW='56%';o.typesDir='row';
+        o.art=React.cloneElement(c.art,{style:{...c.art.props.style,width:'100%',height:'100%',objectFit:i===6?'cover':'contain',WebkitMaskImage:i===6?'linear-gradient(to right,transparent,#000 40%)':'none',maskImage:i===6?'linear-gradient(to right,transparent,#000 40%)':'none'}});}}
+      return o;});
+    v.sitemap=v.sitemap.map((col,i)=>{const open=!mobile||s.facc===i;return{...col,open,toggle:()=>{if(mobile)set({facc:s.facc===i?null:i});},line:mobile?'1px solid rgba(255,255,255,0.18)':'0',cur:mobile?'pointer':'default',minH:mobile?'52px':'0',h3m:mobile?'0':'0 0 16px',h3fs:mobile?'16px':'13px',h3c:mobile?'#fff':'#C9DAEE',chev:mobile?'inline':'none',rot:open&&mobile?45:0,pb:mobile?'12px':'0',lh:mobile?'44px':'0'};});
+    this.extra(v);return v;
+  }
+  extra(v){
+    const s=this.state,set=o=>this.setState(o),W=s.w,mobile=W<760,tablet=W<1100,h=React.createElement;
+    const P=new URLSearchParams(location.search);
+    const cr=arr=>arr.map(([l,href],i)=>({l,href,color:i===arr.length-1?'#1A1A1A':'#5F6368',w:i===arr.length-1?700:500,sep:i<arr.length-1?'›':''}));
+    const wa=t=>'https://wa.me/212666854184'+(t?'?text='+encodeURIComponent(t):'');
+    const artOf=a=>a.scene?h('svg',{viewBox:'0 0 240 160',width:'72%',fill:'none',strokeWidth:2.4,strokeLinecap:'round',strokeLinejoin:'round',style:{display:'block',maxHeight:'100%'}},h('path',{d:RESTO_SCN[0],stroke:'#0B5CAD'}),h('path',{d:RESTO_SCN[1],stroke:'#F4731F'})):a.img?h('img',{src:a.img,alt:'',style:{width:a.w||'92%',maxHeight:'100%',objectFit:'contain',display:'block',filter:'drop-shadow(0 14px 18px rgba(14,40,70,0.2))'}}):h('div',{style:{width:a.w||'78%',display:'flex',justifyContent:'center'}},this.draw(a.art,'100%',a.dark));
+    const card=a=>({t:a.t,cat:a.cat,rt:a.rt+' min de lecture',bg:a.bg,art:artOf(a),href:a.href||'Article puissance climatiseur.dc.html'});
+    const pills=cur=>CATS.map(([l,href])=>{const on=l===cur;return{l,href,cur:on?'page':'false',bg:on?'#1A1A1A':'#fff',color:on?'#fff':'#1A1A1A',bd:on?'#1A1A1A':'#E3E8EE'};});
+    Object.assign(v,{h1Size:mobile?34:tablet?44:56,proPad:mobile?24:48,btnDir:mobile?'column':'row',btnW:mobile?'100%':'auto',c3:mobile?'1fr':tablet?'repeat(2,minmax(0,1fr))':'repeat(3,minmax(0,1fr))',c4:mobile?'1fr':tablet?'repeat(2,minmax(0,1fr))':'repeat(4,minmax(0,1fr))',
+      waHref:wa('Bonjour, j\u2019ai besoin d\u2019un conseil pour choisir un climatiseur.'),
+      onQKey:e=>{const t=(v.q||'').trim();if(e.key==='Enter'&&t)location.href='Recherche.dc.html?q='+encodeURIComponent(t);}});
+    const z=sizeFor(s.surface,s.sun),T=TIERS[z.i];
+    const TOC=[['regle','La règle simple : 600 BTU par m²'],['tableau','Tableau des puissances'],['au-dessus','Quand prendre la puissance au-dessus'],['inverter','Inverter ou On/Off']];
+    if(!this._toc){this._toc=()=>{let cur=TOC[0][0];TOC.forEach(([id])=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<160)cur=id;});if(cur!==this.state.tocA)this.setState({tocA:cur});};window.addEventListener('scroll',this._toc,{passive:true});}
+    const go=id=>e=>{e.preventDefault();const el=document.getElementById(id);if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-100,behavior:'smooth'});};
+    const ta=s.tocA||'regle',url=location.href.split('?')[0];
+    const pw=T[1].replace(' +',' BTU et plus');
+    const FIT=[{k:'lg12',name:'LG Dual Inverter 12 000 BTU',price:5700,was:6500,img:'uploads/clima-cut2.png',href:'Produit LG Dual Inverter.dc.html'},{k:'fit12',name:'Fitco Mural Inverter 12 000 BTU',price:4000,was:4900,art:'mural',href:'Categorie Climatiseurs muraux.dc.html'}];
+    Object.assign(v,{crumbs:cr([['Accueil','Accueil.dc.html'],['Blog','Blog.dc.html'],['Guides d\u2019achat','Blog categorie.dc.html?c=guides'],['Puissance du climatiseur','#']]),
+      artCols:tablet?'minmax(0,1fr)':'minmax(0,720px) 260px',ah2:mobile?28:34,deskToc:!tablet,mobToc:tablet,tocOpen:!!s.tocO,tocOpenA:s.tocO?'true':'false',tocRot:s.tocO?180:0,togToc:()=>set({tocO:!s.tocO}),
+      toc:TOC.map(([id,l])=>{const on=id===ta&&!tablet;return{l,href:'#'+id,go:go(id),cur:on?'location':'false',bd:on?'#0B5CAD':'#DCE5EF',c:on?'#0B5CAD':'#3C4043',w:on?700:500};}),goCalc:go('calcul'),
+      calcPad:mobile?20:28,calcCols:mobile?'1fr':'200px minmax(0,1fr)',
+      suns:[['faible','Peu de soleil'],['moyen','Ensoleillée'],['fort','Très ensoleillée']].map(([k,l])=>{const on=s.sun===k;return{l,on:on?'true':'false',bd:on?'#fff':'rgba(255,255,255,0.45)',bg:on?'#fff':'transparent',color:on?'#0B5CAD':'#fff',pick:()=>set({sun:k})};}),
+      rec:pw,recNote:z.bump?'Puissance relevée d\u2019un cran pour une pièce très ensoleillée.':'Pour '+s.surface+' m² · '+T[2].toLowerCase()+'.',recCta:z.i<4?'Voir les climatiseurs '+T[1]:'Demander conseil',recHref:z.i<4?'Categorie Climatiseurs muraux.dc.html?puissance='+T[0]:'Demander un devis.dc.html',
+      tbl:[['9 000 BTU','Jusqu\u2019à 15 m²'],['12 000 BTU','Jusqu\u2019à 20 m²'],['18 000 BTU','Jusqu\u2019à 30 m²'],['24 000 BTU','Jusqu\u2019à 40 m²'],['30 000 BTU et plus','Au-delà de 40 m²']].map(([p,sv],i)=>({p,s:sv,bg:i===z.i?'#E8EFF8':'#fff'})),
+      tb0:z.i===0?'#E8EFF8':'#fff',tb1:z.i===1?'#E8EFF8':'#fff',tb2:z.i===2?'#E8EFF8':'#fff',tb3:z.i===3?'#E8EFF8':'#fff',tb4:z.i===4?'#E8EFF8':'#fff',pcCols:mobile?'1fr':'repeat(2,minmax(0,1fr))',
+      inl:FIT.map(p=>{const ad=s.added[p.k];return{name:p.name,href:p.href,price:dh(p.price),was:dh(p.was),art:p.img?h('img',{src:p.img,alt:'',style:{width:'100%',display:'block'}}):this.draw('mural','100%'),lab:ad?'Ajouté ✓':'Ajouter au panier',bf:ad?'#1F9D57':'#fff',bi:ad?'#fff':'#1A1A1A',bl:ad?'#1F9D57':'#9AA3AD',add:()=>this.addK(p.k,p.name)};}),
+      shWa:'https://wa.me/?text='+encodeURIComponent('Quelle puissance de climatiseur pour ma pièce ? '+url),shFb:'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url),
+      copyLab:s.copied?'Lien copié':'Copier le lien',copy:()=>{try{navigator.clipboard.writeText(url);}catch(e){}set({copied:true});setTimeout(()=>this.setState({copied:false}),2000);},
+      also:['inverter','types','conso'].map(id=>card(ART.find(a=>a.id===id)))});
+  }
+  rv(){
+    const s=this.state,set=o=>this.setState(o),h=React.createElement;
+    const W=s.w,mobile=W<760,tablet=W<1100,z=sizeFor(s.surface,s.sun),tierIdx=s.tier??z.i;
+    const logos=Object.fromEntries(['LG','Carrier','CIAT','Fitco','Simsek','GS','Lafarga','Alpha','Arfro'].map(n=>[n,['uploads/logo-'+n.toLowerCase()+'.png',1]]));
+    const mk=(id,opts,cur,pick)=>{const o=s.dd===id;return{isOpen:o,open:o?'true':'false',rot:o?180:0,toggle:()=>set({dd:o?null:id}),items:opts.map(([v,l])=>({l,sel:v===cur?'true':'false',bg:v===cur?'#F1F5FA':'#fff',color:v===cur?'#0B5CAD':'#1A1A1A',mark:v===cur?'✓':'',pick:()=>pick(v)}))};};
+    const CART='M3 4h2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 8H6.2 M9 20.5h.01 M17 20.5h.01',CHECK='M5 12.5l4.5 4.5L19 7.5';
+    const btn=(k)=>({btnFill:s.added[k]?'#1F9D57':'#fff',btnInk:s.added[k]?'#fff':'#1A1A1A',btnLine:s.added[k]?'#1F9D57':'#9AA3AD',btnLabel:s.added[k]?'Ajouté au panier ✓':'Ajouter au panier'});
+    const wa=(n,r)=>'https://wa.me/212666854184?text='+encodeURIComponent('Bonjour, je souhaite commander : '+n+' (réf. '+r+')');
+    const logoOf=b=>logos[b]?logos[b][0]:'';
+    const navL=['clim','eau','vent','gaines','cuivre','pieces'].map(k=>({l:RANGES[k].t,href:RANGES[k].href,color:'#1A1A1A',bg:s.mega===k?'#E8EFF8':'transparent',enter:()=>set({mega:k})}));
+    navL.push({l:'Promotions',href:'Promotions.dc.html',color:'#C4501A',bg:'transparent',enter:()=>set({mega:null})});
+    const navR=[{l:'Demander un devis',href:'Demander un devis.dc.html',color:B},{l:'Contact',href:'Contact.dc.html',color:B},{l:'Devenir revendeur',href:'Devenir revendeur.dc.html',color:'#C4501A'}];
+    const M=s.mega&&RANGES[s.mega];
+    const official=['LG','Carrier','CIAT','Fitco','Simsek','GS','Lafarga','Alpha','Arfro'];
+    const mega=M?{t:M.t,href:M.href,subs:M.subs,brands:M.brands.map(n=>({n,href:official.includes(n)?'Marque '+n+'.dc.html':M.href})),pName:M.p.name,pPrice:dh(M.p.price),art:h('img',{src:M.p.img,alt:M.p.name,style:{width:'100%',height:'100%',objectFit:'contain',display:'block',filter:'drop-shadow(0 10px 14px rgba(14,40,70,0.18))'}}),add:()=>this.add(M.p.name)}:{subs:[],brands:[]};
+    const fams=FAM.filter(f=>!s.brandF||f.brand===s.brandF).slice(0,4).map(f=>{const si=s.sel[f.id];const o=f.opts[si??0];const multi=f.opts.length>1;const min=Math.min(...f.opts.map(x=>x.price));const shown=si==null&&multi;
+      return{...btn(f.id),wa:wa(f.name+' '+o.l+(o.l.includes('·')?'':' BTU'),o.ref),logo:logoOf(f.brand),hasLogo:!!logoOf(f.brand),badgeInk:'#C4501A',name:f.name,brand:f.brand,ref:o.ref,href:'Produit.dc.html?f='+f.id,badge:'−'+Math.round((1-o.price/o.was)*100)+' %',from:shown?'À partir de':'',priceTxt:dh(shown?min:o.price),wasTxt:shown?'':dh(o.was),save:shown?'':'Économisez '+dh(o.was-o.price),
+        art:this.pic(o.img,'mural',f.name,'100%',o.dark),
+        opts:f.opts.map((x,i)=>{const on=si===i||(!multi&&i===0);return{l:x.l.replace(/(\d+) 000/,'$1K').replace(' · ',' '),full:x.l+(x.l.includes('·')?'':' BTU'),border:on?'#1A1A1A':'#D5DCE3',bg:'#fff',color:on?'#1A1A1A':'#5F6368',shadow:on?'0 1px 4px rgba(14,40,70,0.18)':'none',pick:()=>set({sel:{...s.sel,[f.id]:i}})};}),
+        add:()=>this.addK(f.id,f.name+' '+o.l+(o.l.includes('·')?'':' BTU'))};});
+    const bento=mobile?{cols:'1fr 1fr',row:170,place:[['1 / -1','span 2'],['1 / -1','span 1'],['span 1','span 1'],['span 1','span 1'],['span 1','span 1'],['span 1','span 1'],['1 / -1','span 2']]}
+      :{cols:'repeat(4,minmax(0,1fr))',row:tablet?240:230,place:[['1 / 3','1 / 3'],['3 / 4','1 / 3'],['4 / 5','1 / 2'],['4 / 5','2 / 3'],['1 / 2','3 / 4'],['2 / 3','3 / 4'],['3 / 5','3 / 4']]};
+    const T=(arr,base)=>arr.map(l=>({l,href:base+'?type='+encodeURIComponent(l)}));
+    const catDef=[
+      {k:'clim',ic:'unit',bg:'#DCE8F5',img:'uploads/clima-cut2.png',pos:'right:-14%;bottom:2%;width:'+(mobile?'86%':'84%'),types:T(['Mono split','Gainable','Cassette','Console et armoire'],'Climatisation.dc.html'),dir:'row',subW:mobile?'100%':'62%'},
+      {k:'eau',ic:'drop',bg:'#FCE6D6',img:'uploads/chauffe-eau-b0352fa9.png',pos:'right:-14%;bottom:-2%;width:'+(mobile?'50%':'112%'),types:T(['Électrique','À gaz','Solaire'],'Chauffe-eau.dc.html'),dir:mobile?'row':'column',subW:'100%'},
+      {k:'vent',ic:'fan',bg:'#E8EFF8',img:'uploads/ventilateur-cut.png',pos:'right:-10%;bottom:-12%;width:60%',s:'Ventilateurs de gaine · Multizone'},
+      {k:'gaines',ic:'duct',bg:'#FDF0E6',img:'uploads/gaines-cut.png',pos:'right:-12%;bottom:-10%;width:66%',s:'Gaines circulaires · Flexibles'},
+      {k:'cuivre',ic:'coil',bg:'#FCE6D6',img:'uploads/cuivre-cut2.png',pos:'right:-8%;bottom:-12%;width:'+(mobile?'58%':'56%'),s:'Cuivre · Kits duo · Gaz'},
+      {k:'pieces',ic:'gear',bg:'#DCE8F5',img:'uploads/telecommande-cut2.png',pos:'right:2%;bottom:-22%;width:'+(mobile?'26%':'24%'),s:'Télécommandes · Supports'},
+      {k:'froid',ic:'snow',bg:'#E8EFF8',t:'Solutions professionnelles',href:'Solutions professionnelles.dc.html',photo:'uploads/pasted-1791236697258-0.png',pos:mobile?'left:0;right:0;bottom:0;height:42%':'top:0;right:0;bottom:0;width:'+(tablet?'44%':'56%'),types:[...['Hôtels','Restaurants','Bureaux','Écoles'].map(l=>({l,href:l==='Restaurants'?'Restaurants.dc.html':'Solutions professionnelles.dc.html'})),{l:'…',href:'Solutions professionnelles.dc.html'}],line:true,subW:mobile?'100%':'66%'}];
+    
+        const rail=d=>()=>{const el=this.railRef.current;if(el)el.scrollBy({left:d*(el.clientWidth+16),behavior:'smooth'});};
+    return{
+      headPos:s.sy?'fixed':'relative',spacerH:s.sy?(W>=1000?128:76):0,headY:s.sy&&s.hideH?'-110%':'0',headH:s.sy?64:76,fullHeader:W>=1000&&!s.sy,navShadow:s.sy?'0 10px 30px -18px rgba(14,40,70,0.35)':'0 1px 0 #E6E9EC',gutter:mobile?16:40,cmax:W,bleed:mobile?16:40,secGap:mobile?40:56,cardCols:mobile?'1fr':tablet?'repeat(2,minmax(0,1fr))':'repeat(4,minmax(0,1fr))',slotW:mobile?'82%':tablet?'calc((100% - 16px) / 2)':'calc((100% - 48px) / 4)',railMask:mobile?'linear-gradient(to right,#000 88%,transparent)':'none',logoH:mobile?36:s.sy?38:50,navFs:W>=1340?16:W>=1180?15:14,navPad:W>=1340?12:9,
+      q:s.q,onQ:e=>set({q:e.target.value}),scope:s.scope,onScope:e=>set({scope:e.target.value}),scopes:SCOPES,qPh:s.scope==='Toutes'?'Rechercher un produit ou une référence':'Rechercher dans '+s.scope,
+      count:s.count,cartLabel:mobile?'':'Panier',
+      navL,navR,megaOpen:!!M&&W>=1000,mega,closeMega:()=>set({mega:null}),
+      compact:W<1000,drawer:s.drawer&&W<1000,drawerIcon:s.drawer?'✕':'☰',toggleDrawer:()=>set({drawer:!s.drawer}),
+      drawerLinks:[...navL.map(n=>({l:n.l,href:n.href,color:n.color})),...navR.map(n=>({l:n.l,href:n.href,color:n.color}))],
+      heroMax:1280+2*(mobile?16:24),heroBg:!tablet,heroStrip:tablet,heroH:tablet?0:580,heroPad:mobile?'20px 0 64px':tablet?'24px 0 80px':'64px 0 104px',heroTextW:tablet?'100%':'600px',h1Size:mobile?38:tablet?52:62,
+      barMargin:mobile?'-32px 0 0':'-40px 0 0',barRadius:tablet?'24px':'999px',barWrap:tablet?'wrap':'nowrap',ctaOrder:tablet?2:4,ctaMl:tablet?'auto':'0',divDisp:tablet?'none':'block',tierBasis:tablet?'100%':'0',tierFs:mobile?14:16,
+      surface:s.surface,onSurface:e=>set({surface:Math.max(8,Math.min(60,+e.target.value||8)),tier:null}),surfDec:()=>set({surface:Math.max(8,s.surface-1),tier:null}),surfInc:()=>set({surface:Math.min(60,s.surface+1),tier:null}),
+      scopeDD:mk('scope',SCOPES.map(v=>[v,v]),s.scope,v=>set({scope:v,dd:null})),sunDD:mk('sun',[['faible','Peu de soleil'],['moyen','Ensoleillée'],['fort','Très ensoleillée']],s.sun,v=>set({sun:v,tier:null,dd:null})),sun:s.sun,onSun:e=>set({sun:e.target.value,tier:null}),sunCycle:()=>{const k=['faible','moyen','fort'];set({sun:k[(k.indexOf(s.sun)+1)%3],tier:null});},sunLabel:{faible:'Peu de soleil',moyen:'Ensoleillée',fort:'Très ensoleillée'}[s.sun],sunBg:s.sun==='fort'?'#FDEBDD':'#F4F6F8',
+      seeHref:'Climatisation.dc.html?type=Mono%20split&puissance='+TIERS[tierIdx][0],
+      tiers:TIERS.map((t,i)=>{const on=s.tier===i,rec=s.tier==null&&z.i===i;return{l:t[1],s:rec?(z.bump?'Conseillé · soleil':'Conseillé'):t[2],pressed:on?'true':'false',border:on?B:rec?'#12A6E8':'#E3E8EE',bg:on?B:rec?'#E6F5FD':'#fff',color:on?'#fff':'#1A1A1A',sub:on?'#fff':rec?B:'#5F6368',onClick:()=>set({tier:s.tier===i?null:i})};}),
+      reassure:[{l:'Livraison gratuite au Maroc',d:MAT.truck},{l:'Paiement à la livraison',d:MAT.cash},{l:'Marques officielles',d:MAT.verified}].map((r,i)=>({...r,sep:i&&!mobile?'1px solid #E6EBF0':'0'})),reRadius:mobile?'24px':'999px',reWrap:mobile?'wrap':'nowrap',reMin:mobile?'100%':'0',
+      h2Size:mobile?32:44,cardPad:mobile?20:40,bentoCols:bento.cols,bentoRow:bento.row,
+      cats:catDef.map((c,i)=>{const R=RANGES[c.k]||{};const hasLine=!!c.line,hasTypes=!!c.types&&!hasLine;return{t:c.t||R.t,s:c.s||'',hasSub:!c.types,hasTypes,hasLine,types:(c.types||[]).map((t,j,a)=>({...t,sep:j<a.length-2?'·':''})),typesDir:c.dir||'row',subW:c.subW||'100%',href:c.href||R.href,cta:c.cta||'Voir la gamme',ctaBg:'#fff',ctaInk:'#1A1A1A',bg:c.bg,d:IC[c.ic][0],d2:IC[c.ic][1],col:bento.place[i][0],row:bento.place[i][1],artPos:c.pos,art:c.photo?h('img',{src:c.photo,alt:'Climatisation d\u2019un hall d\u2019hôtel',style:{width:'100%',height:'100%',objectFit:'cover',display:'block',WebkitMaskImage:mobile?'linear-gradient(to bottom,transparent,#000 35%)':'linear-gradient(to right,transparent,#000 40%)',maskImage:mobile?'linear-gradient(to bottom,transparent,#000 35%)':'linear-gradient(to right,transparent,#000 40%)'}}):c.img?h('img',{src:c.img,alt:'',style:{width:'100%',display:'block',mixBlendMode:(c.img.includes('-cut')||c.img.includes('b0352fa9'))?'normal':'multiply',filter:(c.img.includes('-cut')||c.img.includes('b0352fa9'))?'drop-shadow(0 14px 18px rgba(14,40,70,0.22))':'none'}}):this.draw(c.art,'100%')};}),
+      news:NEWS.map(p=>({...btn(p.ref),wa:wa(p.name,p.ref),logo:logoOf(p.brand),hasLogo:!!logoOf(p.brand),badge:'Nouveau',badgeInk:B,from:'',name:p.name,brand:p.brand,ref:p.ref,href:'Produit.dc.html?ref='+p.ref,priceTxt:dh(p.price),wasTxt:p.was?dh(p.was):'',save:p.was?'Économisez '+dh(p.was-p.price):'',art:this.pic(p.img,p.art,p.name,p.w),add:()=>this.addK(p.ref,p.name)})),
+      chipsRow:[{l:'Toutes',v:null},{l:'LG',v:'LG'},{l:'Carrier',v:'Carrier'},{l:'CIAT',v:'CIAT'},{l:'Fitco',v:'Fitco'}].map(c=>{const on=s.brandF===c.v;return{l:c.l,bg:on?'#1A1A1A':'#fff',color:on?'#fff':'#1A1A1A',border:on?'#1A1A1A':'#E3E8EE',onClick:()=>set({brandF:c.v})};}),
+      fams,
+      ductCols:mobile?'repeat(2,minmax(0,1fr))':tablet?'repeat(3,minmax(0,1fr))':'repeat(6,minmax(0,1fr))',
+      ducts:DUCTS.map(d=>({...btn(d.ref),href:'Produit.dc.html?ref='+d.ref,name:d.name,ref:d.ref,dia:'Ø '+d.d,priceTxt:dh(d.price),art:this.duct(d.d,d.f),add:()=>this.addK(d.ref,d.name)})),
+      railRef:this.railRef,scrollL:rail(-1),scrollR:rail(1),gaiRef:this.gaiRef,gaiL:()=>{const el=this.gaiRef.current;if(el)el.scrollBy({left:-(el.clientWidth+16),behavior:'smooth'});},gaiR:()=>{const el=this.gaiRef.current;if(el)el.scrollBy({left:el.clientWidth+16,behavior:'smooth'});},
+      supplies:SUP.map(p=>({...btn(p.id),href:'Produit.dc.html?ref='+p.id,name:p.name,ref:p.id,priceTxt:dh(p.price),art:this.pic(null,p.art,p.name,p.art==='remote'?'48%':p.art==='gaz'?'56%':'86%'),add:()=>this.addK(p.id,p.name)})),
+      brandGap:mobile?40:72,brandW:mobile?120:170,brandH:mobile?48:64,marqueeRef:this.marqueeRef,brandsLoop:null,brandCols:mobile?'repeat(3,minmax(0,1fr))':tablet?'repeat(5,minmax(0,1fr))':'repeat(9,minmax(0,1fr))',
+      brandsRaw:official.map(n=>{const L0=logos[n],src=L0&&L0[0],ok=src&&!s.logoFail[n];return{name:n,href:'Marque '+n+'.dc.html',label:n==='LG'?'Distributeur officiel':'',mark:ok?h('img',{src,alt:n,onError:()=>set({logoFail:{...s.logoFail,[n]:true}}),style:{width:'100%',height:'100%',objectFit:'contain',display:'block'}}):h('span',{style:{fontSize:mobile?20:24,fontWeight:800,letterSpacing:'-0.03em',color:'#1A1A1A'}},n)};}),
+      brandCols:mobile?'repeat(3,minmax(0,1fr))':tablet?'repeat(5,minmax(0,1fr))':'repeat(9,minmax(0,1fr))',brandGap:mobile?40:64,brandTileH:mobile?80:112,brandW:mobile?110:150,brandH:mobile?48:64,marqueeRef:this.marqueeRef,brands:official.map(n=>{const AR={"lg":2.05,"carrier":2.52,"ciat":2.01,"fitco":0.69,"simsek":3.47,"gs":1.23,"lafarga":4.64,"alpha":3.09,"arfro":3.38};const ar=AR[n.toLowerCase()]||3;const A=(mobile?0.55:1)*4600;let lw=Math.sqrt(A*ar),lh=Math.sqrt(A/ar);const mh=mobile?48:64,mw=mobile?120:170;if(lh>mh){lh=mh;lw=lh*ar;}if(lw>mw){lw=mw;lh=lw/ar;}const src='uploads/logo-'+n.toLowerCase()+'-t.png';return{name:n,href:'Marque '+n+'.dc.html',label:n==='LG'?'Distributeur officiel':'',mark:s.logoFail[n]?h('span',{style:{fontSize:22,fontWeight:700}},n):h('img',{src,alt:n,onError:()=>set({logoFail:{...s.logoFail,[n]:true}}),style:{width:Math.round(lw),height:Math.round(lh),objectFit:'contain',display:'block'}})};}),proPad:mobile?24:56,perkCols:mobile?'1fr':'repeat(3,minmax(0,1fr))',perks:[{t:'Tarifs revendeur',x:'Prix professionnels sur tout le catalogue dès la connexion.',d:IC.tag[0],d2:IC.tag[1]},{t:'Stock à jour',x:'Quantités disponibles dans nos deux magasins de Marrakech.',d:IC.box[0],d2:IC.box[1]},{t:'Commande rapide par référence',x:'Saisissez vos références et quantités, le panier se remplit.',d:IC.list[0],d2:IC.list[1]}].map((p,i,a)=>({...p,line:i<a.length-1?'1px solid #EEF1F4':'0'})),
+      phones:[{l:'Ventes',v:'0666-854184',href:'tel:+212666854184'},{l:'Conseil',v:'0666-088348',href:'tel:+212666088348'},{l:'Projets et revendeurs',v:'0666-602599',href:'tel:+212666602599'},{l:'Fixe',v:'0524-306850',href:'tel:+212524306850'},{l:'Service facturation',v:'0666-661882',href:'tel:+212666661882'},{l:'E-mail',v:'ecom@arihafroid.com',href:'mailto:ecom@arihafroid.com'}],
+      socials:[['Facebook','facebook','#1877F2'],['Instagram','instagram','#E4405F'],['TikTok','tiktok','#1A1A1A'],['WhatsApp','whatsapp','#25D366']].map(([n,k,bg])=>({n,bg,img:React.createElement('img',{src:'https://cdn.simpleicons.org/'+k+'/ffffff',alt:'',width:20,height:20,style:{display:'block'}}),href:k==='whatsapp'?'https://wa.me/212666854184':'#'})),
+      sitemap:[{t:'Informations',links:L([['À propos','A propos.dc.html'],['Contact','Contact.dc.html'],['Espace revendeur','Devenir revendeur.dc.html'],['Demander un devis','Demander un devis.dc.html']])},
+        {t:'Climatisation',links:T(['Mono split','Gainable','Cassette','Console et armoire'],'Climatisation.dc.html')},
+        {t:'Chauffe-eau',links:T(['À gaz','Électrique','Solaire','Chaudière'],'Chauffe-eau.dc.html')},
+        {t:'Autres produits',links:L([['Ventilation','Ventilation.dc.html'],['Gaines circulaires','Gaines.dc.html'],['Cuivre et gaz','Cuivre et gaz.dc.html'],['Pièces de rechange','Pieces de rechange.dc.html'],['Froid','Froid.dc.html']])}],
+      legal:L([['Conditions générales d\u2019utilisation','CGU.dc.html'],['Conditions générales de vente','CGV.dc.html'],['Informations légales','Informations legales.dc.html'],['Sécurité','Securite.dc.html'],['Politique de confidentialité','Confidentialite.dc.html'],['Service après-vente','Service apres-vente.dc.html']]),
+      toast:s.toast,toastBottom:mobile?84:24,mobile,desktop:W>=1000,footBottom:mobile?88:0,footTop:mobile?40:64,footGap:mobile?32:48,fTop:mobile||tablet?'1fr':'minmax(0,4fr) minmax(0,8fr)',fLinks:mobile?'repeat(2,minmax(0,1fr))':'repeat(4,minmax(0,1fr))',fMid:mobile?'1fr':'minmax(0,2fr) minmax(0,1fr)',fPhones:mobile?'1fr':'repeat(2,minmax(0,1fr))'
+    };
+  }
+}
+</script>
+</body>
+</html>

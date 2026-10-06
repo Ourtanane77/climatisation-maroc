@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Toutes les pages · Climatisation Maroc</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F4F6F8;font-family:'Figtree',system-ui,sans-serif;color:#1A1A1A;-webkit-font-smoothing:antialiased}a{color:#0B5CAD;text-decoration:none}a:hover{color:#F4731F}</style>
+</helmet>
+<header style="background:#fff;box-shadow:0 1px 0 #E6E9EC"><div style="max-width:1600px;margin:0 auto;padding:20px clamp(16px,3vw,48px);display:flex;align-items:center;gap:16px 24px;flex-wrap:wrap"><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:44px;display:block"><div style="display:flex;flex-direction:column;gap:2px"><h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">Toutes les pages</h1><span style="font-size:15px;color:#5F6368">{{ total }} pages · cliquez sur une vignette pour ouvrir la page</span></div></div></header>
+<main style="max-width:1600px;margin:0 auto;padding:16px clamp(16px,3vw,48px) 64px;box-sizing:border-box">
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="10">
+<section style="padding-top:40px"><div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px"><h2 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-0.015em">{{ g.t }}</h2><span style="font-size:15px;color:#5F6368">{{ g.n }}</span></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,288px);gap:24px 20px"><sc-for list="{{ g.items }}" as="p" hint-placeholder-count="4">
+<a href="{{ p.src }}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;gap:10px;color:#1A1A1A" style-hover="color:#0B5CAD">
+<div style="position:relative;width:288px;height:180px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px #E3E8EE, 0 18px 36px -28px rgba(14,40,70,0.45)"><div style="position:absolute;inset:0"><iframe src="{{ p.src }}" title="{{ p.l }}" loading="lazy" tabindex="-1" scrolling="no" style="width:1440px;height:900px;border:0;transform:scale(0.2);transform-origin:0 0;pointer-events:none;display:block"></iframe></div></div>
+<span style="width:288px;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:700;line-height:1.3">{{ p.l }}</span><span style="font-size:13px;color:#5F6368">{{ p.f }}</span></span>
+</a>
+</sc-for></div>
+</section>
+</sc-for>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const G=[
+      ['Accueil',[['Accueil','Accueil.dc.html']]],
+      ['Structure et navigation',[['Structure et navigation','Structure et navigation.dc.html'],['Plan du site','Plan du site.dc.html']]],
+      ['Climatisation',[['Gamme Climatisation','Climatisation.dc.html'],['Catégorie Climatiseurs muraux','Categorie Climatiseurs muraux.dc.html'],['Catégorie · comparateur actif','Categorie Climatiseurs muraux.dc.html?comparer=1'],['Fiche produit LG Dual Inverter','Produit LG Dual Inverter.dc.html']]],
+      ['Achat',[['Panier','Panier.dc.html'],['Panier vide','Panier.dc.html?vide=1'],['Commande','Commande.dc.html'],['Confirmation de commande','Confirmation.dc.html'],['Suivre ma commande','Suivi commande.dc.html'],['Résultats de recherche','Recherche.dc.html?q=cuivre'],['Recherche sans résultat','Recherche.dc.html?q=climatiseur%20portable'],['Promotions','Promotions.dc.html']]],
+      ['Devis, contact et services',[['Demander un devis','Demander un devis.dc.html'],['Demande de devis envoyée','Demander un devis.dc.html?envoye=1'],['Contact et magasins','Contact.dc.html'],['Service · Installation','Service.dc.html'],['Service · Visite technique','Service.dc.html?s=visite'],['Service · Service après-vente','Service.dc.html?s=sav']]],
+      ['Professionnels',[['Espace professionnel','Espace professionnel.dc.html'],['Devenir revendeur','Devenir revendeur.dc.html'],['Devenir revendeur · demande enregistrée','Devenir revendeur.dc.html?envoye=1'],['Connexion','Connexion.dc.html'],['Connexion · mot de passe oublié','Connexion.dc.html?oubli=1'],['Commande rapide par référence','Commande rapide.dc.html']]],
+      ['Solutions professionnelles',[['Solutions professionnelles','Solutions professionnelles.dc.html'],['Secteur · Restaurants et cafés','Restaurants.dc.html']]],
+      ['Blog',[['Blog','Blog.dc.html'],['Catégorie · Guides d\u2019achat','Blog categorie.dc.html?c=guides'],['Article · Puissance du climatiseur','Article puissance climatiseur.dc.html']]],
+      ['Marques et outils',[['Marque LG','Marque LG.dc.html'],['Liste rapide · Cuivre et gaz','Cuivre et gaz.dc.html'],['Comparer','Comparer.dc.html'],['Calculateur de puissance','Calculateur puissance.dc.html']]],
+      ['Entreprise et système',[['À propos','A propos.dc.html'],['Livraison et paiement','Livraison et paiement.dc.html'],['Conditions générales de vente','CGV.dc.html'],['Page introuvable (404)','Page introuvable.dc.html']]]];
+    let total=0;
+    const groups=G.map(([t,items])=>{total+=items.length;return{t,n:items.length+(items.length>1?' pages':' page'),items:items.map(([l,src])=>({l,src,f:src.split('?')[0].replace('.dc.html','')+(src.includes('?')?' · '+src.split('?')[1]:''),z:1}))};});
+    return{groups,total};
+  }
+}
+</script>
+</body>
+</html>

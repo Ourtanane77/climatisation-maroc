@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="./art.js"></script>
+<style>body{margin:0;background:#E9ECEF;font-family:'Figtree',system-ui,sans-serif;color:#1A1A1A}a{color:#0B5CAD;text-decoration:none}a:hover{color:#F4731F}</style>
+</helmet>
+
+<section style="padding:80px 80px 0;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;font-weight:700;background:#1A1A1A;color:#fff;border-radius:8px;padding:4px 10px">a</span><span style="font-size:18px;font-weight:600">Plan du cocon sémantique · /plan-du-cocon · 1440</span></div>
+<div data-screen-label="Plan du cocon sémantique" style="position:relative;width:1440px;box-sizing:border-box;background:#fff;border-radius:24px;padding:48px">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px"><h1 style="margin:0;font-size:40px;font-weight:700;letter-spacing:-0.03em">Plan du cocon sémantique</h1>
+<div style="display:flex;gap:20px;font-size:14px;color:#5F6368;align-items:center"><span style="display:flex;align-items:center;gap:8px"><span style="width:28px;border-top:2px solid #0B5CAD"></span>Lien dans le silo</span><span style="display:flex;align-items:center;gap:8px"><span style="width:28px;border-top:2px dashed #F4731F"></span>Passage autorisé entre silos</span><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:4px;background:#0B5CAD"></span>Mère</span><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:4px;background:#E8EFF8;box-shadow:inset 0 0 0 1.5px #0B5CAD"></span>Fille</span><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:4px;background:#FDEBDD;box-shadow:inset 0 0 0 1.5px #F4731F"></span>Petite-fille</span></div></div>
+<div style="position:relative;display:grid;grid-template-columns:repeat(3,416px);grid-template-rows:repeat(3,500px);gap:24px">
+<svg aria-hidden="true" width="1296" height="1548" style="position:absolute;left:0;top:0;pointer-events:none;overflow:visible"><sc-for list="{{ lines }}" as="l" hint-placeholder-count="7"><line x1="648" y1="774" x2="{{ l.x }}" y2="{{ l.y }}" stroke="#F4731F" stroke-width="2" stroke-dasharray="6 6"></line></sc-for></svg>
+<sc-for list="{{ silos }}" as="s" hint-placeholder-count="9">
+<div style="position:relative;grid-column:{{ s.col }};grid-row:{{ s.row }};background:{{ s.bg }};border:{{ s.border }};border-radius:20px;padding:18px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;overflow:hidden">
+<sc-if value="{{ s.isHome }}" hint-placeholder-val="{{ false }}"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center"><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:56px;background:#fff;border-radius:12px;padding:8px 14px"><div style="font-size:30px;font-weight:800;color:#fff">Accueil · /</div><div style="font-size:15px;color:#fff;line-height:1.5;max-width:300px">Relie les sept pages mères. Header, footer et bento sont les seuls passages entre silos.</div></div></sc-if>
+<sc-if value="{{ s.isSilo }}" hint-placeholder-val="{{ true }}">
+<span style="font-size:13px;font-weight:700;color:#5F6368">{{ s.n }}</span>
+<div style="background:#0B5CAD;color:#fff;border-radius:12px;padding:10px 14px"><div style="font-size:16px;font-weight:700;line-height:1.25">{{ s.t }}</div><div style="font-size:13px;opacity:0.85">{{ s.u }}</div></div>
+<div style="margin-left:14px;border-left:2px solid #0B5CAD;padding-left:12px;display:flex;flex-direction:column;gap:6px">
+<sc-for list="{{ s.f }}" as="f" hint-placeholder-count="4"><div style="background:#E8EFF8;box-shadow:inset 0 0 0 1.5px #0B5CAD;border-radius:9px;padding:6px 10px;font-size:13px;line-height:1.3"><strong>{{ f.t }}</strong> <span style="color:#5F6368">{{ f.u }}</span></div></sc-for>
+<sc-if value="{{ s.hasP }}" hint-placeholder-val="{{ true }}"><div style="margin-left:14px;border-left:2px solid #F4731F;padding-left:12px;display:flex;flex-direction:column;gap:5px"><sc-for list="{{ s.p }}" as="p" hint-placeholder-count="3"><div style="background:#FDEBDD;box-shadow:inset 0 0 0 1.5px #F4731F;border-radius:9px;padding:5px 10px;font-size:12.5px;line-height:1.3">{{ p }}</div></sc-for></div></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ s.isRule }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:12px;font-size:15px;line-height:1.55;color:#3C4043"><strong style="font-size:18px;color:#1A1A1A">Règles de maillage</strong><span>Fille → mère, fille ↔ sœurs. Petite-fille → fille et mère, petite-fille ↔ 2 ou 3 sœurs.</span><span>Changement de silo seulement par le header, le footer, l'accueil et le bloc « Pour l'installation » des fiches produit.</span><span>Hors silos : Blog, Promotions, Panier et commande, Devis, Contact, Espace professionnel, À propos, pages légales.</span></div></sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="padding:80px 80px 0;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;font-weight:700;background:#1A1A1A;color:#fff;border-radius:8px;padding:4px 10px">b</span><span style="font-size:18px;font-weight:600">Menu principal ouvert · Climatisation et Solutions professionnelles · / · 1440</span></div>
+<div style="display:flex;flex-direction:column;gap:40px">
+<sc-for list="{{ megas }}" as="m" hint-placeholder-count="2">
+<div data-screen-label="{{ m.label }}" style="width:1440px;background:#F4F6F8;border-radius:20px;overflow:hidden;box-shadow:0 30px 60px -40px rgba(0,0,0,0.4)">
+<div style="background:#fff;padding:0 40px">
+<div style="height:76px;display:flex;align-items:center;gap:28px"><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:50px"><div style="flex:1;max-width:600px;height:48px;border-radius:999px;border:1.5px solid #E3E8EE;background:#F4F6F8;display:flex;align-items:center;padding:0 6px 0 20px;font-size:15px;color:#5F6368"><span style="font-weight:700;color:#1A1A1A;padding-right:14px;border-right:1.5px solid #E3E8EE;margin-right:14px">Toutes</span>Rechercher un produit ou une référence</div><span style="margin-left:auto;display:flex;align-items:center;gap:8px;font-weight:700"><span style="width:36px;height:36px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center"><img src="https://cdn.simpleicons.org/whatsapp/ffffff" alt="" width="19" height="19"></span>0666-854184</span><span style="height:48px;padding:0 6px 0 16px;border-radius:999px;background:#F4731F;color:#fff;display:flex;align-items:center;gap:8px;font-weight:700">Panier<span style="min-width:36px;height:36px;border-radius:18px;background:#fff;color:#C4501A;font-size:14px;display:flex;align-items:center;justify-content:center">0</span></span></div>
+<nav style="height:52px;display:flex;align-items:center;border-top:1px solid #EEF1F4;font-size:15px;font-weight:600;margin:0 -10px"><sc-for list="{{ m.nav }}" as="n" hint-placeholder-count="8"><span style="padding:9px 10px;border-radius:999px;background:{{ n.bg }};color:{{ n.c }}">{{ n.l }}</span></sc-for><span style="flex:1"></span><span style="padding:9px 10px;color:#0B5CAD">Demander un devis</span><span style="padding:9px 10px;color:#0B5CAD">Contact</span><span style="padding:9px 10px;color:#C4501A">Devenir revendeur</span></nav>
+</div>
+<div style="padding:0 40px 40px">
+<div style="background:#fff;border-radius:0 0 24px 24px;box-shadow:0 30px 60px -30px rgba(14,40,70,0.35);overflow:hidden">
+<sc-if value="{{ m.isClim }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,0.8fr) 320px;gap:32px;padding:28px">
+<div><div style="font-size:14px;color:#5F6368;margin-bottom:12px">Sous-gammes</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><sc-for list="{{ subs }}" as="sb" hint-placeholder-count="4"><a href="{{ sb.href }}" style="display:flex;align-items:center;gap:14px;padding:10px;border-radius:16px;color:#1A1A1A" style-hover="background:#E8EFF8;color:#0B5CAD"><span style="width:76px;height:60px;overflow:hidden;border-radius:12px;background:#EEF3FA;display:flex;align-items:center;justify-content:center;padding:6px;box-sizing:border-box;flex-shrink:0;font-size:11px;color:#0B5CAD;font-weight:700;text-align:center">{{ sb.img }}</span><span><span style="display:block;font-size:17px;font-weight:700">{{ sb.t }}</span><span style="font-size:13px;color:#5F6368">{{ sb.u }}</span></span></a></sc-for></div>
+<a href="Climatisation.dc.html" style="display:inline-flex;margin-top:16px;min-height:44px;align-items:center;padding:0 10px;font-size:15px;font-weight:700;text-decoration:underline;text-underline-offset:4px">Guide : quelle puissance choisir ?</a></div>
+<div><div style="font-size:14px;color:#5F6368;margin-bottom:12px">Marques dans cette gamme</div><div style="display:flex;flex-direction:column;gap:6px"><sc-for list="{{ climBrands }}" as="b" hint-placeholder-count="4"><a href="{{ b.href }}" style="height:56px;border-radius:14px;background:#F4F6F8;display:flex;align-items:center;justify-content:space-between;padding:0 16px;color:#1A1A1A" style-hover="background:#E8EFF8">{{ b.mark }}<span style="font-size:12px;font-weight:700;color:#0B5CAD">{{ b.note }}</span></a></sc-for></div></div>
+<article style="background:#fff;border:1px solid #E6EBF0;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px"><span style="align-self:flex-start;font-size:14px;font-weight:700;color:#C4501A;border:1.5px solid #C4501A;border-radius:8px;padding:4px 10px">−12 %</span><span style="font-size:20px;font-weight:500;line-height:1.3">LG Dual Inverter 12000 BTU</span><span style="font-size:15px;color:#5F6368">D13AJH.N</span><div style="height:140px;display:flex;align-items:center;justify-content:center"><img src="uploads/New_DZ2.png" alt="LG Dual Inverter 12000 BTU" style="max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply"></div><div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:28px;font-weight:800">5 700 Dhs</span><span style="font-size:15px;color:#7A828B;text-decoration:line-through">6 500 Dhs</span></div><span style="font-size:14px;font-weight:700;color:#C4501A">Économisez 800 Dhs</span><a href="Produit.dc.html" style="height:54px;border-radius:12px;border:1.5px solid #9AA3AD;color:#1A1A1A;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700" style-hover="background:#1A1A1A;color:#fff">Voir le produit</a></article>
+</div>
+<a href="Climatisation.dc.html" style="display:flex;justify-content:center;align-items:center;height:56px;background:#E8EFF8;font-size:16px;font-weight:700" style-hover="background:#DCE8F5">Voir toute la climatisation</a>
+</sc-if>
+<sc-if value="{{ m.isSol }}" hint-placeholder-val="{{ false }}">
+<div style="padding:28px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px"><sc-for list="{{ sectors }}" as="sc" hint-placeholder-count="8"><a href="{{ sc.href }}" style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:16px;color:#1A1A1A" style-hover="background:#E8EFF8;color:#0B5CAD"><span style="width:52px;height:52px;border-radius:14px;background:{{ sc.bg }};display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="{{ sc.d }}" stroke="#0B5CAD"></path><path d="{{ sc.d2 }}" stroke="#F4731F"></path></svg></span><span><span style="display:block;font-size:16px;font-weight:700">{{ sc.t }}</span><span style="font-size:13px;color:#5F6368">{{ sc.x }}</span></span></a></sc-for></div>
+<a href="Solutions professionnelles.dc.html" style="display:flex;justify-content:center;align-items:center;height:56px;background:#FDF0E6;font-size:16px;font-weight:700;color:#C4501A">Voir toutes les solutions professionnelles</a>
+</sc-if>
+</div></div></div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding:80px 80px 0;display:flex;gap:64px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;font-weight:700;background:#1A1A1A;color:#fff;border-radius:8px;padding:4px 10px">c</span><span style="font-size:18px;font-weight:600">Menu mobile · / · 390</span></div>
+<div data-screen-label="Menu mobile" style="width:390px;height:844px;background:#fff;border-radius:32px;overflow:hidden;box-shadow:0 30px 60px -40px rgba(0,0,0,0.4);display:flex;flex-direction:column">
+<div style="height:72px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #EEF1F4"><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:36px"><span style="width:44px;height:44px;border-radius:50%;background:#F4F6F8;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12 M18 6L6 18"></path></svg></span></div>
+<div style="flex:1;overflow-y:auto;padding:4px 16px 16px;display:flex;flex-direction:column">
+<sc-for list="{{ accs }}" as="a" hint-placeholder-count="6"><div style="border-bottom:1px solid #EEF1F4"><div style="min-height:56px;display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700">{{ a.t }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" stroke-width="2.4" stroke-linecap="round" style="transform:rotate({{ a.rot }}deg)"><path d="M6 9l6 6 6-6"></path></svg></div><sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;padding-bottom:10px"><sc-for list="{{ subs }}" as="sb" hint-placeholder-count="4"><a href="{{ sb.href }}" style="min-height:48px;display:flex;align-items:center;gap:12px;font-size:16px;color:#3C4043"><span style="width:48px;height:36px;overflow:hidden;border-radius:8px;background:#EEF3FA;display:flex;align-items:center;justify-content:center;padding:3px;box-sizing:border-box;font-size:9px;color:#0B5CAD;font-weight:700">{{ sb.img }}</span>{{ sb.t }}</a></sc-for><a href="Climatisation.dc.html" style="min-height:44px;display:flex;align-items:center;font-size:16px;font-weight:700">Voir toute la climatisation</a></div></sc-if></div></sc-for>
+<sc-for list="{{ more }}" as="n" hint-placeholder-count="6"><a href="{{ n.href }}" style="min-height:56px;display:flex;align-items:center;border-bottom:1px solid #EEF1F4;font-size:17px;font-weight:700;color:{{ n.c }}">{{ n.l }}</a></sc-for>
+<a href="tel:+212666854184" style="margin-top:18px;min-height:52px;border-radius:999px;border:1.5px solid #1A1A1A;color:#1A1A1A;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">Appeler le 0666-854184</a>
+<a href="https://wa.me/212666854184" style="margin-top:10px;min-height:52px;border-radius:999px;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">WhatsApp</a>
+</div></div>
+</div>
+</section>
+
+<section style="padding:80px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;font-weight:700;background:#1A1A1A;color:#fff;border-radius:8px;padding:4px 10px">d</span><span style="font-size:18px;font-weight:600">Fil d'Ariane et pied de page · composants · 1440</span></div>
+<div data-screen-label="Fil d'Ariane et pied de page" style="width:1440px;background:#F4F6F8;border-radius:20px;overflow:hidden;box-shadow:0 30px 60px -40px rgba(0,0,0,0.4)">
+<div style="padding:40px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ crumbs }}" as="c" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:24px"><span style="width:140px;font-size:13px;font-weight:700;color:#5F6368">{{ c.depth }}</span><nav aria-label="Fil d'Ariane" style="background:#fff;border-radius:999px;padding:12px 20px;display:flex;gap:8px;flex-wrap:wrap;font-size:14px"><sc-for list="{{ c.items }}" as="i" hint-placeholder-count="3"><a href="#" style="color:{{ i.c }};font-weight:{{ i.w }}">{{ i.l }}</a><span style="color:#9AA3AD">{{ i.sep }}</span></sc-for></nav></div></sc-for>
+</div>
+<footer style="background:#0B5CAD;color:#fff;padding:56px 40px 28px;display:flex;flex-direction:column;gap:40px">
+<div style="display:grid;grid-template-columns:minmax(0,3fr) minmax(0,9fr);gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px"><span style="align-self:flex-start;background:#fff;border-radius:14px;padding:8px 14px"><img src="uploads/pasted-1791221833312-0.png" alt="Ariha Froid" style="height:44px;display:block"></span><p style="margin:0;font-size:14px;line-height:22px;color:#E3ECF7">Climatisation Maroc est un site e-commerce spécialisé dans la vente des systèmes de climatisation, avec livraison gratuite sur tout le Maroc. Le site est une propriété de la société Ariha Froid, fournisseur de climatisation et de froid à Marrakech depuis 2008, pour les professionnels comme les particuliers.</p></div>
+<nav aria-label="Plan du site" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 24px"><sc-for list="{{ fcols }}" as="col" hint-placeholder-count="8"><div style="display:flex;flex-direction:column;gap:10px"><a href="#" style="font-size:14px;font-weight:800;color:#fff;letter-spacing:0.02em">{{ col.t }}</a><sc-for list="{{ col.l }}" as="lk" hint-placeholder-count="4"><a href="#" style="font-size:14px;color:#C9DAEE" style-hover="color:#FDEBDD">{{ lk }}</a></sc-for></div></sc-for></nav>
+</div>
+<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:24px;border-top:1px solid rgba(255,255,255,0.18);font-size:14px;color:#C9DAEE"><span>Ventes 0666-854184 · Projets et revendeurs 0666-602599 · Lundi – Samedi, 9h – 19h</span><span>© 2026 Ariha Froid</span></div>
+</footer>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount(){if(!window.AFDraw){this.t=setInterval(()=>{if(window.AFDraw){clearInterval(this.t);this.forceUpdate();}},100);}}
+  componentWillUnmount(){clearInterval(this.t);}
+  renderVals(){
+    const h=React.createElement,D=(k,w)=>window.AFDraw?window.AFDraw(k,w):null;
+    const S=(n,t,u,f,p)=>({isSilo:true,n,t,u,f:f.map(([t,u])=>({t,u})),p:p||[],hasP:!!(p&&p.length),bg:'#fff',border:'1.5px solid #E6EBF0'});
+    const silos=[
+      S('Silo 1','Climatisation','/climatisation',[['Mural','/climatisation/mural'],['Gainable','/climatisation/gainable'],['Cassette','/climatisation/cassette'],['Console et armoire','/climatisation/console-armoire']],['Fiches produit /produit/[slug]','Quelle puissance de climatiseur pour ma pièce ?','Inverter ou On/Off : lequel choisir ?','Mural, gainable ou cassette ?','R32 ou R410A','Réduire la consommation','Entretien annuel']),
+      S('Silo 2','Chauffe-eau','/chauffe-eau',[['Solaire','/chauffe-eau/solaire'],['Électrique','/chauffe-eau/electrique'],['À gaz','/chauffe-eau/gaz'],['Chaudière','/chauffe-eau/chaudiere']],['Fiches produit','Quelle capacité pour ma famille ?','Solaire, électrique ou gaz ?']),
+      S('Silo 3','Ventilation et gaines','/ventilation',[['Ventilateurs de gaine','/ventilation/ventilateurs-de-gaine'],['Multizone','/ventilation/multizone'],['Gaines circulaires','/gaines/circulaires'],['Grilles et diffuseurs','/gaines/grilles-et-diffuseurs']],['Fiches produit','Quel diamètre de gaine ?','Souple ou calorifugée ?']),
+      S('Silo 4','Installation et fournitures','/installation',[['Cuivre','/cuivre-et-gaz/cuivre'],['Kits duo','/cuivre-et-gaz/kits-duo'],['Gaz frigorifique','/cuivre-et-gaz/gaz-frigorifique'],['Pièces de rechange','/pieces-de-rechange'],['Installation · Visite technique · SAV','/services/…']],['Quel diamètre de cuivre ?','Fournitures pour poser un split']),
+      {isHome:true,bg:'#0B5CAD',border:'0'},
+      S('Silo 5','Solutions professionnelles','/solutions',[['Hôtels et riads · Restaurants et cafés','/solutions/…'],['Bureaux · Commerces · Écoles','/solutions/…'],['Cliniques · Villas · Chambres froides','/solutions/…']],['Climatiser un restaurant : les erreurs','Climatisation pour hôtel ou riad']),
+      S('Silo 6','Marques','/marques',[['LG','/marques/lg'],['Carrier','/marques/carrier'],['CIAT','/marques/ciat'],['Fitco','/marques/fitco'],['Simsek','/marques/simsek']]),
+      S('Silo 7','Villes','/livraison',[['Marrakech','/climatisation-marrakech'],['Casablanca','/climatisation-casablanca'],['Rabat','/climatisation-rabat'],['Agadir','/climatisation-agadir'],['Tanger','/climatisation-tanger'],['Fès','/climatisation-fes']]),
+      {isRule:true,bg:'#F4F6F8',border:'0'}];
+    const pos=[[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3],[3,3]];
+    silos.forEach((s,i)=>{s.col=String(pos[i][0]);s.row=String(pos[i][1]);});
+    const cx=c=>(c-1)*440+208,cy=r=>(r-1)*524+250;
+    const lines=[0,1,2,3,5,6,7].map(i=>({x:cx(pos[i][0]),y:cy(pos[i][1])}));
+    const navItems=['Climatisation','Chauffe-eau','Ventilation','Gaines','Cuivre et gaz','Pièces de rechange','Solutions professionnelles','Promotions'];
+    const nav=act=>navItems.map(l=>({l,bg:l===act?'#E8EFF8':'transparent',c:l==='Promotions'?'#C4501A':'#1A1A1A'}));
+    const img=(src)=>h('img',{src,alt:'',style:{width:'150%',maxWidth:'none',objectFit:'contain',display:'block'}});
+    const subs=[['Mural','/climatisation/mural',img('uploads/clima-cut2.png')],['Gainable','/climatisation/gainable',h('div',{style:{width:'135%',flexShrink:0}},D('gainable','100%'))],['Cassette','/climatisation/cassette',D('cassette','70%')],['Console et armoire','/climatisation/console-armoire','[PHOTO]']].map(([t,u,im])=>({t,u,img:im,href:'Climatisation.dc.html'}));
+    const IC={hotel:['M3 18v-7h18v7 M3 14h18 M5 11V7h6v4','M3 18v2 M21 18v2'],resto:['M7 3v8 M5 3v5a2 2 0 0 0 4 0V3 M7 11v10','M17 3c-2 2-2 6 0 8v10'],bureau:['M3 20h18 M5 20V9h14v11','M9 13h6 M12 9V5'],shop:['M4 9l1-5h14l1 5 M5 9v11h14V9','M4 9a2.7 2.7 0 0 0 5.3 0a2.7 2.7 0 0 0 5.4 0a2.7 2.7 0 0 0 5.3 0'],ecole:['M3 9l9-5 9 5-9 5z','M7 11v5c3 2 7 2 10 0v-5'],clinique:['M4 21V5h16v16','M12 9v6 M9 12h6'],villa:['M3 11l9-7 9 7 M5 10v10h14V10','M10 20v-5h4v5'],froid:['M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9','M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5']};
+    const sectors=[['hotel','Hôtels et riads','Confort silencieux dans chaque chambre'],['resto','Restaurants et cafés','Salle fraîche, cuisine ventilée'],['bureau','Bureaux','Une température stable toute la journée'],['shop','Commerces','Accueillir vos clients au frais'],['ecole','Écoles','Des salles de classe confortables'],['clinique','Cliniques','Air maîtrisé pour vos patients'],['villa','Villas','Climatisation discrète, pièce par pièce'],['froid','Chambres froides','Froid commercial pour la conservation']].map(([k,t,x],i)=>({t,x,d:IC[k][0],d2:IC[k][1],bg:i%2?'#FDEBDD':'#E8EFF8',href:k==='resto'?'Restaurants.dc.html':'Solutions professionnelles.dc.html'}));
+    const L=n=>'uploads/logo-'+n.toLowerCase()+'-t.png';
+    return{silos,lines,
+      megas:[{label:'Menu principal ouvert · Climatisation · 1440',isClim:true,isSol:false,nav:nav('Climatisation')},{label:'Menu principal ouvert · Solutions professionnelles · 1440',isClim:false,isSol:true,nav:nav('Solutions professionnelles')}],
+      subs,sectors,climBrands:[['LG','Distributeur officiel',30],['Carrier','',28],['CIAT','',26],['Fitco','',44]].map(([n,note,ht])=>({n,note,href:'Marque '+n+'.dc.html',mark:h('img',{src:L(n),alt:n,style:{height:ht,maxWidth:110,objectFit:'contain',display:'block'}})})),
+      accs:['Climatisation','Chauffe-eau','Ventilation et gaines','Installation et fournitures','Marques','Villes'].map((t,i)=>({t,open:i===0,rot:i===0?180:0})),
+      more:[['Promotions','Promotions.dc.html','#C4501A'],['Solutions professionnelles','Solutions professionnelles.dc.html','#1A1A1A'],['Blog','Blog.dc.html','#1A1A1A'],['Demander un devis','Demander un devis.dc.html','#1A1A1A'],['Contact','Contact.dc.html','#1A1A1A'],['Devenir revendeur','Devenir revendeur.dc.html','#1A1A1A']].map(([l,href,c])=>({l,href,c})),
+      crumbs:[['Gamme',['Accueil','Climatisation']],['Sous-gamme',['Accueil','Climatisation','Climatiseurs muraux']],['Produit',['Accueil','Climatisation','Climatiseurs muraux','LG Dual Inverter 12000 BTU']]].map(([depth,arr])=>({depth,items:arr.map((l,i)=>({l,c:i===arr.length-1?'#1A1A1A':'#5F6368',w:i===arr.length-1?700:500,sep:i<arr.length-1?'›':''}))})),
+      fcols:[['Climatisation',['Mural','Gainable','Cassette','Console et armoire']],['Chauffe-eau',['Solaire','Électrique','À gaz','Chaudière']],['Ventilation et gaines',['Ventilateurs de gaine','Multizone','Gaines circulaires','Grilles et diffuseurs']],['Installation',['Cuivre','Kits duo','Gaz frigorifique','Pièces de rechange','Services']],['Solutions professionnelles',['Hôtels et riads','Restaurants et cafés','Bureaux','Commerces','Écoles','Cliniques','Villas','Chambres froides']],['Marques',['LG','Carrier','CIAT','Fitco','Simsek']],['Villes',['Marrakech','Casablanca','Rabat','Agadir','Tanger','Fès']],['Informations',['Blog','Promotions','Demander un devis','Contact','Espace professionnel','À propos','Conditions générales de vente']]].map(([t,l])=>({t,l}))
+    };
+  }
+}
+</script>
+</body>
+</html>
