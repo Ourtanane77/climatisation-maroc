@@ -39,6 +39,8 @@ FROM base AS prod
 COPY docker/php/opcache-prod.ini /usr/local/etc/php/conf.d/zz-opcache.ini
 COPY --from=vendor /var/www/backend/vendor ./vendor
 COPY backend/ ./
+# Seed and price authority (config/catalog.php reads ../data/catalog.json).
+COPY data/catalog.json /var/www/data/catalog.json
 RUN composer dump-autoload --optimize --no-dev \
     && php artisan filament:assets \
     && chown -R www-data:www-data storage bootstrap/cache

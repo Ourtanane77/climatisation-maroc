@@ -24,7 +24,13 @@ class SeedIfEmpty extends Command
         }
 
         $this->components->info('Empty database: seeding.');
+        $status = $this->call('db:seed', ['--force' => true]);
 
-        return $this->call('db:seed', ['--force' => true]);
+        // Product photos come from the old site; a network failure must not block start-up.
+        if ($status === self::SUCCESS && $this->call('catalog:download-images') !== self::SUCCESS) {
+            $this->components->warn('Some product images could not be downloaded: run `php artisan catalog:download-images` later.');
+        }
+
+        return $status;
     }
 }

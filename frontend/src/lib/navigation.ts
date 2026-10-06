@@ -159,8 +159,13 @@ export const DESIGN_NAVIGATION: SiteNavigation = {
   footer: {
     about:
       "Climatisation Maroc est un site e-commerce spécialisé dans la vente des systèmes de climatisation, avec livraison gratuite sur tout le Maroc. Le site est une propriété de la société Ariha Froid, fournisseur de climatisation et de froid à Marrakech depuis 2008, pour les professionnels comme les particuliers.",
-    // Facebook, Instagram and TikTok have no URL in the design ("#"): added from Réglages once known.
-    socials: [{ name: "WhatsApp", href: "https://wa.me/212666854184" }],
+    // URLs given by the client on 2026-10-06 (the design links them to "#"); editable in Réglages.
+    socials: [
+      { name: "Facebook", href: "https://web.facebook.com/maroc.climatisation" },
+      { name: "Instagram", href: "https://www.instagram.com/arihafroid_climatisation/" },
+      { name: "TikTok", href: "https://www.tiktok.com/@arihafroid_climatisation" },
+      { name: "WhatsApp", href: "https://wa.me/212666854184" },
+    ],
     columns: [
       {
         title: "Informations",

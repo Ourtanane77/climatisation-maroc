@@ -8,12 +8,13 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'phone', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -36,6 +37,18 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /** @return HasOne<ResellerAccount, $this> */
+    public function resellerAccount(): HasOne
+    {
+        return $this->hasOne(ResellerAccount::class);
+    }
+
+    /** True for a reseller whose account has been validated: sees pro prices, can log in. */
+    public function isValidatedReseller(): bool
+    {
+        return $this->hasRole(self::ROLE_RESELLER) && (bool) $this->resellerAccount?->isValidated();
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Production-safe seeding: every seeder is idempotent (updateOrCreate on natural keys).
- * Demo data (example orders, leads) lives in DemoSeeder and is never run here.
+ * Demo data (example order, reseller, lead) is only added outside production.
  */
 class DatabaseSeeder extends Seeder
 {
@@ -14,6 +14,14 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndUsersSeeder::class,
+            ReferenceSeeder::class,
+            CatalogSeeder::class,
+            ContentSeeder::class,
+            HomeSeeder::class,
         ]);
+
+        if (! app()->isProduction()) {
+            $this->call(DemoSeeder::class);
+        }
     }
 }

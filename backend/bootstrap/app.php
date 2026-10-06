@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // nginx and the Next.js server sit in front of PHP; trust them for client IPs (rate limits).
         $middleware->trustProxies(at: '*');
+        // The only login page served by Laravel is the back office's.
+        $middleware->redirectGuestsTo('/admin/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

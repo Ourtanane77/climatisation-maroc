@@ -28,14 +28,19 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Climatisation Maroc')
+            // Brand colours from the design. Filament picks button shades from 500/600 with a contrast
+            // check, so those are pinned to the exact design colours (white text on #0B5CAD).
             ->colors([
-                'primary' => Color::hex('#0B5CAD'),
-                'warning' => Color::hex('#F4731F'),
-                'danger' => Color::hex('#C4501A'),
-                'success' => Color::hex('#1F9D57'),
+                'primary' => array_replace(Color::hex('#0B5CAD'), [500 => '#0B5CAD', 600 => '#0B5CAD', 700 => '#084683']),
+                'warning' => array_replace(Color::hex('#F4731F'), [500 => '#D85A17', 600 => '#C4501A', 700 => '#A8461A']),
+                'danger' => array_replace(Color::hex('#C4501A'), [500 => '#C4501A', 600 => '#C4501A', 700 => '#A8461A']),
+                'success' => array_replace(Color::hex('#1F9D57'), [500 => '#1F9D57', 600 => '#1F9D57', 700 => '#187D45']),
             ])
             ->font('Figtree')
             ->darkMode(false)
+            ->databaseNotifications()
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups(['Catalogue', 'Ventes', 'Contenu', 'Configuration'])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

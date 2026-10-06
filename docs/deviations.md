@@ -9,7 +9,6 @@ listed here.
 
 | Area | Design | Built | Why |
 |---|---|---|---|
-| Footer social icons | Facebook, Instagram, TikTok and WhatsApp, the first three linking to `#` | WhatsApp only | Never invent URLs. The others appear when their URL is set in Réglages. |
 | Brand icons (WhatsApp, Facebook…) | Loaded from the `cdn.simpleicons.org` CDN | Inline SVG | No third-party request, faster LCP, works offline. |
 | Logo | `uploads/pasted-1791221833312-0.png` | Text wordmark until the file is added to `design/uploads/` | Image missing from the design export (see `design/README.md`). It is picked up automatically when present. |
 | Mega-menu product image, range cut-outs | Photo cut-outs | `art.js` line drawings | Same reason: the images are missing. |
@@ -24,3 +23,14 @@ Temporary, until later phases:
 - **Home page.** A placeholder; the full design is built in phase 7.
 - **Navigation data.** It comes from the design's values until
   `GET /api/v1/navigation` exists (phase 3/4).
+
+## Phase 3: data model and back office
+
+The back office has no design file; it uses Filament's layout with the design's colours and font.
+
+| Area | Design | Built | Why |
+|---|---|---|---|
+| Footer social links | Facebook, Instagram and TikTok link to `#` | The client's real URLs (2026-10-06), editable in Réglages | Resolves the phase 2 deviation. |
+| Back-office buttons | Brand blue `#0B5CAD` | Same; orange actions use `#D85A17` | `#F4731F` with white text is about 3:1, below the 4.5:1 needed for text. |
+| Design-only products (cassette, cuivre, kits duo, isolant, gaz) | Shown with references and prices | Seeded as drawn, flagged « À vérifier » | Absent from `data/catalog.json`; must be confirmed before launch. |
+| Legal pages, 7 sectors, 8 articles, 6 city pages | Titles only, or placeholder text | Created unpublished | No copy supplied; never invent text. |
