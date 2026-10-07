@@ -79,7 +79,7 @@ smoke:
 
 ## ---- Production (docker-compose.prod.yml + .env.prod, see docs/deployment.md) ----
 PROD_ENV_FILE ?= .env.prod
-PROD = PROD_ENV_FILE=$(PROD_ENV_FILE) $(DC) -f docker-compose.prod.yml --env-file $(PROD_ENV_FILE)
+PROD = $(DC) -f docker-compose.prod.yml -f docker-compose.ports.yml --env-file $(PROD_ENV_FILE)
 
 ## Build the production images (php, nginx, next).
 prod-build:

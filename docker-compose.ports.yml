@@ -1,0 +1,5 @@
+# Publishes nginx on the host for `make prod-up` (a TLS terminator such as Caddy proxies to it).
+# Not used on Coolify: its proxy routes the domain to the nginx service directly.
+services:
+  nginx:
+    ports: ["${APP_PORT:-80}:80"]

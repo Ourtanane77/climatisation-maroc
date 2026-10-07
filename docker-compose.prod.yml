@@ -1,8 +1,10 @@
 # Production stack: images are built from the repo, nothing is bind-mounted.
-#   cp .env.prod.example .env.prod   (fill every value)
-#   make prod-build && make prod-up  (or: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build)
-# Put a TLS terminator (host nginx, Caddy or a load balancer) in front of port APP_PORT; it must send
-# X-Forwarded-For and X-Forwarded-Proto. See docs/deployment.md.
+#
+# Every setting comes from ${…} variables, so the same file works with:
+#   - make prod-build && make prod-up   (values from .env.prod, port from docker-compose.ports.yml)
+#   - Coolify (Docker Compose build pack): paste the variables in the resource's Environment
+#     Variables and set the domain on the nginx service (port 80); Coolify's proxy handles TLS.
+# See docs/deployment.md.
 name: climatisation-maroc-prod
 
 # Container logs go to stdout/stderr (LOG_CHANNEL=stderr), rotated by Docker.
@@ -16,12 +18,67 @@ x-logging: &logging
 x-php: &php
   image: climatisation-maroc/php:prod
   pull_policy: never
-  env_file: ${PROD_ENV_FILE:-.env.prod}
   environment: &php-env
+    APP_NAME: ${APP_NAME:-Climatisation Maroc}
     APP_ENV: production
     APP_DEBUG: "false"
+    APP_KEY: ${APP_KEY:?APP_KEY is required (php artisan key:generate --show)}
+    APP_URL: ${APP_URL:?APP_URL is required, e.g. https://app.arfro.com}
+    APP_LOCALE: ${APP_LOCALE:-fr}
+    APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-fr}
+    APP_TIMEZONE: ${APP_TIMEZONE:-Africa/Casablanca}
+    APP_MAINTENANCE_DRIVER: ${APP_MAINTENANCE_DRIVER:-file}
+    BCRYPT_ROUNDS: ${BCRYPT_ROUNDS:-12}
+    FRONTEND_URL: ${FRONTEND_URL:-${APP_URL}}
+    FRONTEND_INTERNAL_URL: ${FRONTEND_INTERNAL_URL:-http://next:3000}
+    REVALIDATE_SECRET: ${REVALIDATE_SECRET:?REVALIDATE_SECRET is required}
+    LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
+    LOG_LEVEL: ${LOG_LEVEL:-warning}
+    LOG_DEPRECATIONS_CHANNEL: ${LOG_DEPRECATIONS_CHANNEL:-null}
+    DB_CONNECTION: mysql
     DB_HOST: mysql
+    DB_PORT: 3306
+    DB_DATABASE: ${DB_DATABASE:-climatisation}
+    DB_USERNAME: ${DB_USERNAME:-climatisation}
+    DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    SESSION_DRIVER: ${SESSION_DRIVER:-redis}
+    SESSION_LIFETIME: ${SESSION_LIFETIME:-120}
+    SESSION_ENCRYPT: ${SESSION_ENCRYPT:-false}
+    SESSION_PATH: ${SESSION_PATH:-/}
+    SESSION_DOMAIN: ${SESSION_DOMAIN:-}
+    SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-true}
+    CACHE_STORE: ${CACHE_STORE:-redis}
+    CACHE_PREFIX: ${CACHE_PREFIX:-cm_}
+    QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+    REDIS_CLIENT: ${REDIS_CLIENT:-phpredis}
     REDIS_HOST: redis
+    REDIS_PORT: 6379
+    REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
+    BROADCAST_CONNECTION: ${BROADCAST_CONNECTION:-log}
+    SANCTUM_EXPIRATION: ${SANCTUM_EXPIRATION:-43200}
+    TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
+    FILESYSTEM_DISK: ${FILESYSTEM_DISK:-public}
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-eu-west-3}
+    AWS_BUCKET: ${AWS_BUCKET:-}
+    AWS_USE_PATH_STYLE_ENDPOINT: ${AWS_USE_PATH_STYLE_ENDPOINT:-false}
+    MAIL_MAILER: ${MAIL_MAILER:-smtp}
+    MAIL_SCHEME: ${MAIL_SCHEME:-null}
+    MAIL_HOST: ${MAIL_HOST:-}
+    MAIL_PORT: ${MAIL_PORT:-587}
+    MAIL_USERNAME: ${MAIL_USERNAME:-}
+    MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+    MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-ecom@arihafroid.com}
+    MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Climatisation Maroc}
+    SHOP_NOTIFICATION_EMAIL: ${SHOP_NOTIFICATION_EMAIL:-ecom@arihafroid.com}
+    SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+    SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+    SEED_MANAGER_EMAIL: ${SEED_MANAGER_EMAIL:-}
+    SEED_MANAGER_PASSWORD: ${SEED_MANAGER_PASSWORD:-}
+    BACKUP_ENABLED: ${BACKUP_ENABLED:-true}
+    BACKUP_KEEP: ${BACKUP_KEEP:-14}
+    BACKUP_AT: ${BACKUP_AT:-03:15}
   volumes:
     # Public uploads (served by nginx at /storage) and private files (quote attachments).
     - storage_public:/var/www/backend/storage/app/public
@@ -96,7 +153,9 @@ services:
       additional_contexts:
         app: service:php
     image: climatisation-maroc/nginx:prod
-    ports: ["${APP_PORT:-80}:80"]
+    # Port 80 inside the Docker network only. Coolify routes the domain to it; `make prod-up` adds
+    # docker-compose.ports.yml to publish it on the host (APP_PORT).
+    expose: ["80"]
     volumes:
       - storage_public:/var/www/storage:ro
     depends_on:
@@ -139,21 +198,22 @@ services:
 
   mysql:
     image: mysql:8.4
-    env_file: ${PROD_ENV_FILE:-.env.prod}
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE:-climatisation}
+      MYSQL_USER: ${DB_USERNAME:-climatisation}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is required}
     command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     volumes: [mysql_data:/var/lib/mysql]
     restart: always
     logging: *logging
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD"]
-      interval: 5s
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
       timeout: 5s
       retries: 30
+      # The first start initialises the data directory (30-90 s on a small VPS).
+      start_period: 120s
     deploy:
       resources:
         limits: { memory: "${MYSQL_MEMORY:-1g}" }

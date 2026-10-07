@@ -24,6 +24,30 @@ The `make prod-*` targets wrap the commands below (`PROD_ENV_FILE=.env.prod` by 
 In the commands below, `$PROD` stands for
 `docker compose -f docker-compose.prod.yml --env-file .env.prod`.
 
+## Deploying with Coolify
+
+The production compose file reads every setting from `${…}` variables, so it runs unchanged on
+Coolify (a VPS with Coolify's own proxy and TLS).
+
+1. New resource → your Git repository → build pack **Docker Compose**, compose file
+   `/docker-compose.prod.yml` (do not add `docker-compose.ports.yml`: Coolify's proxy must own
+   ports 80/443).
+2. **Environment Variables**: paste the content of `.env.prod` (KEY=value lines). Required:
+   `APP_KEY`, `APP_URL`, `REVALIDATE_SECRET`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` — the deployment
+   stops with a clear message if one is missing. Also set `NEXT_PUBLIC_SITE_URL` (it is baked into
+   the Next.js build), the `MAIL_*` SMTP values and the `SEED_*` staff accounts.
+3. **Domains**: on the `nginx` service only, `https://app.arfro.com` (nginx listens on port 80
+   inside the network). Leave the other services without a domain. DNS: an `A` record for
+   `app.arfro.com` to the VPS.
+4. Deploy. The first start initialises MySQL (up to ~2 min), migrates, seeds and downloads the
+   catalogue photos; follow it in the `php` service logs.
+5. If a previous deployment failed while MySQL was initialising (for example with an empty
+   `DB_ROOT_PASSWORD`), delete its `mysql-data` volume in Coolify (Storages) before redeploying:
+   MySQL only applies the passwords to an empty data directory.
+
+Coolify's proxy sends `X-Forwarded-For`/`X-Forwarded-Proto` from the Docker network, which Laravel
+and nginx already trust; `TRUSTED_PROXIES` is not needed.
+
 ## Server, DNS and TLS
 
 - Docker Engine with the Compose plugin; 2 vCPU, 4 GB RAM and 20 GB disk are comfortable.
