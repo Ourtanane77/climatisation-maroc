@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { PageTitle } from "@/components/commerce/parts";
 import { TrackOrder } from "@/components/commerce/TrackOrder";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Suivre ma commande",
-};
+export const metadata: Metadata = seoMetadata({ title: "Suivre ma commande", noindex: true });
 
 /** Order tracking (design/Suivi commande.dc.html). `?ref=` prefills the reference. */
 export default async function TrackPage({ searchParams }: PageProps<"/suivi-commande">) {

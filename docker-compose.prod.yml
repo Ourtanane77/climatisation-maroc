@@ -3,12 +3,10 @@
 # Put a TLS terminator (host nginx, Caddy or a load balancer) in front of port APP_PORT.
 name: climatisation-maroc-prod
 
+# php, queue and scheduler share one image; only the php service builds it.
 x-php: &php
-  build:
-    context: .
-    dockerfile: docker/php/Dockerfile
-    target: prod
   image: climatisation-maroc/php:prod
+  pull_policy: never
   env_file: .env.prod
   environment: &php-env
     APP_ENV: production
@@ -25,6 +23,11 @@ x-php: &php
 services:
   php:
     <<: *php
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: prod
+    pull_policy: build
     environment:
       <<: *php-env
       APP_ROLE: app

@@ -5,6 +5,13 @@ backend/storage/logs
 backend/storage/framework/cache
 backend/storage/framework/sessions
 backend/storage/framework/views
+# Dev artefacts: uploaded/downloaded files, cached package manifests, test output.
+backend/storage/app/public/*
+backend/storage/app/private/*
+backend/bootstrap/cache/*.php
+backend/public/storage
+frontend/test-results
+frontend/public/design
 backend/.env
 .env*
 !.env.example

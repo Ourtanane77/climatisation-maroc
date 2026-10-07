@@ -7,7 +7,7 @@ import { QtyStepper } from "@/components/ui/QtyStepper";
 import { toast } from "@/components/ui/Toast";
 import { addToCart } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
-import { dh } from "@/lib/format";
+import { isOnRequest, priceRequestHref, priceText, publicRef } from "@/lib/format";
 import { waProductLink } from "@/lib/whatsapp";
 import { useProduct } from "./ProductContext";
 import { StockAlertForm } from "./StockAlertForm";
@@ -49,6 +49,9 @@ export function ProductBuyBox() {
                 alt={product.brand.name}
                 width={Math.round(32 * (product.brand.logoAspect ?? 2))}
                 height={32}
+                // Low priority: React would otherwise preload it next to the gallery's LCP image.
+                fetchPriority="low"
+                decoding="async"
                 className="block h-8 w-auto object-contain"
               />
             ) : (
@@ -60,7 +63,7 @@ export function ProductBuyBox() {
       )}
 
       <h1 className="m-0 text-[32px] leading-[1.05] font-bold tracking-[-0.03em] md:text-[44px] xl:text-[56px]">{variant.name}</h1>
-      <span className="text-muted text-[15px]">Réf. {variant.sku}</span>
+      {publicRef(variant.sku) && <span className="text-muted text-[15px]">Réf. {variant.sku}</span>}
 
       {multi && (
         <div>
@@ -82,7 +85,7 @@ export function ProductBuyBox() {
                   )}
                 >
                   <span className="text-base font-bold">{v.label ?? v.sku}</span>
-                  <span className="text-muted text-sm">{dh(v.price)}</span>
+                  <span className="text-muted text-sm">{priceText(v.price)}</span>
                 </button>
               );
             })}
@@ -92,7 +95,15 @@ export function ProductBuyBox() {
 
       <PriceBlock price={variant.price} regularPrice={variant.regularPrice} size="pdp" className="gap-1" />
 
-      {variant.orderable ? (
+      {isOnRequest(variant.price) ? (
+        // « Prix sur demande »: never added to the basket, the quote form gets the reference.
+        <Link
+          href={priceRequestHref(variant.sku)}
+          className="bg-brand flex h-14 items-center justify-center rounded-full px-6 text-base font-bold text-white hover:text-white hover:brightness-[0.94]"
+        >
+          Demander un prix
+        </Link>
+      ) : variant.orderable ? (
         <>
           <span className={cn("flex items-center gap-2 text-[15px] font-bold", variant.stock === "en_stock" ? "text-success" : "text-brand")}>
             <span className={cn("size-2.5 rounded-full", variant.stock === "en_stock" ? "bg-success" : "bg-brand")} />

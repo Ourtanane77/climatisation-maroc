@@ -5,11 +5,11 @@ import { useState } from "react";
 import { cn } from "@/lib/cn";
 import type { FooterColumn } from "@/lib/types";
 
-/** Footer link columns: four columns from 760px, accordions ("+" turning 45°) on mobile. */
+/** Footer link columns: three per row from 760px, all five from 1100px; accordions ("+" turning 45°) on mobile. */
 export function FooterColumns({ columns }: { columns: FooterColumn[] }) {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <nav aria-label="Plan du site" className="grid grid-cols-1 gap-x-6 md:grid-cols-4 md:gap-y-8">
+    <nav aria-label="Plan du site" className="grid grid-cols-1 gap-x-6 md:grid-cols-3 md:gap-y-8 xl:grid-cols-5">
       {columns.map((col, i) => {
         const isOpen = open === i;
         return (
@@ -31,7 +31,11 @@ export function FooterColumns({ columns }: { columns: FooterColumn[] }) {
             <ul className={cn("m-0 list-none flex-col gap-3 p-0 pb-3 md:mt-3 md:flex md:pb-0", isOpen ? "flex" : "hidden")}>
               {col.links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="hover:text-tint-orange flex min-h-11 items-center text-[15px] leading-5 text-white md:min-h-0">
+                  <Link
+                    prefetch={false}
+                    href={l.href}
+                    className="hover:text-tint-orange flex min-h-11 items-center text-[15px] leading-5 text-white md:-my-0.5 md:min-h-0 md:py-0.5"
+                  >
                     {l.label}
                   </Link>
                 </li>

@@ -32,7 +32,10 @@ function Mark({ brand }: { brand: BrandLogo }) {
     <img
       src={brand.logo}
       alt={brand.name}
+      width={d.width}
+      height={d.height}
       loading="lazy"
+      decoding="async"
       className="block h-[var(--mh)] w-[var(--mw)] object-contain md:h-[var(--dh)] md:w-[var(--dw)]"
       style={{ "--mw": `${m.width}px`, "--mh": `${m.height}px`, "--dw": `${d.width}px`, "--dh": `${d.height}px` } as React.CSSProperties}
     />

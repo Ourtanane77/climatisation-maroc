@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\Catalog;
 use App\Enums\PageKind;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductCardResource;
+use App\Models\Article;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\SectorPage;
 use App\Models\ServicePage;
 use App\Settings\GeneralSettings;
 use App\Settings\HomeSettings;
@@ -28,7 +30,8 @@ class NavigationController extends Controller
 
     public function __invoke(GeneralSettings $settings, HomeSettings $home): JsonResponse
     {
-        $roots = Category::query()->active()->roots()->orderBy('position')->with(['children' => fn ($q) => $q->where('is_active', true)])->get();
+        $roots = // Public categories only: an empty sub-category (no published product) is not linked.
+        $roots = Category::query()->public()->roots()->orderBy('position')->with(['children' => fn ($q) => $q->whereIn('id', Category::query()->public()->select('id'))])->get();
         $ranges = $roots->reject(fn (Category $c) => $c->is_quote_only);
 
         return response()->json([
@@ -56,6 +59,8 @@ class NavigationController extends Controller
                 ['label' => 'Contact', 'href' => '/contact'],
                 ['label' => 'Devenir revendeur', 'href' => '/devenir-revendeur'],
             ],
+            // Mobile drawer, between Promotions and the right-hand links (Structure et navigation board).
+            'drawerLinks' => $this->drawerLinks(),
             'searchScopes' => ['Toutes', ...$roots->map(fn (Category $c) => $this->label($c))->all()],
             'whatsapp' => ['number' => $settings->whatsapp_number, 'display' => $settings->sales_phone],
             'salesPhone' => ['label' => 'Ventes', 'display' => $settings->sales_phone, 'href' => self::tel($settings->sales_phone)],
@@ -136,19 +141,37 @@ class NavigationController extends Controller
     }
 
     /**
-     * Footer columns of the design: Informations, Climatisation, Chauffe-eau, Autres produits.
+     * Solutions professionnelles and Blog, linked only when they have published content.
+     *
+     * @return list<array{label: string, href: string}>
+     */
+    private function drawerLinks(): array
+    {
+        return array_values(array_filter([
+            SectorPage::query()->published()->exists() ? ['label' => 'Solutions professionnelles', 'href' => '/solutions'] : null,
+            Article::query()->published()->exists() ? ['label' => 'Blog', 'href' => '/blog'] : null,
+        ]));
+    }
+
+    /**
+     * Footer columns of the design: Informations, Climatisation, Chauffe-eau, Autres produits, plus
+     * "Conseils et services" (blog, calculator, solutions, services, brands, compare): owner's
+     * request of 2026-10-07, every public page must be reachable from the footer.
      *
      * @param  Collection<int, Category>  $roots
      * @return list<array{title: string, links: list<array{label: string, href: string}>}>
      */
     private function footerColumns(Collection $roots): array
     {
-        $about = Page::query()->published()->where('slug', 'a-propos')->first();
+        $pages = Page::query()->published()->whereIn('slug', ['a-propos', 'livraison-et-paiement'])->pluck('slug')->all();
         $informations = array_values(array_filter([
-            $about ? ['label' => "\u{00C0} propos", 'href' => $about->url()] : null,
+            in_array('a-propos', $pages, true) ? ['label' => "\u{00C0} propos", 'href' => '/a-propos'] : null,
             ['label' => 'Contact', 'href' => '/contact'],
-            ['label' => 'Espace revendeur', 'href' => '/devenir-revendeur'],
+            ['label' => 'Espace revendeur', 'href' => '/espace-professionnel'],
             ['label' => 'Demander un devis', 'href' => '/demander-un-devis'],
+            in_array('livraison-et-paiement', $pages, true) ? ['label' => 'Livraison et paiement', 'href' => '/livraison-et-paiement'] : null,
+            ['label' => 'Suivre ma commande', 'href' => '/suivi-commande'],
+            ['label' => 'Plan du site', 'href' => '/plan-du-site'],
         ]));
 
         $columns = [['title' => 'Informations', 'links' => $informations]];
@@ -167,6 +190,16 @@ class NavigationController extends Controller
         if ($others !== []) {
             $columns[] = ['title' => 'Autres produits', 'links' => $others];
         }
+
+        $columns[] = ['title' => 'Conseils et services', 'links' => array_values(array_filter([
+            Article::query()->published()->exists() ? ['label' => 'Blog', 'href' => '/blog'] : null,
+            ['label' => 'Calculateur de puissance', 'href' => '/calculateur-puissance'],
+            SectorPage::query()->published()->exists() ? ['label' => 'Solutions professionnelles', 'href' => '/solutions'] : null,
+            ServicePage::query()->published()->exists() ? ['label' => 'Services', 'href' => '/services'] : null,
+            ['label' => 'Marques', 'href' => '/marques'],
+            ['label' => 'Promotions', 'href' => '/promotions'],
+            ['label' => 'Comparer des produits', 'href' => '/comparer'],
+        ]))];
 
         return $columns;
     }

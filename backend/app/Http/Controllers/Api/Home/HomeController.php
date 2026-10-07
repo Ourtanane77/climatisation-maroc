@@ -26,7 +26,16 @@ class HomeController extends Controller
 {
     public function __invoke(Request $request, HomeSettings $home, GeneralSettings $general): JsonResponse
     {
-        $promotions = $this->cards($home->promo_product_ids, $request);
+        // Only families with a real discount (regular price above the selling price): a product chosen
+        // in « Page d'accueil » that is no longer on promotion is left out; no promotion, no block.
+        $chosen = $this->families($home->promo_product_ids)->filter(fn (Product $p) => $p->isOnPromotion());
+        // Completed with the catalogue's other discounted families (same rule as /promotions).
+        $others = Product::query()->published()->whereNotIn('id', $chosen->pluck('id'))
+            ->whereHas('variants', fn ($v) => $v->whereNotNull('promo_price')->whereColumn('promo_price', '<', 'price'))
+            ->with(['variants', 'images', 'brand'])->orderBy('position')->limit(8)->get();
+        $promotions = $chosen->concat($others)->take(8)
+            ->map(fn (Product $p) => (new ProductCardResource($p))->toArray($request))
+            ->values()->all();
 
         return response()->json([
             'hero' => [
@@ -88,33 +97,60 @@ class HomeController extends Controller
     }
 
     /**
-     * Ducts rail: one card per reference (design shows each diameter separately), with the
-     * diameter tag and the drawn duct (souple / calorifugé / aluminium).
+     * "Gaines circulaires" rail: the live Gaines range (rigid circular ducts, flexibles souples,
+     * flexibles isolés, in category order then by diameter), one card per reference as drawn.
+     * Families picked in "Page d'accueil" come first; everything else follows automatically, so a
+     * duct added or published in the back office appears without editing the settings.
      *
-     * @param  list<int>  $ids
+     * @param  list<int>  $featuredIds
      * @return list<array<string, mixed>>
      */
-    private function ducts(array $ids): array
+    private function ducts(array $featuredIds): array
     {
         $reseller = Audience::isReseller();
+        $range = Category::query()->active()->where('path', 'gaines')->first();
+        if (! $range) {
+            return [];
+        }
+        $categories = Category::query()->active()->whereIn('id', $range->descendantIds())->get()->keyBy('id');
+        $rank = function (Product $p) use ($featuredIds, $categories): array {
+            $featured = array_search($p->id, $featuredIds, true);
+            $category = $categories->get($p->category_id);
+            $diameter = preg_match('/Q(\d{2,3})/u', $p->name, $match) === 1 ? (int) $match[1] : 0;
 
-        return $this->families($ids)->flatMap(fn (Product $p) => $p->variants->map(function (ProductVariant $v) use ($p, $reseller) {
-            preg_match('/(\d{2,3})/', (string) ($v->label ?? $p->name), $m);
-            $diameter = $m[1] ?? null;
+            return [
+                $featured === false ? 1000 : (int) $featured,
+                ($category === null || $category->parent_id === null) ? 1000 : (int) $category->position,
+                $diameter,
+                (int) $p->position,
+            ];
+        };
+
+        $products = Product::query()->published()->whereIn('category_id', $categories->keys())
+            ->whereHas('variants')->with(['variants', 'images'])->get()
+            ->sort(fn (Product $a, Product $b) => $rank($a) <=> $rank($b))->values();
+
+        return $products->flatMap(fn (Product $p) => $p->variants->map(function (ProductVariant $v) use ($p, $reseller) {
+            preg_match('/(?:\x{00D8}\s?|Q)(\d{2,3})\b/u', (string) ($v->label ?: $p->name), $m);
+            $diameter = isset($m[1]) ? (int) $m[1] : null;
+            $price = $v->priceFor($reseller);
 
             return [
                 'name' => $v->setRelation('product', $p)->displayName(),
                 'sku' => $v->sku,
                 'href' => $p->url().($p->variants->count() > 1 ? '?v='.rawurlencode($v->sku) : ''),
-                'diameter' => $diameter ? (int) $diameter : null,
+                'diameter' => $diameter,
                 'kind' => match (true) {
-                    (bool) preg_match('/calorifug/iu', $p->name) => 'calo',
+                    (bool) preg_match('/circulaire/iu', $p->name) => 'rigide',
+                    (bool) preg_match('/calorifug|isol/iu', $p->name) => 'calo',
                     (bool) preg_match('/alu/iu', $p->name) => 'alu',
                     default => 'souple',
                 },
-                'price' => $v->priceFor($reseller),
+                'image' => ImageUrl::for(ProductCardResource::imageFor($p, $v)),
+                'price' => $price,
+                'onRequest' => $v->isOnRequest(),
             ];
-        }))->values()->all();
+        }))->values()->take(16)->all();
     }
 
     /**
@@ -124,9 +160,9 @@ class HomeController extends Controller
      */
     private function bento(): array
     {
-        $ranges = Category::query()->active()->roots()
+        $ranges = Category::query()->public()->roots()
             ->where('slug', '!=', 'froid')
-            ->with(['children' => fn ($q) => $q->where('is_active', true)->orderBy('position')])
+            ->with(['children' => fn ($q) => $q->whereIn('id', Category::query()->public()->select('id'))->orderBy('position')])
             ->orderBy('position')->limit(6)->get();
 
         $tiles = $ranges->values()->map(function (Category $c, int $i) {
@@ -147,7 +183,7 @@ class HomeController extends Controller
                 'bg' => $c->tile_bg,
                 'text' => $types ? null : $c->tile_text,
                 'types' => $types,
-                'art' => $c->art_key ?? 'mural',
+                'art' => $c->art_key,
                 'image' => ImageUrl::path($c->image),
             ];
         })->all();
@@ -188,7 +224,7 @@ class HomeController extends Controller
             ->map(fn (Brand $b) => [
                 'name' => $b->name,
                 'href' => $b->url(),
-                'logo' => ImageUrl::path($b->logo),
+                'logo' => ImageUrl::logo($b->logo),
                 'aspect' => $b->logo_aspect !== null ? (float) $b->logo_aspect : null,
             ])->values()->all();
     }

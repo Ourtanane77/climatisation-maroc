@@ -36,7 +36,7 @@ async function placeOrder(page) {
   return placed;
 }
 
-export default [
+const pairs = [
   ["panier", "Panier.dc.html", "/panier", "cart", { full: true }],
   ["panier-vide", "Panier.dc.html?vide=1", "/panier", "emptyCart", { full: true }],
   ["commande", "Commande.dc.html", "/commande", "checkout", { full: true }],
@@ -45,6 +45,8 @@ export default [
   ["suivi-form", "Suivi commande.dc.html?form=1", "/suivi-commande", null, { full: true }],
   ["suivi-resultat", "Suivi commande.dc.html", "/suivi-commande", "track", { full: true }],
 ];
+
+export default pairs;
 
 export const actions = {
   async cart(page) {

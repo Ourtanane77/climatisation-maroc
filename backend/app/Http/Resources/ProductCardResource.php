@@ -28,7 +28,10 @@ class ProductCardResource extends JsonResource
         $variants = $product->variants;
         $single = $variants->count() === 1 ? $variants->first() : null;
         $first = $single ?? $variants->first();
-        $cheapest = $variants->sortBy(fn (ProductVariant $v) => $v->priceFor($reseller))->first();
+        // « À partir de » the lowest real price: variants « sur demande » (price 0) are left out
+        // unless every variant is on request.
+        $priced = $variants->reject(fn (ProductVariant $v) => $v->isOnRequest());
+        $cheapest = ($priced->isNotEmpty() ? $priced : $variants)->sortBy(fn (ProductVariant $v) => $v->priceFor($reseller))->first();
         $maxDiscount = $variants->map(fn (ProductVariant $v) => self::discount($v, $reseller))->max() ?? 0;
 
         return [
@@ -39,8 +42,10 @@ class ProductCardResource extends JsonResource
             'refText' => $single ? null : self::refText($variants->all()),
             'price' => $cheapest?->priceFor($reseller) ?? 0,
             'regularPrice' => $single && self::discount($single, $reseller) > 0 ? $single->price : null,
-            'fromPrice' => ! $single,
+            'fromPrice' => ! $single && $priced->isNotEmpty(),
+            'onRequest' => $priced->isEmpty(),
             'image' => ImageUrl::for(self::imageFor($product, $first)),
+            'imageSrcSet' => ImageUrl::srcSet(self::imageFor($product, $first)),
             'imageAlt' => $product->name,
             'art' => $product->art_key,
             'dark' => $first?->colour === 'Noir',
@@ -53,7 +58,9 @@ class ProductCardResource extends JsonResource
                 'price' => $v->priceFor($reseller),
                 'regularPrice' => self::discount($v, $reseller) > 0 ? $v->price : null,
                 'image' => ImageUrl::for(self::imageFor($product, $v)),
+                'imageSrcSet' => ImageUrl::srcSet(self::imageFor($product, $v)),
                 'dark' => $v->colour === 'Noir',
+                'onRequest' => $v->isOnRequest(),
             ])->values()->all(),
             'inStock' => $variants->contains(fn (ProductVariant $v) => $v->stock_status->isOrderable()),
         ];

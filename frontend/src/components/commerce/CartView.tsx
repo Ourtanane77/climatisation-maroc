@@ -10,7 +10,7 @@ import type { CartLine } from "@/lib/cart/cookie";
 import { addToCart, removeFromCart, setQty, useCartLines } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
 import type { Quote, QuoteLine } from "@/lib/commerce/types";
-import { dh, plural } from "@/lib/format";
+import { dh, plural, priceRequestHref, priceText, publicRef } from "@/lib/format";
 import { Divider, PageTitle, SummaryRow, Thumb, TotalRow } from "./parts";
 
 /**
@@ -137,7 +137,7 @@ export function CartView({ initialQuote }: { initialQuote: Quote | null }) {
                     <Thumb image={s.image} art={s.art} dark={s.dark} alt={s.name} className="rounded-14 h-[68px] w-20 p-2" />
                   </Link>
                   <span className="flex min-w-0 flex-1 flex-col gap-1">
-                    <Link href={s.href} className="text-ink hover:text-brand text-[16px] leading-[1.3] font-bold">
+                    <Link href={s.href} className="text-ink hover:text-brand py-0.5 text-[16px] leading-[1.3] font-bold">
                       {s.name}
                     </Link>
                     <span className="text-[18px] font-extrabold">{dh(s.price)}</span>
@@ -182,20 +182,38 @@ function CartLineRow({ line, last }: { line: QuoteLine; last: boolean }) {
         <Link href={line.href} className="text-ink hover:text-brand text-[18px] leading-[1.3] font-bold">
           {line.name}
         </Link>
-        <span className="text-muted text-[14px]">Réf. {line.sku}</span>
+        {publicRef(line.sku) && <span className="text-muted text-[14px]">Réf. {line.sku}</span>}
         {line.option && <span className="text-ink-2 text-[14px]">{line.option}</span>}
-        {!line.available && <span className="text-promo text-[14px] font-semibold">Rupture de stock</span>}
+        {line.onRequest ? (
+          <Link href={priceRequestHref(line.sku)} className="text-promo text-[14px] font-semibold underline">
+            Prix sur demande : demander un prix
+          </Link>
+        ) : (
+          !line.available && <span className="text-promo text-[14px] font-semibold">Rupture de stock</span>
+        )}
       </div>
-      <QtyStepper
-        value={line.qty}
-        onChange={(n) => setQty(line.sku, n)}
-        size={48}
-        label={`Quantité · ${line.name}`}
-        className="justify-self-start [grid-area:qty]"
-      />
+      {line.onRequest ? (
+        <span className="[grid-area:qty]" aria-hidden />
+      ) : (
+        <QtyStepper
+          value={line.qty}
+          onChange={(n) => setQty(line.sku, n)}
+          size={48}
+          label={`Quantité · ${line.name}`}
+          className="justify-self-start [grid-area:qty]"
+        />
+      )}
       <div className="flex flex-col gap-0.5 justify-self-end text-right [grid-area:tot]">
-        <span className={cn("text-[20px] font-extrabold whitespace-nowrap", !line.available && "text-muted line-through")}>{dh(line.lineTotal)}</span>
-        {line.qty > 1 && (
+        <span
+          className={cn(
+            "font-extrabold whitespace-nowrap",
+            line.onRequest ? "text-[16px]" : "text-[20px]",
+            !line.available && !line.onRequest && "text-muted line-through",
+          )}
+        >
+          {line.onRequest ? priceText(0) : dh(line.lineTotal)}
+        </span>
+        {line.qty > 1 && !line.onRequest && (
           <span className="text-muted text-[13px] whitespace-nowrap">
             {line.qty} × {dh(line.unitPrice)}
           </span>

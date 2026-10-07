@@ -4,6 +4,7 @@ import type { ProductPageData, ProductVariantData, SpecRow } from "@/lib/product
 import { cn } from "@/lib/cn";
 import { useProduct } from "./ProductContext";
 import { Section } from "./Section";
+import { publicRef } from "@/lib/format";
 
 /**
  * Rows for the selected variant: Marque, the family rows (a variant row with the same label
@@ -18,7 +19,7 @@ export function specRows(product: Pick<ProductPageData, "brand" | "specs">, vari
     own.delete(s.label);
   }
   for (const [label, value] of own) rows.push({ label, value });
-  rows.push({ label: "Référence", value: variant.sku });
+  if (publicRef(variant.sku)) rows.push({ label: "Référence", value: variant.sku });
   return rows;
 }
 

@@ -49,7 +49,8 @@ class ManageHomeSettings extends SettingsPage
             Section::make('Produits mis en avant')->schema([
                 $productSelect('new_product_ids', 'Nouveaux produits'),
                 $productSelect('promo_product_ids', 'Promotions'),
-                $productSelect('ducts_product_ids', 'Gaines circulaires'),
+                $productSelect('ducts_product_ids', 'Gaines circulaires : à placer en premier')
+                    ->helperText('Toute la gamme Gaines s’affiche automatiquement ; les produits choisis ici passent en tête.'),
                 $productSelect('supplies_product_ids', 'Cuivre, gaz et pièces de rechange'),
             ]),
             Section::make('Marques')->schema([

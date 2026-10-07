@@ -5,7 +5,7 @@ import { ProductArt } from "@/components/catalog/ProductArt";
 import { toast } from "@/components/ui/Toast";
 import { addToCart } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
-import { dh } from "@/lib/format";
+import { dh, priceText, publicRef } from "@/lib/format";
 import type { AccessoryData } from "@/lib/product/types";
 import { Section } from "./Section";
 
@@ -30,7 +30,7 @@ export function InstallKit({ accessories, visitPrice }: { accessories: Accessory
     ...accessories.map((a, i) => ({
       key: a.sku,
       title: a.name,
-      sub: `Réf. ${a.sku}`,
+      sub: publicRef(a.sku) ? `Réf. ${a.sku}` : "",
       price: a.price,
       on: checked[i],
       disabled: !a.orderable,
@@ -39,7 +39,7 @@ export function InstallKit({ accessories, visitPrice }: { accessories: Accessory
         // eslint-disable-next-line @next/next/no-img-element
         <img src={a.image} alt="" loading="lazy" className="block max-h-full max-w-full object-contain mix-blend-multiply" />
       ) : (
-        <ProductArt art={a.art ?? "support"} className="h-auto w-full" />
+        <ProductArt art={a.art} className="h-auto w-full" />
       ),
     })),
     {
@@ -91,7 +91,7 @@ export function InstallKit({ accessories, visitPrice }: { accessories: Accessory
               <span className="block text-[16px] font-bold">{r.title}</span>
               <span className="text-muted text-sm">{r.sub}</span>
             </span>
-            <span className="text-lg font-extrabold whitespace-nowrap">{dh(r.price)}</span>
+            <span className="text-lg font-extrabold whitespace-nowrap">{priceText(r.price)}</span>
           </button>
         ))}
         <div className="flex flex-wrap items-center justify-between gap-4 pt-2">

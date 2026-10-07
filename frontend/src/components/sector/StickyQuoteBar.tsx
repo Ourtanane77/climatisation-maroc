@@ -27,7 +27,7 @@ export function StickyQuoteBar({ title, subtitle }: { title: string; subtitle: s
 
   if (!shown) return null;
   return (
-    <div className="shadow-bottom-bar animate-rise fixed inset-x-0 bottom-0 z-30 flex items-center gap-4 bg-white px-4 py-3 md:px-10">
+    <div className="shadow-bottom-bar animate-rise site-gutter fixed inset-x-0 bottom-0 z-30 flex items-center gap-4 bg-white py-3">
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-base font-bold">{title}</span>
         <span className="text-ink-2 hidden text-sm md:block">{subtitle}</span>

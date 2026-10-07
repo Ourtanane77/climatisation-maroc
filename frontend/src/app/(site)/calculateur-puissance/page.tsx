@@ -4,15 +4,16 @@ import { ContactCtaBand } from "@/components/blog/ContactCtaBand";
 import { PowerCalculator } from "@/components/calculator/PowerCalculator";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { getCalculatorTiers } from "@/lib/home/api";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 const GUIDE = "/blog/quelle-puissance-de-climatiseur-pour-ma-piece";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
   title: "Quelle puissance de climatiseur pour votre pièce ?",
   description:
     "Calculez la puissance de climatiseur adaptée à votre pièce : surface, hauteur sous plafond, exposition, dernier étage et type de pièce. Résultat en BTU et climatiseurs correspondants.",
-  alternates: { canonical: "/calculateur-puissance" },
-};
+  path: "/calculateur-puissance",
+});
 
 /** Power calculator (design/Calculateur puissance.dc.html). */
 export default async function CalculatorPage() {

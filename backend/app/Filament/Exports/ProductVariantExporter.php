@@ -2,6 +2,7 @@
 
 namespace App\Filament\Exports;
 
+use App\Models\Product;
 use App\Models\ProductVariant;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
@@ -14,8 +15,17 @@ class ProductVariantExporter extends Exporter
 {
     protected static ?string $model = ProductVariant::class;
 
+    /**
+     * The action sits on the products table, so it receives a query of products (with the table's
+     * filters and selection): export the variants of those products.
+     */
     public static function modifyQuery(Builder $query): Builder
     {
+        if ($query->getModel() instanceof Product) {
+            $products = $query->clone()->reorder()->select('products.id')->setEagerLoads([]);
+            $query = ProductVariant::query()->whereIn('product_id', $products)->orderBy('product_id')->orderBy('position');
+        }
+
         return $query->with(['product.category', 'product.brand']);
     }
 
@@ -38,6 +48,8 @@ class ProductVariantExporter extends Exporter
             ExportColumn::make('product.is_published')->label('Publié')->formatStateUsing(fn ($state) => $state ? 'oui' : 'non'),
             ExportColumn::make('needs_verification')->label('À vérifier')->formatStateUsing(fn ($state) => $state ? 'oui' : 'non'),
             ExportColumn::make('legacy_id')->label('ID ancien site'),
+            // Empty, for the team to fill and re-import (renames the reference).
+            ExportColumn::make('nouvelle_reference')->label('Nouvelle référence')->state(fn () => ''),
         ];
     }
 

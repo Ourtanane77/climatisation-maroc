@@ -1,0 +1,1231 @@
+{
+ "source": "docs/Produits - Climatisationmaroc.xlsx",
+ "prices": {
+  "ABNW12GL5S1.ENWTIME": 7600,
+  "ABNW18GM1S1.ENWBME": 9100,
+  "ABNW24GM1S1.ENWBME": 10700,
+  "ABNW30GM1S1.ENWBME": 11400,
+  "ABNW36GM2S1.ENWBME": 15200,
+  "ABNW50LM3S1.ENWBLM": 20800,
+  "ABNW60LM3S1.ENWBLM": 21800,
+  "42QSS012DSP": 8300,
+  "42QSV018D8S-R32": 10200,
+  "42QSS024DSP": 12600,
+  "42QSS036DSP": 19300,
+  "42QSS048DSP": 24000,
+  "42QSS060DSP": 26000,
+  "42HY24VSA": 11100,
+  "42QTD024D8S": 12500,
+  "42QHG009D8S-BM": 5300,
+  "42QHG012D8S-BM": 5700,
+  "42QHG018D8S-BM": 8000,
+  "42QHG024D8S-BM": 9700,
+  "42QHG009D8SC-R32": 5300,
+  "42QHG012D8SC-R32": 5700,
+  "42QHG018D8SC-R32": 8000,
+  "42QHG024D8SC-R32": 9700,
+  "38HG09VSA": 3650,
+  "38HG12VSA": 3950,
+  "FSW09T24PM/N": 3750,
+  "FSW12T24PM/N": 4100,
+  "FSW18T24PM/N": 5800,
+  "FSW24T24PM/N": 7100,
+  "FSW09T23PM/N": 4100,
+  "FSW12T23PM/N": 4500,
+  "FSW18T23PW/N": 6200,
+  "FSW24T23PM/N": 7400,
+  "CHAUFF0060": 10500,
+  "CHAUFF0061": 13900,
+  "CHAUFF0065": 20200,
+  "CLIM00008": 3,
+  "CLIM00003": 3.5,
+  "CLIM00004": 4,
+  "CLIM00005": 4.5,
+  "CLIM00006": 5,
+  "CLIM00007": 5.5,
+  "CLIM00012": 65,
+  "CLIM00013": 120,
+  "CLIM00140": 450,
+  "CLIM00141": 500,
+  "CLIM00371": 450,
+  "CLIM00079": 32,
+  "CLIM00072": 15,
+  "CLIM00073": 9,
+  "CLIM00097": 250,
+  "CLIM00096": 250,
+  "CLIM00318": 500,
+  "CLIM00317": 550,
+  "CLIM00124": 35,
+  "CLIM00068": 40,
+  "CLIM00399": 50
+ },
+ "verify": {
+  "CLIM00399": "Fichier Excel : « Bande adhésive 15 m / 50 mm » à 50 Dhs ; le site indiquait 10 m. Vérifier la longueur et le nom."
+ },
+ "families": [
+  {
+   "name": "Carrier Cassette Inverter R32 (nouvelles puissances)",
+   "slug": null,
+   "category": "climatisation/cassette",
+   "brand": "carrier",
+   "art": "cassette",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer.",
+   "variants": [
+    {
+     "label": "12 000 BTU",
+     "power_btu": 12000,
+     "price": 8500,
+     "sku": "XLS-CARRIERCASSETTER32-12000"
+    },
+    {
+     "label": "18 000 BTU",
+     "power_btu": 18000,
+     "price": 10250,
+     "sku": "XLS-CARRIERCASSETTER32-18000"
+    },
+    {
+     "label": "36 000 BTU",
+     "power_btu": 36000,
+     "price": 20700,
+     "sku": "XLS-CARRIERCASSETTER32-36000"
+    },
+    {
+     "label": "48 000 BTU",
+     "power_btu": 48000,
+     "price": 24600,
+     "sku": "XLS-CARRIERCASSETTER32-48000"
+    }
+   ],
+   "merge_into": "carrier-cassette-inverter"
+  },
+  {
+   "name": "CIAT Gainable Inverter (nouvelles puissances)",
+   "slug": null,
+   "category": "climatisation/gainable",
+   "brand": "ciat",
+   "art": "gainable",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer.",
+   "variants": [
+    {
+     "label": "12 000 BTU",
+     "power_btu": 12000,
+     "price": 6900,
+     "sku": "XLS-CIATGAINABLE-12000"
+    },
+    {
+     "label": "36 000 BTU",
+     "power_btu": 36000,
+     "price": 16600,
+     "sku": "XLS-CIATGAINABLE-36000"
+    },
+    {
+     "label": "48 000 BTU",
+     "power_btu": 48000,
+     "price": 21500,
+     "sku": "XLS-CIATGAINABLE-48000"
+    },
+    {
+     "label": "60 000 BTU",
+     "power_btu": 60000,
+     "price": 22200,
+     "sku": "XLS-CIATGAINABLE-60000"
+    }
+   ],
+   "merge_into": "ciat-gainable-inverter"
+  },
+  {
+   "name": "CIAT Mural Inverter (nouvelles puissances)",
+   "slug": null,
+   "category": "climatisation/mural",
+   "brand": "ciat",
+   "art": "mural",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer.",
+   "variants": [
+    {
+     "label": "18 000 BTU",
+     "power_btu": 18000,
+     "price": 5350,
+     "sku": "XLS-CIATMURAL-18000"
+    },
+    {
+     "label": "24 000 BTU",
+     "power_btu": 24000,
+     "price": 6650,
+     "sku": "XLS-CIATMURAL-24000"
+    }
+   ],
+   "merge_into": "ciat-mural-inverter"
+  },
+  {
+   "name": "Cuivre 1/4 SRK 15 m",
+   "slug": null,
+   "category": "cuivre-et-gaz/cuivre",
+   "brand": null,
+   "art": "coilL",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir (marque SRK).",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CUIVRESRK14"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Cuivre 3/8 SRK 15 m",
+   "slug": null,
+   "category": "cuivre-et-gaz/cuivre",
+   "brand": null,
+   "art": "coilL",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir (marque SRK).",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CUIVRESRK38"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Cuivre 1/2 SRK 15 m",
+   "slug": null,
+   "category": "cuivre-et-gaz/cuivre",
+   "brand": null,
+   "art": "coilL",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir (marque SRK).",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CUIVRESRK12"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Cuivre 5/8 SRK 15 m",
+   "slug": null,
+   "category": "cuivre-et-gaz/cuivre",
+   "brand": null,
+   "art": "coilL",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir (marque SRK).",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CUIVRESRK58"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Cuivre 3/4 SRK 15 m",
+   "slug": null,
+   "category": "cuivre-et-gaz/cuivre",
+   "brand": null,
+   "art": "coilL",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir (marque SRK).",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CUIVRESRK34"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Cuivre 7/8 SRK 15 m",
+   "slug": null,
+   "category": "cuivre-et-gaz/cuivre",
+   "brand": null,
+   "art": "coilL",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir (marque SRK).",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CUIVRESRK78"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Caisson d'Extraction 7/7",
+   "slug": null,
+   "category": "ventilation/ventilateurs-de-gaine",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer, prix à saisir ; catégorie à confirmer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CAISSON77"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Caisson d'Extraction 9/9",
+   "slug": null,
+   "category": "ventilation/ventilateurs-de-gaine",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer, prix à saisir ; catégorie à confirmer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CAISSON99"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Caisson d'Extraction 12/12",
+   "slug": null,
+   "category": "ventilation/ventilateurs-de-gaine",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer, prix à saisir ; catégorie à confirmer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CAISSON1212"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Caisson d'Extraction 15/15",
+   "slug": null,
+   "category": "ventilation/ventilateurs-de-gaine",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer, prix à saisir ; catégorie à confirmer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CAISSON1515"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Caisson d'Extraction 18/18",
+   "slug": null,
+   "category": "ventilation/ventilateurs-de-gaine",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer, prix à saisir ; catégorie à confirmer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-CAISSON1818"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 500 × 1",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN5001"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 500 × 2",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN5002"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 600 × 1",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN6001"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 600 × 2",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN6002"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 800 × 1",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN8001"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 1000 × 1",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN10001"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 1000 × 2",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN10002"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 1500 × 1",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN15001"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Diffuseur Linéaire 2000 × 1",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-DIFFLIN20001"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 20/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE2010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 30/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE3010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 30/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE3015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 40/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE4010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 40/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE4020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 50/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE5010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 50/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE5015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 50/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE5020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 60/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE6010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 60/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE6015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 60/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE6020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 70/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE7010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 80/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE8010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 80/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE8015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 80/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE8020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 100/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE10010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 100/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE10015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Simple 100/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLESIMPLE10020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 20/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE2010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 30/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE3010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 30/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE3015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 40/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE4010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 40/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE4020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 50/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE5010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 50/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE5015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 50/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE5020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 60/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE6010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 60/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE6015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 60/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE6020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 70/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE7010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 80/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE8010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 80/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE8015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 80/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE8020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 100/10",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE10010"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 100/15",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE10015"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Grille Double 100/20",
+   "slug": null,
+   "category": "ventilation/grilles-et-diffuseurs",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-GRILLEDOUBLE10020"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Multizone",
+   "slug": null,
+   "category": "ventilation/multizone",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer.",
+   "variants": [
+    {
+     "label": "Ø 250",
+     "power_btu": null,
+     "price": 1470,
+     "sku": "XLS-MULTIZONE250"
+    }
+   ],
+   "merge_into": "multizone"
+  },
+  {
+   "name": "Ventilateur de Gaine Q315 Plastique S&P",
+   "slug": null,
+   "category": "ventilation/ventilateurs-de-gaine",
+   "brand": "s-et-p",
+   "art": "vent",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-VENTILATEURDEGAINEQ315PLASTIQUESP"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Flexible Isolé Aluminium Q125 Esbo 10 m",
+   "slug": null,
+   "category": "gaines/flexibles-isoles",
+   "brand": "esbo",
+   "art": "flex",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-FLEXISOLEESBO125"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Flexible Isolé Aluminium Q160 Esbo 10 m",
+   "slug": null,
+   "category": "gaines/flexibles-isoles",
+   "brand": "esbo",
+   "art": "flex",
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer et prix à saisir.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": null,
+     "sku": "XLS-FLEXISOLEESBO160"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Trappe de Visite 40×40",
+   "slug": "trappe-de-visite-40x40",
+   "category": "pieces-de-rechange/trappes-de-visite",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": 250,
+     "sku": "XLS-TRAPPEDEVISITE40X40"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Bande Grise",
+   "slug": null,
+   "category": "pieces-de-rechange/adhesifs-et-mastics",
+   "brand": null,
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": 28,
+     "sku": "XLS-BANDEGRISE"
+    }
+   ],
+   "merge_into": null
+  },
+  {
+   "name": "Silicone Alpha",
+   "slug": null,
+   "category": "pieces-de-rechange/adhesifs-et-mastics",
+   "brand": "alpha",
+   "art": null,
+   "note": "Ajouté depuis le fichier Excel du client : référence (XLS-…) à remplacer.",
+   "variants": [
+    {
+     "label": null,
+     "power_btu": null,
+     "price": 30,
+     "sku": "XLS-SILICONEALPHA"
+    }
+   ],
+   "merge_into": null
+  }
+ ]
+}

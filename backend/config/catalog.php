@@ -41,8 +41,13 @@ return [
             '/^Ventilateur de gaine/i' => 'ventilation/ventilateurs-de-gaine',
         ],
         'gaines' => [
+            '/^Gaines? Circulaires?/iu' => 'gaines/gaines-circulaires',
             '/Flexible souple/i' => 'gaines/flexibles-souples',
             '/Flexible (calorifug|isol)/i' => 'gaines/flexibles-isoles',
+        ],
+        'cuivre-et-gaz/cuivre' => [
+            '/^Kit Duo/i' => 'cuivre-et-gaz/kits-duo',
+            '/^Armaflex/i' => 'cuivre-et-gaz/isolant',
         ],
         'pieces-de-rechange' => [
             '/T[ée]l[ée]commande/iu' => 'pieces-de-rechange/telecommandes',

@@ -1,7 +1,8 @@
 import { ButtonLink } from "@/components/ui/Button";
+import { DesignImg } from "@/components/ui/DesignImg";
 import { MAT, MatIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
-import { HERO_IMAGE, designImage } from "@/lib/home/assets";
+import { HERO_IMAGE, designPhoto } from "@/lib/home/assets";
 import type { HomeData } from "@/lib/home/types";
 import { waLink } from "@/lib/whatsapp";
 import { PowerFinder } from "./PowerFinder";
@@ -18,16 +19,14 @@ const REASSURE = [
  */
 export function HomeHero({ hero, whatsapp }: Pick<HomeData, "hero" | "whatsapp">) {
   // Photo set in "Page d'accueil", else the design's hero photo when present.
-  const image = hero.image ?? designImage(HERO_IMAGE);
+  const photo = hero.image ? { src: hero.image } : designPhoto(HERO_IMAGE);
   return (
     <section aria-labelledby="h1" className="relative">
-      <div className="bg-brand relative -mx-4 flex min-h-[560px] items-center overflow-hidden text-white md:-mx-10 md:min-h-[520px] xl:min-h-[580px]">
-        {image && (
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-cover bg-[position:72%_center] md:bg-[position:right_center]"
-            style={{ backgroundImage: `url(${image})` }}
-          />
+      <div className="bg-brand bleed relative flex min-h-[560px] items-center overflow-hidden text-white md:min-h-[520px] xl:min-h-[580px]">
+        {/* The LCP element: a real image (preloaded, high priority), cropped like the design's
+            background-size: cover. */}
+        {photo && (
+          <DesignImg photo={photo} sizes="100vw" priority className="absolute inset-0 size-full object-cover object-[72%_center] md:object-[right_center]" />
         )}
         {/* The shade is drawn with or without the photo, as in the design. */}
         <div
@@ -39,7 +38,7 @@ export function HomeHero({ hero, whatsapp }: Pick<HomeData, "hero" | "whatsapp">
             "xl:bg-[linear-gradient(90deg,rgba(8,45,92,0.66)_0%,rgba(8,45,92,0.52)_38%,rgba(8,45,92,0.15)_62%,rgba(8,45,92,0)_80%)]",
           )}
         />
-        <div className="relative z-[2] box-border w-full px-4 md:px-10">
+        <div className="site-gutter relative z-[2] w-full">
           <div className="flex max-w-full flex-col gap-6 pt-10 pb-[72px] md:max-w-[520px] md:pt-14 md:pb-24 xl:max-w-[600px] xl:pt-16 xl:pb-[104px]">
             {/* Empty badge row of the design (keeps the same vertical rhythm). */}
             <div aria-hidden className="flex gap-2" />

@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 import { BrandTiles } from "@/components/brand/BrandTiles";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { getBrands } from "@/lib/product/api";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Marques",
-  alternates: { canonical: "/marques" },
-};
+export const metadata: Metadata = seoMetadata({ title: "Marques", path: "/marques" });
 
 /** Brand hub (implied by the Marque LG breadcrumb): tiles of the brands that have products. */
 export default async function BrandsPage() {

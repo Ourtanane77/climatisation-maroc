@@ -125,7 +125,19 @@ export function Timeline({ steps, size = "sm" }: { steps: readonly { title: stri
 }
 
 /** Two-tone icon in a tile (perks, needs, audience cards). */
-export function IconTile({ paths, size = 52, icon = 26, radius = 16, bg = "bg-tint-blue" }: { paths: readonly [string, string]; size?: number; icon?: number; radius?: number; bg?: string }) {
+export function IconTile({
+  paths,
+  size = 52,
+  icon = 26,
+  radius = 16,
+  bg = "bg-tint-blue",
+}: {
+  paths: readonly [string, string];
+  size?: number;
+  icon?: number;
+  radius?: number;
+  bg?: string;
+}) {
   return (
     <span aria-hidden className={cn("flex shrink-0 items-center justify-center", bg)} style={{ width: size, height: size, borderRadius: radius }}>
       <DuoIcon paths={paths} size={icon} />

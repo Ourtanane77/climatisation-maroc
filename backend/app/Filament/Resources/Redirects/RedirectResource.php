@@ -6,6 +6,7 @@ use App\Filament\Resources\Redirects\Pages\ManageRedirects;
 use App\Models\Redirect;
 use App\Models\User;
 use BackedEnum;
+use Closure;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -13,6 +14,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -44,9 +46,25 @@ class RedirectResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(1)->components([
+            // Stored normalised (Redirect::normalize): uniqueness is checked on that form, so
+            // "/Ancienne-Page/" and "/ancienne-page" are the same address.
             TextInput::make('from_path')->label('Ancienne adresse')->required()->placeholder('/home/devis')
-                ->unique(ignoreRecord: true)->helperText('Chemin seul, sans le nom de domaine.'),
-            TextInput::make('to_path')->label('Nouvelle adresse')->required()->placeholder('/demander-un-devis'),
+                ->helperText('Chemin seul, sans le nom de domaine.')
+                ->rule(fn (?Redirect $record) => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                    $exists = Redirect::query()->where('from_path', Redirect::normalize((string) $value))
+                        ->when($record, fn ($q) => $q->whereKeyNot($record->getKey()))->exists();
+                    if ($exists) {
+                        $fail('Une redirection existe déjà pour cette adresse.');
+                    }
+                }),
+            TextInput::make('to_path')->label('Nouvelle adresse')->required()->placeholder('/demander-un-devis')
+                ->rule('regex:#^(/|https?://)#')
+                ->validationMessages(['regex' => 'Indiquez un chemin commençant par « / » ou une adresse complète (https://…).'])
+                ->rule(fn (Get $get) => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                    if (Redirect::normalize((string) $value) === Redirect::normalize((string) $get('from_path'))) {
+                        $fail('La nouvelle adresse doit être différente de l’ancienne.');
+                    }
+                }),
             Select::make('status_code')->label('Type')->options([301 => 'Définitive (301)', 302 => 'Temporaire (302)'])->default(301)->required(),
             TextInput::make('note')->label('Note'),
         ]);

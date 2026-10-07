@@ -9,6 +9,7 @@ use App\Filament\Resources\ServicePages\Pages\ListServicePages;
 use App\Models\ServicePage;
 use BackedEnum;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -52,6 +53,7 @@ class ServicePageResource extends Resource
                         Fields::name(label: 'Nom court'),
                         Fields::slug('/services/'),
                         Textarea::make('hero_text')->label('Texte d’introduction')->rows(2)->columnSpanFull(),
+                        FileUpload::make('image')->label('Photo de l’en-tête (remplace la photo par défaut)')->image()->disk('public')->directory('services')->columnSpanFull(),
                         Textarea::make('whatsapp_text')->label('Message WhatsApp prérempli')->rows(1),
                         TextInput::make('legacy_id')->label('ID ancien site')->numeric()->helperText('Redirection de /produit/service/{id}.'),
                         Toggle::make('show_supplies')->label('Afficher « Matériel d’installation »'),

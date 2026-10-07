@@ -25,7 +25,8 @@ it('links only published legal pages in the footer', function () {
         ['label' => "Service apr\u{00E8}s-vente", 'href' => '/services/service-apres-vente'],
     ]);
 
-    Page::query()->where('slug', 'cgv')->update(['is_published' => true]);
+    // Saved like the back office does (model events flush the API cache).
+    Page::query()->where('slug', 'cgv')->firstOrFail()->update(['is_published' => true]);
 
     expect($this->getJson('/api/v1/navigation')->json('footer.legal.0'))
         ->toBe(['label' => "Conditions g\u{00E9}n\u{00E9}rales de vente", 'href' => '/cgv']);
@@ -39,7 +40,7 @@ it('returns a range landing page with tiles, power chips, brands and published g
         ->and(collect($range['children'])->pluck('shortName')->all())->toBe(['Mural', 'Gainable', 'Cassette', 'Console et armoire'])
         ->and(collect($range['powers'])->pluck('label')->first())->toBe("9\u{00A0}000\u{00A0}BTU")
         ->and($range['powers'][0]['href'])->toBe('/climatisation/mural?puissance=9000')
-        ->and(collect($range['powers'])->last()['label'])->toBe("30\u{00A0}000 BTU et plus")
+        ->and(collect($range['powers'])->last()['label'])->toBe("30\u{00A0}000\u{00A0}BTU et plus") // French typography
         ->and(collect($range['brands'])->pluck('note', 'name')->all())->toMatchArray(['LG' => 'Distributeur officiel'])
         ->and(collect($range['guides'])->pluck('href')->all())->toBe(['/blog/quelle-puissance-de-climatiseur-pour-ma-piece'])
         ->and($range['faq'])->toHaveCount(3)
@@ -50,7 +51,7 @@ it('returns a range landing page with tiles, power chips, brands and published g
 
 it('filters a listing and counts facets disjunctively', function () {
     $all = $this->getJson('/api/v1/categories/climatisation/mural/products')->assertOk()->json();
-    expect($all['meta']['total'])->toBe(9)
+    expect($all['meta']['total'])->toBe(10)
         ->and(collect($all['facets'])->pluck('key')->all())->toBe(['power', 'brand', 'tech', 'fluid', 'colour', 'price', 'promo']);
 
     $lg = $this->getJson('/api/v1/categories/climatisation/mural/products?brand=lg')->json();
@@ -58,7 +59,7 @@ it('filters a listing and counts facets disjunctively', function () {
     expect($lg['meta']['total'])->toBe(3)
         ->and(collect($lg['data'])->pluck('brand')->unique()->all())->toBe(['LG'])
         // Other brands keep their own counts (the brand facet ignores its own filter).
-        ->and(collect($brands)->pluck('count', 'value')->all())->toBe(['lg' => 3, 'carrier' => 3, 'ciat' => 1, 'fitco' => 2])
+        ->and(collect($brands)->pluck('count', 'value')->all())->toBe(['lg' => 3, 'carrier' => 3, 'ciat' => 1, 'fitco' => 3])
         ->and(collect($brands)->firstWhere('value', 'lg')['selected'])->toBeTrue();
 
     $power = $this->getJson('/api/v1/categories/climatisation/mural/products?power=24000&tech=Inverter')->json();
@@ -76,18 +77,19 @@ it('sorts and paginates a listing', function () {
     sort($sorted);
 
     expect($prices)->toBe($sorted)
-        ->and($asc['meta'])->toMatchArray(['total' => 9, 'perPage' => 4, 'lastPage' => 3, 'page' => 1]);
+        ->and($asc['meta'])->toMatchArray(['total' => 10, 'perPage' => 4, 'lastPage' => 3, 'page' => 1]);
 
     $page3 = $this->getJson('/api/v1/categories/climatisation/mural/products?per_page=4&page=3')->json();
-    expect($page3['data'])->toHaveCount(1);
+    expect($page3['data'])->toHaveCount(2);
 });
 
 it('returns every variant as a dense row for the quick-order list', function () {
     $rows = collect($this->getJson('/api/v1/categories/cuivre-et-gaz/products?flat=1')->assertOk()->json('data'));
 
-    expect($rows)->toHaveCount(13)
-        ->and($rows->firstWhere('sku', 'CLIM00008'))->toMatchArray(['price' => 350, 'sub' => 'Isolant', 'inStock' => true])
-        ->and($rows->firstWhere('sku', 'CUIV0009')['inStock'])->toBeFalse();
+    // Old site (2026-10-07): 6 Lafarga copper rolls, 5 duo kits, 6 Armaflex, 6 gases; Excel: 6 SRK copper rolls.
+    expect($rows)->toHaveCount(29)
+        ->and($rows->firstWhere('sku', 'CLIM00008'))->toMatchArray(['price' => 300, 'sub' => 'Isolant', 'inStock' => true]) // Excel price
+        ->and($rows->firstWhere('sku', 'GAZ00049'))->toMatchArray(['price' => 270000, 'sub' => 'Gaz frigorifique']);
 });
 
 it('lists promoted families with only their discounted variants', function () {
@@ -108,7 +110,7 @@ it('lists promoted families with only their discounted variants', function () {
 
 it('searches names, references and brands without accents or case', function () {
     $results = $this->getJson('/api/v1/search?q=CUIVRE')->assertOk()->json();
-    expect($results['total'])->toBe(5)
+    expect($results['total'])->toBe(12)
         ->and(collect($results['tabs'])->pluck('label')->all())->toBe(['Cuivre']);
 
     expect($this->getJson('/api/v1/search?q=d13ajh')->json('data.0.name'))->toBe('LG Dual Inverter')

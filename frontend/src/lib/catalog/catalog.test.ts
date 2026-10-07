@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { filterDense } from "@/components/catalog/DenseList";
 import { compareHref, parseCompare } from "@/lib/compare";
 import { withBrandBadge } from "./cards";
-import { clearFiltersHref, listingApiQuery, selectedFilters, setParamHref, toggleFilterHref } from "./query";
+import { clearFiltersHref, listingApiQuery, listingControls, selectedFilters, setParamHref, toggleFilterHref } from "./query";
 import type { DenseItem } from "./types";
 
 describe("listing URLs", () => {
@@ -76,5 +76,17 @@ describe("brand badge", () => {
   it("falls back to the brand when there is no discount", () => {
     expect(withBrandBadge({ name: "x", href: "#", price: 1, brand: "LG" }).badge).toEqual({ text: "LG", tone: "brand" });
     expect(withBrandBadge({ name: "x", href: "#", price: 1, brand: "LG", badge: { text: "−5 %", tone: "promo" } }).badge?.tone).toBe("promo");
+  });
+});
+
+describe("listingControls", () => {
+  it("hides filters and sort for a single product", () => {
+    expect(listingControls(1, 0)).toEqual({ filters: false, sort: false });
+    expect(listingControls(1, 2)).toEqual({ filters: false, sort: false });
+  });
+
+  it("shows sort from two products and filters when a facet splits them", () => {
+    expect(listingControls(2, 1)).toEqual({ filters: true, sort: true });
+    expect(listingControls(5, 0)).toEqual({ filters: false, sort: true });
   });
 });

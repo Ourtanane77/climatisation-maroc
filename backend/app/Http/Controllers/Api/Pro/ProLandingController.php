@@ -25,7 +25,7 @@ class ProLandingController extends Controller
             ->map(fn (Brand $b) => [
                 'name' => $b->name,
                 'href' => $b->url(),
-                'logo' => ImageUrl::path($b->logo),
+                'logo' => ImageUrl::logo($b->logo),
                 'aspect' => (float) ($b->logo_aspect ?: 2),
             ])->values();
 

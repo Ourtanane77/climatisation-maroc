@@ -1,7 +1,6 @@
 /** Site-wide constants and URL helpers. */
 
 export const SITE_NAME = "Climatisation Maroc";
-export const SITE_LOCALE = "fr-MA";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080").replace(/\/$/, "");
 

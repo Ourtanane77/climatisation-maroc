@@ -1,7 +1,7 @@
 // Screenshots design pages and the built site at 1440 and 390 for side-by-side review.
 //
 //   npx http-server ../design -p 5500   (or: python -m http.server 5500 -d ../design)
-//   node scripts/visual-compare.mjs <phase> [site=http://localhost:8080] [design=http://localhost:5500]
+//   node scripts/visual-compare.mjs <phase> [site=http://localhost:8080] [design=http://localhost:5500] [--only=name,name]
 //
 // Pairs are listed per phase below, or in scripts/visual/<phase>.mjs (default export: the pairs
 // array; optional named export `actions`). Output goes to test-results/visual/<phase>/.
@@ -10,7 +10,11 @@ import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-const [phase = "phase-2", site = "http://localhost:8080", design = "http://localhost:5500"] = process.argv.slice(2);
+const only = process.argv
+  .find((a) => a.startsWith("--only="))
+  ?.slice(7)
+  .split(",");
+const [phase = "phase-2", site = "http://localhost:8080", design = "http://localhost:5500"] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 
 /** name → [design page, site path, optional action] */
 const PAIRS = {
@@ -49,6 +53,7 @@ const browser = await chromium.launch();
 for (const width of [1440, 390]) {
   const context = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
   for (const [name, designPage, sitePath, action, opts = {}] of PAIRS[phase] ?? []) {
+    if (only && !only.includes(name)) continue;
     if (opts.only && opts.only !== width) continue;
     for (const [kind, url] of [
       ["design", designPage && `${design}/${encodeURI(designPage)}`],

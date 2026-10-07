@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { NotFoundContent } from "@/components/content/NotFoundContent";
 import SiteLayout from "./(site)/layout";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Page introuvable",
-  robots: { index: false },
-};
+export const metadata: Metadata = seoMetadata({ title: "Page introuvable", noindex: true });
 
 /**
  * 404 for URLs no route matches (e.g. three or more unknown segments): same page as

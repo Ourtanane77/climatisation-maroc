@@ -14,11 +14,9 @@ import { plural } from "@/lib/format";
 import { getNavigation } from "@/lib/navigation";
 import type { SearchParams } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Recherche",
-  robots: { index: false, follow: true },
-};
+export const metadata: Metadata = seoMetadata({ title: "Recherche", noindex: true });
 
 function href(term: string, extra: { gamme?: string; onglet?: string; page?: number } = {}): string {
   const q = new URLSearchParams({ q: term });
@@ -77,7 +75,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/recherche
           </div>
           <div role="tabpanel" className="grid grid-cols-1 gap-4 pt-6 md:grid-cols-2 xl:grid-cols-4">
             {results.data.map((p) => (
-              <ProductCard key={p.href} product={withBrandBadge(p)} action="add" />
+              <ProductCard key={p.href} product={withBrandBadge(p)} action="add" headingLevel="h2" />
             ))}
           </div>
           <Pagination page={results.meta.page} lastPage={results.meta.lastPage} hrefFor={(p) => href(term, { gamme, onglet: tab, page: p })} />

@@ -12,10 +12,13 @@ use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * CSV import keyed on the reference (SKU): existing variants are updated (prices, stock…);
  * a new SKU creates a variant in the family named in "famille" (created if needed, in "categorie").
+ * "Nouvelle référence" renames the variant's SKU (e.g. a temporary XLS-… reference replaced by the
+ * real one; the import fails for that row if the new reference is already used).
  * Prices are in Dhs in the file and stored in centimes.
  */
 class ProductVariantImporter extends Importer
@@ -41,6 +44,19 @@ class ProductVariantImporter extends Importer
             ImportColumn::make('stock_status')->label('Stock')->example('en_stock')
                 ->rules(['nullable', 'in:'.implode(',', array_column(StockStatus::cases(), 'value'))]),
             ImportColumn::make('needs_verification')->label('À vérifier')->boolean(),
+            ImportColumn::make('nouvelle_reference')->label('Nouvelle référence')
+                ->helperText('Remplace la référence de la ligne (par exemple une référence provisoire XLS-…).')
+                ->rules(['nullable', 'max:64'])
+                ->fillRecordUsing(function (ProductVariant $record, ?string $state): void {
+                    $state = trim((string) $state);
+                    if ($state === '' || $state === $record->sku) {
+                        return;
+                    }
+                    if (ProductVariant::query()->where('sku', $state)->exists()) {
+                        throw ValidationException::withMessages(['nouvelle_reference' => "La référence {$state} existe déjà."]);
+                    }
+                    $record->sku = $state;
+                }),
         ];
     }
 

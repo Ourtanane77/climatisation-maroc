@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             RolesAndUsersSeeder::class,
             ReferenceSeeder::class,
             CatalogSeeder::class,
+            ExcelAdditionsSeeder::class,
             ContentSeeder::class,
             HomeSeeder::class,
         ]);

@@ -93,7 +93,7 @@ class CartPricer
         }
 
         return $candidates
-            ->filter(fn (ProductVariant $v) => $v->stock_status->isOrderable() && ! in_array($v->sku, $skus, true))
+            ->filter(fn (ProductVariant $v) => $v->stock_status->isOrderable() && ! $v->isOnRequest() && ! in_array($v->sku, $skus, true))
             ->take($count)
             ->map(fn (ProductVariant $v) => [
                 'sku' => $v->sku,
@@ -164,7 +164,9 @@ class CartPricer
             'regularPrice' => $unit < $variant->price ? $variant->price : null,
             'qty' => $qty,
             'lineTotal' => $unit * $qty,
-            'available' => $variant->stock_status->isOrderable(),
+            // « Prix sur demande » (price 0) is never orderable.
+            'available' => $variant->stock_status->isOrderable() && ! $variant->isOnRequest(),
+            'onRequest' => $variant->isOnRequest(),
         ];
     }
 

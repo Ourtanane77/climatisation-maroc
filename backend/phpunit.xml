@@ -18,18 +18,32 @@
         </include>
     </source>
     <php>
+        <!-- Never load the dev caches (make cache): tests must read the forced values below. -->
+        <server name="APP_CONFIG_CACHE" value="bootstrap/cache/config.testing.php" force="true"/>
+        <server name="APP_ROUTES_CACHE" value="bootstrap/cache/routes.testing.php" force="true"/>
+        <server name="APP_EVENTS_CACHE" value="bootstrap/cache/events.testing.php" force="true"/>
         <env name="APP_ENV" value="testing" force="true"/>
+        <server name="APP_ENV" value="testing" force="true"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4" force="true"/>
+        <server name="BCRYPT_ROUNDS" value="4" force="true"/>
         <env name="BROADCAST_CONNECTION" value="null" force="true"/>
+        <server name="BROADCAST_CONNECTION" value="null" force="true"/>
         <env name="CACHE_STORE" value="array" force="true"/>
+        <server name="CACHE_STORE" value="array" force="true"/>
         <env name="DB_CONNECTION" value="mysql" force="true"/>
+        <server name="DB_CONNECTION" value="mysql" force="true"/>
         <env name="DB_DATABASE" value="climatisation_test" force="true"/>
+        <server name="DB_DATABASE" value="climatisation_test" force="true"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array" force="true"/>
+        <server name="MAIL_MAILER" value="array" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
+        <server name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
+        <server name="SESSION_DRIVER" value="array" force="true"/>
         <env name="FILESYSTEM_DISK" value="local" force="true"/>
+        <server name="FILESYSTEM_DISK" value="local" force="true"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

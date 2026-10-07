@@ -49,8 +49,11 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
 | `make migrate` | `php artisan migrate` |
 | `make seed` | `php artisan db:seed` |
 | `make fresh` | `migrate:fresh --seed` |
+| `make cache` | rebuild Laravel and Filament caches (after editing config, routes or `.env`) |
 | `make test` | backend Pest and frontend Vitest |
 | `make lint` | Pint, Larastan, ESLint, tsc |
+| `make e2e` | Playwright end-to-end tests against the running stack (host) |
+| `make smoke` | smoke test through nginx |
 | `make logs` | follow the stack logs |
 | `make sh-php` | shell in the php container |
 | `make sh-next` | shell in the next container |
@@ -62,3 +65,12 @@ Local URLs:
 - site: http://localhost:8080
 - back office: http://localhost:8080/admin
 - Mailpit: http://localhost:8025
+
+## Docs
+
+- `docs/setup.md`: development setup, tests (never run Pest without the forced test
+  settings of `phpunit.xml`; `TEST_DB_DATABASE` for parallel runs).
+- `docs/architecture.md`: API domains, BFF, pricing audience, caching and revalidation.
+- `docs/deployment.md`: production compose, environment, updates, backups.
+- `docs/guide-back-office.md`: French guide for the shop staff; update it when the back
+  office changes.

@@ -1,9 +1,11 @@
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { AdviceCta, BrandTiles, GuideCards, PageIntro, PowerChips, Section, TypeTiles } from "@/components/catalog/Sections";
+import { ProjectCtaBand } from "@/components/content/blocks";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { withBrandBadge } from "@/lib/catalog/cards";
 import type { CategoryData } from "@/lib/catalog/types";
+import { PROJECTS_PHONE_LABEL } from "@/lib/content/copy";
 import { getNavigation } from "@/lib/navigation";
 import { waLink } from "@/lib/whatsapp";
 
@@ -59,6 +61,14 @@ export default async function LandingTemplate({ category }: { category: Category
         <Section id="faq" title="Questions fréquentes">
           <FaqAccordion items={category.faq} />
         </Section>
+      )}
+
+      {category.isQuoteOnly && (
+        // Quote-only range (Froid et chambres froides): projects are quoted, not sold online. The
+        // "Parlons de votre projet" band is the design's pro CTA (Solutions, secteurs, services).
+        <section className="pt-10 md:pt-14">
+          <ProjectCtaBand phone={nav.footer.phones.find((p) => p.label === PROJECTS_PHONE_LABEL)?.display ?? nav.salesPhone.display} />
+        </section>
       )}
 
       {category.powers.length > 0 ? (

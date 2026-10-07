@@ -7,12 +7,13 @@ import { projectsPhone } from "@/lib/leads/contacts";
 import { getCityNames } from "@/lib/leads/data";
 import { getNavigation } from "@/lib/navigation";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
   title: "Demander un devis",
   description: "Décrivez votre projet de climatisation, nous vous rappelons avec une proposition.",
-  alternates: { canonical: "/demander-un-devis" },
-};
+  path: "/demander-un-devis",
+});
 
 const STEPS = [
   { title: "Demande", text: "Vous décrivez votre projet, nous vous rappelons." },
@@ -32,6 +33,8 @@ export default async function QuotePage({ searchParams }: PageProps<"/demander-u
       <QuoteForm
         cities={cities}
         initialPro={params.pro === "1"}
+        // « Demander un prix » links (items « Prix sur demande ») pass the reference in ?ref=.
+        initialMessage={typeof params.ref === "string" && params.ref ? `Demande de prix pour la référence ${params.ref.slice(0, 64)}.` : undefined}
         whatsappHref={wa}
         aside={
           <aside className="flex flex-col gap-4 xl:sticky xl:top-6">

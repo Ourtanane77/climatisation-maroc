@@ -12,11 +12,16 @@ import { SLOT } from "@/components/home/slot";
 import { cn } from "@/lib/cn";
 import { getHome } from "@/lib/home/api";
 import { SITE_NAME } from "@/lib/site";
+import { SITE_DESCRIPTION, seoMetadata } from "@/lib/seo/metadata";
+import { designImage } from "@/lib/design-assets";
 
-export const metadata: Metadata = {
-  title: { absolute: `${SITE_NAME} · Jusqu'à -30 % sur les climatiseurs · Ariha Froid` },
-  alternates: { canonical: "/" },
-};
+export const metadata: Metadata = seoMetadata({
+  title: `${SITE_NAME} · Climatiseurs, chauffe-eau · Ariha Froid`,
+  absolute: true,
+  description: SITE_DESCRIPTION,
+  path: "/",
+  image: designImage("cover-ariha.png"),
+});
 
 /** Home page (design/Accueil.dc.html). Sections without data are left out. */
 export default async function HomePage() {
@@ -46,7 +51,7 @@ export default async function HomePage() {
           title="Gaines circulaires"
           arrows
           actions={
-            <Link href="/gaines" className="text-[15px] font-bold underline">
+            <Link href="/gaines" className="-my-[3px] inline-block py-[3px] text-[15px] font-bold underline">
               Voir toutes les gaines
             </Link>
           }

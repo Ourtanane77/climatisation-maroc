@@ -23,16 +23,18 @@ class CatalogSeeder extends Seeder
     public function run(): void
     {
         $importer = CatalogImporter::make();
-        $result = $importer->import($importer->load());
+        $catalog = $importer->load();
+        $result = $importer->import($catalog);
         // @phpstan-ignore nullsafe.neverNull (null when the seeder runs outside Artisan)
         $this->command?->info("Catalogue : {$result['families']} familles, {$result['variants']} variantes.");
 
-        $this->designOnlyProducts();
+        $this->designOnlyProducts(array_column($catalog['products'], 'sku'));
         $this->lgDualInverter();
     }
 
     /** Products shown in the design but absent from catalog.json (decision of 2026-10-06). */
-    private function designOnlyProducts(): void
+    /** @param list<string> $catalogSkus references the catalogue already has (those win over the design) */
+    private function designOnlyProducts(array $catalogSkus): void
     {
         // [category path, brand slug, family name, art key, [[label, sku, price Dhs, stock, power], …]]
         $products = [
@@ -53,6 +55,12 @@ class CatalogSeeder extends Seeder
         ];
 
         foreach ($products as $position => [$path, $brand, $name, $art, $variants]) {
+            // Each design-only product has a single variant.
+            [[$label, $sku, $price, $stock, $power]] = $variants;
+            if (in_array($sku, $catalogSkus, true)) {
+                continue; // now in the catalogue (scraped from the old site): its data wins
+            }
+
             $product = Product::query()->updateOrCreate(['slug' => Str::slug($name)], [
                 'category_id' => Category::query()->where('path', $path)->value('id'),
                 'brand_id' => $brand ? Brand::query()->where('slug', $brand)->value('id') : null,
@@ -65,8 +73,6 @@ class CatalogSeeder extends Seeder
                 'position' => 1000 + $position,
             ]);
 
-            // Each design-only product has a single variant.
-            [[$label, $sku, $price, $stock, $power]] = $variants;
             ProductVariant::query()->updateOrCreate(['sku' => $sku], [
                 'product_id' => $product->id,
                 'label' => $label ? str_replace(' 000', "\u{00A0}000", $label) : null,

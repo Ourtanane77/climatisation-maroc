@@ -23,7 +23,7 @@ class Present
             'name' => $brand->name,
             'slug' => $brand->slug,
             'href' => $brand->url(),
-            'logo' => ImageUrl::path($brand->logo),
+            'logo' => ImageUrl::logo($brand->logo),
             'logoAspect' => $brand->logo_aspect !== null ? (float) $brand->logo_aspect : null,
             'caption' => $brand->caption,
             'official' => $brand->is_official_distributor,

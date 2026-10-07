@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ProductArt } from "@/components/catalog/ProductArt";
+import { CategoryVisual } from "@/components/catalog/CategoryVisual";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { CtaBand, GRID_4, PageTitle, Section, SectionTitle } from "@/components/content/blocks";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -10,6 +10,7 @@ import { getCityPage } from "@/lib/content/api";
 import { SALES_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import type { Resolved } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 type CityResolved = Extract<Resolved, { type: "city" }>;
 
@@ -20,12 +21,12 @@ type CityResolved = Extract<Resolved, { type: "city" }>;
  */
 export async function cityPageMetadata(resolved: CityResolved): Promise<Metadata> {
   const page = await getCityPage(resolved.slug);
-  return {
+  return seoMetadata({
     title: page.seo.title ?? `Climatisation ${page.city}`,
-    description: page.seo.description ?? page.intro ?? undefined,
-    alternates: { canonical: page.href },
-    robots: page.seo.noindex ? { index: false } : undefined,
-  };
+    description: page.seo.description ?? page.intro,
+    path: page.href,
+    noindex: page.seo.noindex,
+  });
 }
 
 export default async function CityPageView({ resolved }: { resolved: CityResolved }) {
@@ -58,11 +59,16 @@ export default async function CityPageView({ resolved }: { resolved: CityResolve
               >
                 <span className="text-[26px] font-bold">{t.name}</span>
                 {t.text && <span className="text-ink-2 max-w-[80%] text-[15px]">{t.text}</span>}
-                {t.art && (
-                  <span aria-hidden className="mt-auto flex justify-center">
-                    <ProductArt art={t.art} className="h-auto w-[80%]" />
-                  </span>
-                )}
+                <span aria-hidden className="mt-auto flex h-[150px] items-end justify-center md:h-[180px]">
+                  <CategoryVisual
+                    href={t.href}
+                    image={t.image}
+                    art={t.art}
+                    sizes="(min-width: 1100px) 300px, (min-width: 760px) 45vw, 90vw"
+                    className="h-auto max-h-full w-auto max-w-full object-contain"
+                    artClassName="flex w-[80%] justify-center"
+                  />
+                </span>
               </Link>
             ))}
           </div>

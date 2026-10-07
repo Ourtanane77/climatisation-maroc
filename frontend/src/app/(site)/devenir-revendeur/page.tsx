@@ -5,14 +5,15 @@ import { CallbackCard, PageIntro } from "@/components/leads/ui";
 import { PerkList } from "@/components/pro/PerkList";
 import { projectsPhone } from "@/lib/leads/contacts";
 import { getCityNames } from "@/lib/leads/data";
-import { getNavigation } from "@/lib/navigation";
+import { getNavigation, publishedLegalHref } from "@/lib/navigation";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
   title: "Devenir revendeur",
   description: "Ouvrez votre compte professionnel pour accéder aux tarifs revendeur, au stock et à la commande rapide.",
-  alternates: { canonical: "/devenir-revendeur" },
-};
+  path: "/devenir-revendeur",
+});
 
 /** Devenir revendeur (design: Devenir revendeur.dc.html). */
 export default async function ResellerPage() {
@@ -25,6 +26,7 @@ export default async function ResellerPage() {
       <PageIntro title="Devenir revendeur">Ouvrez votre compte professionnel pour accéder aux tarifs revendeur, au stock et à la commande rapide.</PageIntro>
       <ResellerForm
         cities={cities}
+        cgvHref={publishedLegalHref(nav, "/cgv")}
         aside={
           <aside className="flex flex-col gap-4 xl:sticky xl:top-6">
             <PerkList />

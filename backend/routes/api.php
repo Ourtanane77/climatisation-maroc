@@ -20,7 +20,7 @@ Route::middleware('throttle:api-read')->group(function () {
     Route::get('/cities', CityController::class)->name('api.cities');
 });
 
-foreach (['catalog', 'products', 'commerce', 'leads', 'home', 'content'] as $domain) {
+foreach (['catalog', 'products', 'commerce', 'leads', 'home', 'content', 'seo'] as $domain) {
     if (is_file($file = __DIR__."/api/{$domain}.php")) {
         require $file;
     }

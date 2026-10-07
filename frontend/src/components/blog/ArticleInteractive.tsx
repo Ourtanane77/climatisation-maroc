@@ -8,14 +8,15 @@ import { FacebookIcon, WhatsAppIcon } from "@/components/ui/icons";
 import type { InlineProduct } from "@/lib/blog/types";
 import { addToCart } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
-import { dh } from "@/lib/format";
+import { dh, isOnRequest, priceRequestHref, priceText } from "@/lib/format";
 
 /** Product suggested inside an article: thumbnail, name, price, "Ajouter au panier". */
 export function InlineProductCard({ product }: { product: InlineProduct }) {
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
-  const orderable = product.inStock !== false;
+  const onRequest = isOnRequest(product.price);
+  const orderable = product.inStock !== false && !onRequest;
 
   function add() {
     addToCart(product.sku, 1);
@@ -33,14 +34,14 @@ export function InlineProductCard({ product }: { product: InlineProduct }) {
         aria-hidden
         className="bg-tint-thumb rounded-14 box-border flex h-[84px] w-[110px] shrink-0 items-center justify-center p-2"
       >
-        <ProductVisual image={product.image} art={product.art ?? "mural"} dark={product.dark} alt="" shadow={false} />
+        <ProductVisual image={product.image} art={product.art} dark={product.dark} alt="" shadow={false} />
       </Link>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <Link href={product.href} className="text-ink hover:text-brand text-base leading-[1.3] font-bold">
           {product.name}
         </Link>
         <div className="flex flex-wrap items-baseline gap-2">
-          <span className="text-[22px] font-extrabold">{dh(product.price)}</span>
+          <span className="text-[22px] font-extrabold">{priceText(product.price)}</span>
           {product.regularPrice && product.regularPrice > product.price && (
             <span className="text-muted-2 text-sm line-through">{dh(product.regularPrice)}</span>
           )}
@@ -58,10 +59,10 @@ export function InlineProductCard({ product }: { product: InlineProduct }) {
           </button>
         ) : (
           <Link
-            href={product.href}
+            href={onRequest ? priceRequestHref(product.sku) : product.href}
             className="border-line-strong text-ink hover:border-ink flex h-10 items-center self-start rounded-full border-[1.5px] bg-white px-3.5 text-sm font-bold"
           >
-            Voir le produit
+            {onRequest ? "Demander un prix" : "Voir le produit"}
           </Link>
         )}
       </div>

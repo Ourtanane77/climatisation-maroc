@@ -22,11 +22,14 @@ const DEFAULT_CITY = "Marrakech";
 export function QuoteForm({
   cities,
   initialPro,
+  initialMessage,
   whatsappHref,
   aside,
 }: {
   cities: string[];
   initialPro: boolean;
+  /** Prefilled message, e.g. a price request for a reference (« Demander un prix »). */
+  initialMessage?: string;
   whatsappHref: string;
   aside: React.ReactNode;
 }) {
@@ -41,7 +44,7 @@ export function QuoteForm({
   const [surface, setSurface] = useState("");
   const [project, setProject] = useState<(typeof PROJECTS)[number] | null>("Nouvelle installation");
   const [space, setSpace] = useState<(typeof SPACES)[number] | null>("Maison");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(initialMessage ?? "");
   const [file, setFile] = useState<File | null>(null);
   const [tried, setTried] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -189,7 +192,13 @@ export function QuoteForm({
             <ChipGroup label="Type de projet" options={PROJECTS} value={project} onChange={setProject} />
             <ChipGroup label="Type d'espace" options={SPACES} value={space} onChange={setSpace} />
             <Field label="Message" htmlFor="q-message">
-              <Textarea id="q-message" rows={4} placeholder="Nombre de pièces, appareil souhaité, délais…" value={message} onChange={(e) => setMessage(e.target.value)} />
+              <Textarea
+                id="q-message"
+                rows={4}
+                placeholder="Nombre de pièces, appareil souhaité, délais…"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
             </Field>
             <UploadTile file={file} onFile={setFile} error={fieldError(errors, "attachment")} />
             {general && (

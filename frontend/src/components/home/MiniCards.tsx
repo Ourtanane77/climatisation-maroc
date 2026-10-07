@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
+import { DesignImg } from "@/components/ui/DesignImg";
 import { cn } from "@/lib/cn";
-import { dh } from "@/lib/format";
-import { INSTALL_IMAGE, designImage } from "@/lib/home/assets";
+import { priceText, publicRef } from "@/lib/format";
+import { INSTALL_IMAGE, designPhoto } from "@/lib/home/assets";
 import type { DuctItem } from "@/lib/home/types";
 import type { ProductCardData } from "@/lib/types";
 import { DuctArt } from "./DuctArt";
@@ -24,11 +25,17 @@ export function DuctCard({ duct }: { duct: DuctItem }) {
         </span>
       )}
       <h3 className={title}>{duct.name}</h3>
-      <span className="text-muted text-sm">{duct.sku}</span>
+      <span className="text-muted text-sm">{publicRef(duct.sku)}</span>
       <div className="box-border flex h-[180px] shrink-0 items-center justify-center overflow-hidden p-1">
-        {duct.diameter ? <DuctArt diameter={duct.diameter} kind={duct.kind} /> : <ProductVisual art="flex" alt={duct.name} />}
+        {duct.image ? (
+          <ProductVisual image={duct.image} alt={duct.name} />
+        ) : duct.diameter && duct.kind !== "rigide" ? (
+          <DuctArt diameter={duct.diameter} kind={duct.kind} />
+        ) : (
+          <ProductVisual art={duct.kind === "rigide" ? null : "flex"} alt={duct.name} />
+        )}
       </div>
-      <span className="text-2xl font-extrabold tracking-[-0.02em]">{dh(duct.price)}</span>
+      <span className="text-2xl font-extrabold tracking-[-0.02em]">{priceText(duct.price)}</span>
       <Link href={duct.href} className={viewBtn}>
         Voir le produit
       </Link>
@@ -49,7 +56,7 @@ export function SupplyCard({ product }: { product: ProductCardData }) {
       </div>
       <span className="mt-auto text-2xl font-extrabold tracking-[-0.02em]">
         {product.fromPrice && <span className="text-muted mr-1.5 text-sm font-normal tracking-normal">À partir de</span>}
-        {dh(product.price)}
+        {priceText(product.price)}
       </span>
       <Link href={product.href} className={viewBtn}>
         Voir le produit
@@ -61,10 +68,10 @@ export function SupplyCard({ product }: { product: ProductCardData }) {
 /** Last slot of the supplies rail: "Tout pour l'installation" with links to the two dense ranges. */
 export function InstallCard() {
   // Copper photo of the design (uploads/cuivre-56818f19.png) when present, else plain black.
-  const image = designImage(INSTALL_IMAGE);
+  const photo = designPhoto(INSTALL_IMAGE);
   return (
     <div className={cn(SLOT, "relative box-border flex min-h-[420px] flex-col justify-end gap-3 overflow-hidden rounded-[24px] bg-black p-6")}>
-      {image && <div aria-hidden className="absolute inset-0 bg-cover bg-[position:center_30%]" style={{ backgroundImage: `url(${image})` }} />}
+      {photo && <DesignImg photo={photo} sizes="(max-width: 759px) 80vw, 320px" className="absolute inset-0 size-full object-cover object-[center_30%]" />}
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.88)_0%,rgba(0,0,0,0.55)_45%,rgba(0,0,0,0)_75%)]" />
       <h3 className="relative m-0 mb-1 text-2xl leading-[1.2] font-bold tracking-[-0.02em] text-white">Tout pour l&apos;installation</h3>
       <Link

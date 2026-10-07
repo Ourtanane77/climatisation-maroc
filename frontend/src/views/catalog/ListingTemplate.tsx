@@ -11,7 +11,7 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { apiGet } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 import { withBrandBadge } from "@/lib/catalog/cards";
-import { clearFiltersHref, DEFAULT_SORT, first, listingApiQuery, setParamHref, SORTS, toggleFilterHref } from "@/lib/catalog/query";
+import { clearFiltersHref, DEFAULT_SORT, first, listingApiQuery, listingControls, setParamHref, SORTS, toggleFilterHref } from "@/lib/catalog/query";
 import type { CategoryData, ListingData } from "@/lib/catalog/types";
 import { cn } from "@/lib/cn";
 import { plural } from "@/lib/format";
@@ -37,6 +37,8 @@ export default async function ListingTemplate({ category, searchParams }: { cate
   const total = listing.meta.total;
   const active = listing.facets.flatMap((f) => f.values.filter((v) => v.selected).map((v) => ({ facet: f.key, ...v })));
   const isClim = category.path.startsWith("climatisation");
+  // Older API responses (cache) have no unfilteredTotal: fall back to the filtered total.
+  const controls = listingControls(listing.meta.unfilteredTotal ?? total, listing.facets.length);
 
   const filters = (
     <FilterColumn
@@ -51,44 +53,48 @@ export default async function ListingTemplate({ category, searchParams }: { cate
       <PageIntro title={category.h1} intro={category.intro} />
       <SisterChips items={category.siblings.map((s) => ({ label: s.label, href: s.href, active: s.active }))} />
 
-      <section id="produits" className="grid grid-cols-1 items-start gap-8 pt-10 md:grid-cols-[280px_minmax(0,1fr)] md:pt-14">
-        <div className="hidden md:block">{filters}</div>
+      <section id="produits" className={cn("grid grid-cols-1 items-start gap-8 pt-10 md:pt-14", controls.filters && "md:grid-cols-[280px_minmax(0,1fr)]")}>
+        {controls.filters && <div className="hidden md:block">{filters}</div>}
 
         <div className="flex min-w-0 flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <strong className="text-base" aria-live="polite">
               {plural(total, "produit")}
             </strong>
-            <div className="flex items-center gap-2 md:gap-3">
-              <MobileFilterSheet count={total} initialOpen={first(searchParams.filtres) === "1"}>
-                {filters}
-              </MobileFilterSheet>
-              <SortSelect
-                value={sort}
-                options={SORTS.map((s) => ({
-                  value: s.value,
-                  label: s.label,
-                  href: setParamHref(base, searchParams, "tri", s.value === DEFAULT_SORT ? null : s.value),
-                }))}
-              />
-              <div className="border-control flex rounded-full border-[1.5px] bg-white p-[3px]" role="group" aria-label="Affichage">
-                {(["grille", "liste"] as const).map((v) => (
-                  <Link
-                    key={v}
-                    href={setParamHref(base, searchParams, "vue", v === "grille" ? null : v)}
-                    scroll={false}
-                    rel="nofollow"
-                    aria-current={view === v ? "true" : undefined}
-                    className={cn(
-                      "flex h-9 items-center rounded-full px-4 text-sm font-bold",
-                      view === v ? "bg-ink text-white hover:text-white" : "text-ink hover:text-ink",
-                    )}
-                  >
-                    {v === "grille" ? "Grille" : "Liste"}
-                  </Link>
-                ))}
+            {controls.sort && (
+              <div className="flex flex-wrap items-center justify-end gap-2 md:gap-3">
+                {controls.filters && (
+                  <MobileFilterSheet count={total} initialOpen={first(searchParams.filtres) === "1"}>
+                    {filters}
+                  </MobileFilterSheet>
+                )}
+                <SortSelect
+                  value={sort}
+                  options={SORTS.map((s) => ({
+                    value: s.value,
+                    label: s.label,
+                    href: setParamHref(base, searchParams, "tri", s.value === DEFAULT_SORT ? null : s.value),
+                  }))}
+                />
+                <div className="border-control flex rounded-full border-[1.5px] bg-white p-[3px]" role="group" aria-label="Affichage">
+                  {(["grille", "liste"] as const).map((v) => (
+                    <Link
+                      key={v}
+                      href={setParamHref(base, searchParams, "vue", v === "grille" ? null : v)}
+                      scroll={false}
+                      rel="nofollow"
+                      aria-current={view === v ? "true" : undefined}
+                      className={cn(
+                        "flex h-9 items-center rounded-full px-3 text-sm font-bold min-[391px]:px-4",
+                        view === v ? "bg-ink text-white hover:text-white" : "text-ink hover:text-ink",
+                      )}
+                    >
+                      {v === "grille" ? "Grille" : "Liste"}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {active.length > 0 && (
@@ -112,11 +118,22 @@ export default async function ListingTemplate({ category, searchParams }: { cate
           )}
 
           {listing.data.length > 0 ? (
-            <div className={cn("grid grid-cols-1 gap-4 md:grid-cols-2", view === "liste" ? "xl:grid-cols-1" : "xl:grid-cols-3")}>
+            <div
+              className={cn(
+                "grid grid-cols-1 gap-4 md:grid-cols-2",
+                // Without the filter column the cards take the full width: four per row, as on the range pages.
+                view === "liste" ? "xl:grid-cols-1" : controls.filters ? "xl:grid-cols-3" : "xl:grid-cols-4",
+              )}
+            >
               {listing.data.map((p) => {
                 const sku = p.sku ?? p.options?.[0]?.sku;
                 return (
-                  <ProductCard key={p.href} product={withBrandBadge(p)} compareSlot={sku ? <CompareCheckbox item={{ sku, name: p.name }} /> : undefined} />
+                  <ProductCard
+                    key={p.href}
+                    headingLevel="h2"
+                    product={withBrandBadge(p)}
+                    compareSlot={sku ? <CompareCheckbox item={{ sku, name: p.name }} /> : undefined}
+                  />
                 );
               })}
             </div>

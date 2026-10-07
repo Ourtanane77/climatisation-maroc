@@ -6,16 +6,10 @@ use Livewire\Features\SupportTesting\Testable;
 use Tests\TestCase;
 
 /*
-| Feature tests run against the MySQL test database (climatisation_test, forced in phpunit.xml so
-| the container's dev settings never apply), refreshed per test. TEST_DB_DATABASE selects another
-| test database (parallel runs); only climatisation_test* names are accepted.
+| Feature tests run against the MySQL test database (climatisation_test), refreshed per test. The
+| test settings are forced as <env> and <server> in phpunit.xml: Laravel reads $_SERVER first, where
+| Docker puts the dev settings. TEST_DB_DATABASE picks another test database (see TestCase).
 */
-$testDatabase = getenv('TEST_DB_DATABASE');
-if (is_string($testDatabase) && preg_match('/^climatisation_test\w*$/', $testDatabase)) {
-    putenv("DB_DATABASE={$testDatabase}");
-    $_ENV['DB_DATABASE'] = $_SERVER['DB_DATABASE'] = $testDatabase;
-}
-
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');

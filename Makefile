@@ -6,7 +6,7 @@ PHP     = $(DC) exec php
 NEXT    = $(DC) exec next
 ARTISAN = $(PHP) php artisan
 
-.PHONY: up down build migrate seed fresh test test-back test-front lint lint-back lint-front logs sh-php sh-next images
+.PHONY: up down build migrate seed fresh cache test test-back test-front lint lint-back lint-front logs sh-php sh-next images e2e smoke
 
 ## Build and start the stack. Migrations run on start; an empty database is seeded.
 up:
@@ -28,6 +28,12 @@ seed:
 
 fresh:
 	$(ARTISAN) migrate:fresh --seed
+
+# Rebuild Laravel's config/route/event caches and Filament's (run after editing config, routes or .env).
+cache:
+	$(ARTISAN) optimize:clear
+	$(ARTISAN) optimize
+	$(ARTISAN) filament:optimize
 
 test: test-back test-front
 
@@ -59,3 +65,13 @@ sh-next:
 ## Download catalogue images from the old site into local storage (phase 3).
 images:
 	$(ARTISAN) catalog:download-images
+
+## End-to-end tests (Playwright, run on the host against the running stack: make up first).
+## Orders and leads named "E2E Test …" are deleted afterwards (php artisan app:e2e-cleanup).
+E2E_RESELLER_PASSWORD ?= change-me-reseller
+e2e:
+	cd frontend && E2E_RESELLER_PASSWORD=$(E2E_RESELLER_PASSWORD) npx playwright test
+
+## Smoke test through nginx: front office, API, back office, Livewire script, /storage, revalidation.
+smoke:
+	node scripts/smoke.mjs $(or $(BASE_URL),http://localhost:8080)

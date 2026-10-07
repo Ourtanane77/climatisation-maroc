@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { DuoIcon, IC } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
-import { BENTO_IMAGES, designImage } from "@/lib/home/assets";
+import { DesignImg } from "@/components/ui/DesignImg";
+import type { DesignPhoto } from "@/lib/design-assets";
+import { BENTO_IMAGES, designPhoto } from "@/lib/home/assets";
 import type { BentoTile } from "@/lib/home/types";
 
 /**
@@ -36,22 +38,24 @@ const ART_POS = [
  * Tile photo: the image uploaded on the category in the back office, else the design's photo
  * (design/uploads, synced to public/design/) when present, else none (plain tile).
  */
-function tileImage(tile: BentoTile): string | null {
-  return tile.image ?? (BENTO_IMAGES[tile.key] ? designImage(BENTO_IMAGES[tile.key]) : null);
+function tileImage(tile: BentoTile): DesignPhoto | null {
+  if (tile.image) return { src: tile.image };
+  return BENTO_IMAGES[tile.key] ? designPhoto(BENTO_IMAGES[tile.key]) : null;
 }
 
 /**
  * Cut-outs keep their transparency with a soft drop shadow; the solutions photo covers its area
  * and fades in from the left (design `catDef` and its mobile overrides).
  */
-function TileArt({ src, photo }: { src: string; photo: boolean }) {
+function TileArt({ photo, line, wide }: { photo: DesignPhoto; line: boolean; wide: boolean }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={photo ? "Climatisation d’un hall d’hôtel" : ""}
+    <DesignImg
+      photo={photo}
+      alt={line ? "Climatisation d’un hall d’hôtel" : ""}
+      // Rendered widths: tile art is 24–84 % of a 1–2 column tile (design `catDef`).
+      sizes={line ? "(max-width: 759px) 100vw, 40vw" : wide ? "(max-width: 759px) 40vw, 45vw" : "(max-width: 759px) 40vw, 20vw"}
       className={
-        photo
+        line
           ? "block h-full w-full [mask-image:linear-gradient(to_right,transparent,#000_40%)] object-cover"
           : "block h-auto w-full drop-shadow-[0_14px_18px_rgba(14,40,70,0.22)] max-md:h-full max-md:object-contain"
       }
@@ -67,7 +71,7 @@ export function Bento({ tiles }: { tiles: BentoTile[] }) {
         <h2 id="h-cat" className="m-0 text-[32px] leading-[1.05] font-bold tracking-[-0.03em] md:text-[44px]">
           Le catalogue
         </h2>
-        <Link href="/plan-du-site" className="text-[15px] font-bold underline">
+        <Link href="/plan-du-site" className="-my-[3px] inline-block py-[3px] text-[15px] font-bold underline">
           Tout le catalogue
         </Link>
       </div>
@@ -99,7 +103,7 @@ export function Bento({ tiles }: { tiles: BentoTile[] }) {
               {line && tile.types && (
                 <div className="relative z-[2] mt-1.5 flex max-w-full flex-wrap gap-y-1 text-[15px] leading-normal md:max-w-[66%]">
                   {tile.types.map((t, j, all) => (
-                    <Link key={t.label} href={t.href} className="text-muted hover:text-brand whitespace-nowrap">
+                    <Link key={t.label} href={t.href} className="text-muted hover:text-brand -my-0.5 inline-block min-w-6 py-0.5 text-center whitespace-nowrap">
                       {t.label}
                       {j < all.length - 2 && <span className="text-line-strong px-[7px]">·</span>}
                     </Link>
@@ -127,7 +131,7 @@ export function Bento({ tiles }: { tiles: BentoTile[] }) {
               {!tile.types && tile.text && <span className="text-muted pointer-events-none relative z-[2] line-clamp-2 text-sm">{tile.text}</span>}
               {image && (
                 <div aria-hidden={!line || undefined} className={cn("pointer-events-none absolute", ART_POS[i])}>
-                  <TileArt src={image} photo={line} />
+                  <TileArt photo={image} line={line} wide={i === 0} />
                 </div>
               )}
             </div>

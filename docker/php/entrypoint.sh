@@ -29,9 +29,11 @@ if [ "${APP_ROLE:-app}" = "app" ]; then
     true) php artisan db:seed --force ;;
     auto) php artisan app:seed-if-empty ;;
   esac
-  if [ "${APP_ENV}" = "production" ]; then
-    php artisan optimize
-  fi
+  # Config, route and event caches plus Filament's component cache: without them every request
+  # re-reads hundreds of files, which takes ~1 s on a dev bind mount. After editing config, routes
+  # or .env in development run `make cache`. Tests never read these caches (phpunit.xml).
+  php artisan optimize
+  php artisan filament:optimize
 fi
 
 exec "$@"

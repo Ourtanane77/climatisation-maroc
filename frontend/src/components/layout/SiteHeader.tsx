@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "@/components/ui/Toast";
 import { BurgerIcon, CartIcon, ChevronDownIcon, CloseIcon, SearchIcon, WhatsAppIcon } from "@/components/ui/icons";
@@ -13,6 +13,12 @@ import { waLink } from "@/lib/whatsapp";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { Logo } from "./Logo";
 import { MobileDrawer } from "./MobileDrawer";
+
+/** aria-current for a navigation link: "page" on its own URL, "true" anywhere inside its section. */
+export function currentFor(pathname: string, href: string): "page" | "true" | undefined {
+  if (pathname === href) return "page";
+  return href !== "/" && pathname.startsWith(`${href}/`) ? "true" : undefined;
+}
 
 /**
  * Site header (design: shared header of every page).
@@ -35,6 +41,7 @@ export function SiteHeader({
   account?: React.ReactNode;
 }) {
   const count = useCartCount(initialCartCount);
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [mega, setMega] = useState<string | null>(null);
@@ -68,19 +75,48 @@ export function SiteHeader({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    if (!dropdown) return;
-    const onDown = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest?.("[data-dd]")) setDropdown(null);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [dropdown]);
+  // Mega menu: opened on hover/focus of a range; closed a moment after the pointer leaves the
+  // header (so moving from the nav item into the panel keeps it open), on a click or tap
+  // anywhere outside the header, on Escape, on scroll and on navigation.
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const openMega = useCallback((key: string | null) => {
+    clearTimeout(closeTimer.current);
+    setMega(key);
+  }, []);
+  const scheduleClose = useCallback(() => {
+    clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setMega(null), 150);
+  }, []);
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
 
   const closeAll = useCallback(() => {
+    clearTimeout(closeTimer.current);
     setMega(null);
     setDropdown(null);
   }, []);
+
+  useEffect(() => {
+    if (!dropdown && !mega) return;
+    const onDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement;
+      if (!headerRef.current?.contains(target)) {
+        closeAll();
+      } else if (dropdown && !target.closest?.("[data-dd]")) {
+        setDropdown(null);
+      }
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [dropdown, mega, closeAll]);
+
+  // A new page (link in the mega menu, the drawer or anywhere else) closes every menu
+  // (state adjusted during render, as React recommends, rather than in an effect).
+  const [menuPath, setMenuPath] = useState(pathname);
+  if (menuPath !== pathname) {
+    setMenuPath(pathname);
+    setMega(null);
+    setDropdown(null);
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeAll();
@@ -97,7 +133,8 @@ export function SiteHeader({
       {scrolled && <div aria-hidden style={{ height: spacer }} />}
       <header
         ref={headerRef}
-        onMouseLeave={() => setMega(null)}
+        onMouseLeave={scheduleClose}
+        onMouseEnter={() => clearTimeout(closeTimer.current)}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) closeAll();
         }}
@@ -107,7 +144,7 @@ export function SiteHeader({
           scrolled && hidden && "-translate-y-[110%]",
         )}
       >
-        <div className="mx-auto box-border px-4 md:px-10">
+        <div className="site-gutter">
           <div className={cn("flex items-center gap-[clamp(12px,2vw,28px)] transition-[height] duration-300", scrolled ? "h-16" : "h-[76px]")}>
             <button
               type="button"
@@ -119,7 +156,7 @@ export function SiteHeader({
               <BurgerIcon />
             </button>
 
-            <Link href="/" className="flex shrink-0" aria-label="Accueil · Climatisation Maroc">
+            <Link href="/" className="flex shrink-0">
               <Logo src={logoSrc} height={36} className="md:hidden" />
               <Logo src={logoSrc} height={logoHeight} className="hidden md:flex" />
             </Link>
@@ -182,7 +219,8 @@ export function SiteHeader({
             </form>
 
             <div className="ml-auto flex items-center gap-3">
-              {!scrolled && (
+              {/* A logged-in reseller sees the account pill in its place (Commande rapide design). */}
+              {!scrolled && !account && (
                 <a
                   href={waLink(undefined, nav.whatsapp.number)}
                   target="_blank"
@@ -210,7 +248,7 @@ export function SiteHeader({
               </button>
               <Link
                 href="/panier"
-                aria-label={`Panier, ${count} article${count > 1 ? "s" : ""}`}
+                aria-label={`Panier ${count} article${count > 1 ? "s" : ""}`}
                 className="bg-accent hover:bg-accent-hover flex h-11 items-center gap-2 rounded-full pr-1.5 pl-3 text-base font-bold text-white transition-colors hover:text-white md:h-12 md:pl-4"
               >
                 <CartIcon size={22} />
@@ -250,11 +288,20 @@ export function SiteHeader({
             >
               <div className="-ml-2.5 flex min-w-0 flex-1 scrollbar-none items-center overflow-x-auto [mask-image:linear-gradient(to_right,#000_90%,transparent)]">
                 {nav.ranges.map((r) => (
-                  <Link key={r.key} href={r.href} className="text-ink hover:bg-tint-blue hover:text-ink shrink-0 rounded-full px-2.5 py-2.5">
+                  <Link
+                    key={r.key}
+                    href={r.href}
+                    aria-current={currentFor(pathname, r.href)}
+                    className="text-ink hover:bg-tint-blue hover:text-ink shrink-0 rounded-full px-2.5 py-2.5"
+                  >
                     {r.label}
                   </Link>
                 ))}
-                <Link href={nav.promotions.href} className="text-promo hover:bg-tint-blue hover:text-promo shrink-0 rounded-full px-2.5 py-2.5">
+                <Link
+                  href={nav.promotions.href}
+                  aria-current={currentFor(pathname, nav.promotions.href)}
+                  className="text-promo hover:bg-tint-blue hover:text-promo shrink-0 rounded-full px-2.5 py-2.5"
+                >
                   {nav.promotions.label}
                 </Link>
               </div>
@@ -297,12 +344,13 @@ export function SiteHeader({
                 <Link
                   key={r.key}
                   href={r.href}
-                  onMouseEnter={() => setMega(r.mega ? r.key : null)}
-                  onFocus={() => setMega(r.mega ? r.key : null)}
+                  aria-current={currentFor(pathname, r.href)}
+                  onMouseEnter={() => openMega(r.mega ? r.key : null)}
+                  onFocus={() => openMega(r.mega ? r.key : null)}
                   aria-expanded={r.mega ? mega === r.key : undefined}
                   aria-haspopup={r.mega ? "true" : undefined}
                   className={cn(
-                    "text-ink hover:bg-tint-blue hover:text-ink rounded-full px-[9px] py-[9px] transition-colors 2xl:px-3",
+                    "text-ink hover:bg-tint-blue hover:text-ink rounded-full px-[6px] py-[9px] transition-colors min-[1180px]:px-[9px] 2xl:px-3",
                     mega === r.key && "bg-tint-blue",
                   )}
                 >
@@ -311,8 +359,9 @@ export function SiteHeader({
               ))}
               <Link
                 href={nav.promotions.href}
-                onMouseEnter={() => setMega(null)}
-                className="text-promo hover:bg-tint-blue hover:text-promo rounded-full px-[9px] py-[9px] 2xl:px-3"
+                aria-current={currentFor(pathname, nav.promotions.href)}
+                onMouseEnter={() => openMega(null)}
+                className="text-promo hover:bg-tint-blue hover:text-promo rounded-full px-[6px] py-[9px] min-[1180px]:px-[9px] 2xl:px-3"
               >
                 {nav.promotions.label}
               </Link>
@@ -321,9 +370,10 @@ export function SiteHeader({
                 <Link
                   key={l.href}
                   href={l.href}
-                  onMouseEnter={() => setMega(null)}
+                  aria-current={currentFor(pathname, l.href)}
+                  onMouseEnter={() => openMega(null)}
                   className={cn(
-                    "hover:bg-tint-blue rounded-full px-[9px] py-[9px] 2xl:px-3",
+                    "hover:bg-tint-blue rounded-full px-[6px] py-[9px] min-[1180px]:px-[9px] 2xl:px-3",
                     i === nav.rightLinks.length - 1 ? "text-promo hover:text-promo" : "text-brand hover:text-brand",
                   )}
                 >
@@ -335,18 +385,24 @@ export function SiteHeader({
         </div>
 
         {activeRange?.mega && !scrolled && (
-          <div className="absolute inset-x-0 top-full hidden px-10 lg:block">
-            <div className="animate-rise rounded-b-24 shadow-mega grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_340px] gap-8 bg-white p-7">
+          // The full-width wrapper lets the pointer through: only the panel itself keeps the menu open.
+          <div className="site-gutter pointer-events-none absolute inset-x-0 top-full hidden lg:block">
+            <div className="animate-rise rounded-b-24 shadow-mega pointer-events-auto grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_340px] gap-8 bg-white p-7">
               <div>
                 <div className="text-muted mb-2.5 text-sm">{activeRange.mega.title}</div>
                 <div className="grid grid-cols-2 gap-1">
                   {activeRange.mega.subs.map((s) => (
-                    <Link key={s.href} href={s.href} className="rounded-12 text-ink hover:bg-tint-blue hover:text-brand px-3.5 py-3 text-[17px] font-semibold">
+                    <Link
+                      key={s.href}
+                      href={s.href}
+                      prefetch={false}
+                      className="rounded-12 text-ink hover:bg-tint-blue hover:text-brand px-3.5 py-3 text-[17px] font-semibold"
+                    >
                       {s.label}
                     </Link>
                   ))}
                 </div>
-                <Link href={activeRange.mega.href} className="mt-3.5 ml-3.5 inline-block text-[15px] font-bold">
+                <Link href={activeRange.mega.href} prefetch={false} className="mt-3.5 ml-3.5 inline-block text-[15px] font-bold">
                   Voir toute la gamme →
                 </Link>
               </div>
@@ -357,6 +413,7 @@ export function SiteHeader({
                     <Link
                       key={b.label}
                       href={b.href}
+                      prefetch={false}
                       className="bg-bg text-ink hover:bg-tint-blue hover:text-brand flex h-11 items-center rounded-full px-[18px] text-[15px] font-bold"
                     >
                       {b.label}
@@ -368,6 +425,7 @@ export function SiteHeader({
                 <div className="rounded-20 bg-tint-blue flex flex-col gap-2.5 p-4">
                   <Link
                     href={activeRange.mega.featured.href}
+                    prefetch={false}
                     tabIndex={-1}
                     aria-hidden
                     className="rounded-14 flex h-[170px] items-center justify-center bg-white p-3.5"
@@ -379,7 +437,7 @@ export function SiteHeader({
                       shadow={false}
                     />
                   </Link>
-                  <Link href={activeRange.mega.featured.href} className="text-ink hover:text-brand text-base leading-[1.3] font-semibold">
+                  <Link href={activeRange.mega.featured.href} prefetch={false} className="text-ink hover:text-brand text-base leading-[1.3] font-semibold">
                     {activeRange.mega.featured.name}
                   </Link>
                   <div className="flex items-center justify-between gap-2.5">

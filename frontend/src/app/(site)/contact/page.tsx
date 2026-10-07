@@ -9,12 +9,14 @@ import { NEEDS, SI, findPhone } from "@/lib/leads/contacts";
 import { getNavigation } from "@/lib/navigation";
 import type { Social } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
+import { storesSchema, JsonLd } from "@/lib/seo/jsonld";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
   title: "Contact et magasins",
   description: "Nos deux magasins à Marrakech, nos numéros selon votre besoin et un formulaire pour nous écrire.",
-  alternates: { canonical: "/contact" },
-};
+  path: "/contact",
+});
 
 /** Brand-coloured social circles of the Contact title row. */
 const SOCIAL_STYLE: Record<Social["name"], { bg: string; icon: React.ReactNode }> = {
@@ -76,7 +78,17 @@ export default async function ContactPage() {
                 variant="outline"
                 full
                 icon={
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
                     <path d="M3 11l18-8-8 18-2-8z" />
                   </svg>
                 }
@@ -97,7 +109,9 @@ export default async function ContactPage() {
                 rel="noopener"
                 className="text-ink hover:text-brand flex min-h-8 items-center gap-2.5 text-[15px]"
               >
-                <span className="bg-accent flex size-[26px] shrink-0 items-center justify-center rounded-full text-[13px] font-extrabold text-white">{i + 1}</span>
+                <span className="bg-accent flex size-[26px] shrink-0 items-center justify-center rounded-full text-[13px] font-extrabold text-white">
+                  {i + 1}
+                </span>
                 <span className="min-w-0 flex-1">
                   <strong>{store.name}</strong> · {store.address}
                 </span>
@@ -154,6 +168,7 @@ export default async function ContactPage() {
         </div>
         <ContactForm />
       </section>
+      <JsonLd data={storesSchema(nav.footer)} />
     </>
   );
 }

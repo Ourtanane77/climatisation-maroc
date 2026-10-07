@@ -61,7 +61,7 @@ export function CompareTray() {
         ))}
       </ul>
       <span className="flex-1 md:hidden" />
-      <button type="button" onClick={clearCompare} className="shrink-0 text-[15px] font-semibold underline">
+      <button type="button" onClick={clearCompare} className="inline-flex min-h-11 shrink-0 items-center text-[15px] font-semibold underline">
         Effacer
       </button>
       <Link

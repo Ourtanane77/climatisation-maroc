@@ -7,16 +7,17 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { getService } from "@/lib/content/api";
 import { PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata({ params }: PageProps<"/services/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const service = await getService(slug);
-  return {
+  return seoMetadata({
     title: service.seo.title ?? service.name,
-    description: service.seo.description ?? service.heroText ?? undefined,
-    alternates: { canonical: service.href },
-    robots: service.seo.noindex ? { index: false } : undefined,
-  };
+    description: service.seo.description ?? service.heroText,
+    path: service.href,
+    noindex: service.seo.noindex,
+  });
 }
 
 /** Service page: installation, visite technique, service après-vente (design: Service.dc.html). */
@@ -28,7 +29,13 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
   return (
     <>
       <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Services", href: "/services" }, { label: service.name }]} />
-      <ServiceHero name={service.name} h1={h1} text={service.heroText} whatsappHref={waLink(service.whatsappText ?? undefined, service.contact.whatsapp)} />
+      <ServiceHero
+        name={service.name}
+        h1={h1}
+        text={service.heroText}
+        image={service.image}
+        whatsappHref={waLink(service.whatsappText ?? undefined, service.contact.whatsapp)}
+      />
 
       {service.included.length > 0 && (
         <Section>

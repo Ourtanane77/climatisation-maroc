@@ -1,20 +1,14 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { MAT, MatIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
-import { dh } from "@/lib/format";
+import { dh, publicRef } from "@/lib/format";
 import type { ArtKey } from "@/lib/types";
 
 /**
  * Small pieces shared by the basket, checkout, confirmation and tracking pages
  * (design: Panier, Commande, Confirmation, Suivi commande).
  */
-
-/** White card, radius 24, padding 20 (mobile) / 32. */
-export function Card({ children, className, as: Tag = "div" }: { children: ReactNode; className?: string; as?: "div" | "section" | "aside" | "form" }) {
-  return <Tag className={cn("rounded-24 box-border flex flex-col bg-white p-5 md:p-8", className)}>{children}</Tag>;
-}
 
 export function CardTitle({ children }: { children: ReactNode }) {
   return <h2 className="m-0 text-[24px] font-bold tracking-[-0.01em]">{children}</h2>;
@@ -54,7 +48,7 @@ export function TotalRow({ total }: { total: number }) {
 export function Thumb({ image, art, dark, alt, className }: { image: string | null; art: ArtKey | null; dark?: boolean; alt: string; className?: string }) {
   return (
     <span className={cn("bg-tint-thumb box-border flex shrink-0 items-center justify-center overflow-hidden", className)}>
-      <ProductVisual image={image} art={art ?? "mural"} dark={dark} alt={alt} shadow={false} />
+      <ProductVisual image={image} art={art} dark={dark} alt={alt} shadow={false} />
     </span>
   );
 }
@@ -80,7 +74,7 @@ export function CompactLines({ lines }: { lines: CompactLine[] }) {
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="text-[15px] leading-[1.3] font-bold">{l.name}</span>
             <span className="text-muted text-[14px]">
-              Réf. {l.sku} · Qté {l.qty}
+              {publicRef(l.sku) ? `Réf. ${l.sku} · ` : ""}Qté {l.qty}
             </span>
           </span>
           <span className="text-[16px] font-bold whitespace-nowrap">{dh(l.lineTotal)}</span>
@@ -108,19 +102,5 @@ export function CashLine() {
       <MatIcon d={MAT.cash} size={22} className="text-brand" />
       Paiement à la livraison
     </span>
-  );
-}
-
-/** Underlined bold text link (15/700, 44px hit area). */
-export function TextLink({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
-  const cls = cn("flex min-h-11 items-center text-[15px] font-bold underline", className);
-  return /^https?:/.test(href) ? (
-    <a href={href} target="_blank" rel="noopener" className={cls}>
-      {children}
-    </a>
-  ) : (
-    <Link href={href} className={cls}>
-      {children}
-    </Link>
   );
 }

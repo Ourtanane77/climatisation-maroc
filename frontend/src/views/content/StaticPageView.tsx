@@ -10,7 +10,10 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { getPage } from "@/lib/content/api";
 import { PROJECTS_PHONE_LABEL, SALES_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import type { PageDetail } from "@/lib/content/types";
+import { getNavigation } from "@/lib/navigation";
+import { JsonLd, storesSchema } from "@/lib/seo/jsonld";
 import type { Resolved } from "@/lib/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 type PageResolved = Extract<Resolved, { type: "page" }>;
 
@@ -20,18 +23,19 @@ type PageResolved = Extract<Resolved, { type: "page" }>;
  */
 export async function staticPageMetadata(resolved: PageResolved): Promise<Metadata> {
   const page = await getPage(resolved.slug);
-  return {
+  return seoMetadata({
     title: page.seo.title ?? page.title,
-    description: page.seo.description ?? page.intro ?? undefined,
-    alternates: { canonical: page.href },
-    robots: page.seo.noindex ? { index: false } : undefined,
-  };
+    description: page.seo.description ?? page.intro,
+    path: page.href,
+    noindex: page.seo.noindex,
+  });
 }
 
 export default async function StaticPageView({ resolved }: { resolved: PageResolved }) {
   const page = await getPage(resolved.slug);
   const h1 = page.seo.h1 ?? page.title;
   const crumbs = [{ label: "Accueil", href: "/" }, { label: page.title }];
+  const stores = page.kind === "about" ? storesSchema((await getNavigation()).footer) : null;
 
   switch (page.kind) {
     case "about":
@@ -39,6 +43,7 @@ export default async function StaticPageView({ resolved }: { resolved: PageResol
         <>
           <Breadcrumb items={crumbs} />
           <AboutHero h1={h1} intro={page.intro} />
+          {stores && <JsonLd data={stores} />}
           <PageBlocks blocks={page.body} />
           <BrandLogos brands={page.brands ?? []} />
           <StoreCards stores={page.contact.stores} hours={page.contact.hours} />

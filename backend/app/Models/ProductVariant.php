@@ -77,6 +77,15 @@ class ProductVariant extends Model
         return $this->sellingPrice();
     }
 
+    /**
+     * « Prix sur demande »: no price entered yet (price 0, e.g. items added from the client's Excel
+     * list). Shown with a quote link instead of add-to-cart; never orderable.
+     */
+    public function isOnRequest(): bool
+    {
+        return $this->price <= 0;
+    }
+
     public function displayName(): string
     {
         return trim($this->product->name.' '.($this->label ?? ''));

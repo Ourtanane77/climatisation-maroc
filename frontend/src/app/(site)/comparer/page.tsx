@@ -4,12 +4,9 @@ import { CompareTable } from "@/components/product/CompareTable";
 import { getComparison } from "@/lib/product/api";
 import { parseCompareParam } from "@/lib/product/logo";
 import type { CompareData } from "@/lib/product/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Comparer des climatiseurs",
-  robots: { index: false, follow: true },
-  alternates: { canonical: "/comparer" },
-};
+export const metadata: Metadata = seoMetadata({ title: "Comparer des climatiseurs", noindex: true });
 
 /** Default category for the "Ajouter un produit" slot when nothing is selected yet. */
 const DEFAULT_CATEGORY = { label: "Climatiseurs muraux", href: "/climatisation/mural" };

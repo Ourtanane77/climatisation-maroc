@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\SectorPage;
 use App\Models\ServicePage;
 use App\Models\User;
+use App\Support\Frontend\Revalidator;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -41,15 +42,28 @@ class AppServiceProvider extends ServiceProvider
             'page' => Page::class,
         ]);
 
+        // Back-office changes expire the front office's cached API data.
+        Revalidator::register();
+
         // Pages are rendered by the Next.js server, whose requests come from the private Docker
         // network: those are not limited. Form posts carry the visitor's IP in X-Forwarded-For.
         RateLimiter::for('api-read', fn (Request $request) => self::isInternal($request)
             ? Limit::none()
             : Limit::perMinute(120)->by((string) $request->ip()));
-        RateLimiter::for('api-form', fn (Request $request) => [
-            Limit::perMinute(5)->by('ip:'.$request->ip()),
-            Limit::perMinute(5)->by('phone:'.preg_replace('/\D/', '', (string) $request->input('phone'))),
-        ]);
+        // Per visitor IP, plus per phone number / login when the form has one (never a shared bucket).
+        RateLimiter::for('api-form', function (Request $request) {
+            $limits = [Limit::perMinute(5)->by('ip:'.$request->ip())];
+            $phone = preg_replace('/\D/', '', (string) $request->input('phone'));
+            if ($phone !== '') {
+                $limits[] = Limit::perMinute(5)->by('phone:'.$phone);
+            }
+            $login = mb_strtolower(trim((string) $request->input('login')));
+            if ($login !== '') {
+                $limits[] = Limit::perMinute(5)->by('login:'.$login);
+            }
+
+            return $limits;
+        });
     }
 
     private static function isInternal(Request $request): bool

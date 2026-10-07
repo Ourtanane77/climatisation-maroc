@@ -330,9 +330,10 @@ class ContentSeeder extends Seeder
                     ['title' => 'Livraison', 'text' => 'Gratuite, à l’adresse indiquée.'],
                     ['title' => 'Paiement à la réception', 'text' => 'Vous réglez au livreur à la réception.'],
                 ]],
-                // Placeholders from the design: the client supplies the real text in the back office.
-                ['type' => 'info', 'title' => 'Délais de livraison', 'text' => 'Le délai dépend de votre ville. Il vous est confirmé lors de l\'appel de confirmation.', 'placeholder' => '[DÉLAI PAR VILLE]'],
-                ['type' => 'info', 'title' => 'Retours et garantie', 'placeholder' => '[CONDITIONS DE RETOUR]', 'link' => ['label' => 'Contacter le service après-vente →', 'href' => '/services/service-apres-vente']],
+                // The design's "[DÉLAI PAR VILLE]" and "[CONDITIONS DE RETOUR]" placeholders are not seeded:
+                // lead times per city and return terms come from the owner (never shown as placeholders).
+                ['type' => 'info', 'title' => 'Délais de livraison', 'text' => 'Le délai dépend de votre ville. Il vous est confirmé lors de l\'appel de confirmation.'],
+                ['type' => 'info', 'title' => 'Retours et garantie', 'link' => ['label' => 'Contacter le service après-vente →', 'href' => '/services/service-apres-vente']],
             ]),
             'is_published' => true,
         ]);

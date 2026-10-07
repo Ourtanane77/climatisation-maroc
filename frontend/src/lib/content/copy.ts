@@ -21,8 +21,3 @@ export const SALES_PHONE_LABEL = "Ventes";
 export function phoneFor(contact: Pick<Contact, "phones" | "salesPhone">, label: string): string {
   return contact.phones.find((p) => p.label === label)?.display ?? contact.salesPhone;
 }
-
-/** "Lundi – Samedi, 9h – 19h" → "du lundi au samedi de 9h à 19h" is design copy, kept verbatim. */
-export function projectsCtaText(phone: string): string {
-  return `Projets et revendeurs : ${phone}, du lundi au samedi de 9h à 19h.`;
-}

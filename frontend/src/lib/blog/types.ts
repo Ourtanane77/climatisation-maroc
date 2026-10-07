@@ -41,7 +41,7 @@ export type ArticleBlock =
   | { type: "h3"; text: string }
   | { type: "callout"; title: string; items: string[] }
   | { type: "tip"; title: string; text: string }
-  | { type: "figure"; image: string | null; art: ArtKey; dark: boolean; alt: string; caption: string | null }
+  | { type: "figure"; image: string | null; art: ArtKey | null; dark: boolean; alt: string; caption: string | null }
   | { type: "calculator" }
   | { type: "power_table" }
   | { type: "products"; items: InlineProduct[] };

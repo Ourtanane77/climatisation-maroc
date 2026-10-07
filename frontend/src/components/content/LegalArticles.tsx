@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
+import { withoutPlaceholders } from "@/lib/content/placeholders";
 
 /**
  * Legal page body (design: CGV.dc.html): numbered "Sommaire" (sticky on the left from 1100px,
@@ -12,8 +13,6 @@ export interface LegalArticle {
   title: string;
   text: string;
 }
-
-const isPlaceholder = (t: string) => /^\[[^\]]+\]$/.test(t.trim());
 
 export function LegalArticles({ intro, articles, children }: { intro: string | null; articles: LegalArticle[]; children?: React.ReactNode }) {
   const ids = articles.map((_, i) => `article-${i + 1}`);
@@ -99,9 +98,10 @@ export function LegalArticles({ intro, articles, children }: { intro: string | n
             </h2>
             {a.text
               .split(/\n{2,}/)
-              .filter(Boolean)
+              .map(withoutPlaceholders) // "[TEXTE JURIDIQUE]" is never shown
+              .filter((para): para is string => !!para)
               .map((para, j) => (
-                <p key={j} className={cn("m-0 text-lg leading-[1.75]", isPlaceholder(para) ? "text-muted" : "text-ink-2")}>
+                <p key={j} className="text-ink-2 m-0 text-lg leading-[1.75]">
                   {para}
                 </p>
               ))}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Fragment } from "react";
+import { JsonLd } from "@/lib/seo/jsonld";
 import { siteUrl } from "@/lib/site";
 import type { Crumb } from "@/lib/types";
 
@@ -43,7 +44,7 @@ export function Breadcrumb({ items }: { items: Crumb[] }) {
           );
         })}
       </ol>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <JsonLd data={schema} />
     </nav>
   );
 }

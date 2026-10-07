@@ -69,6 +69,8 @@ services:
     environment:
       API_INTERNAL_URL: http://nginx
       NEXT_PUBLIC_SITE_URL: http://localhost:${APP_PORT:-8080}
+      # Must match backend/.env REVALIDATE_SECRET (Laravel expires the front office cache).
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-change-me}
       WATCHPACK_POLLING: "true"
     volumes:
       - ./frontend:/app

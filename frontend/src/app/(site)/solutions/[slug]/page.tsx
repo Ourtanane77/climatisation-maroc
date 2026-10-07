@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CategoryVisual } from "@/components/catalog/CategoryVisual";
 import { ProductArt } from "@/components/catalog/ProductArt";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { ArrowIcon, GRID_2, GRID_3, GRID_4, IconTile, PageTitle, Section, SectionTitle, SectorCard, SectorScene, StepList } from "@/components/content/blocks";
@@ -11,19 +12,23 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { MAT, MatIcon } from "@/components/ui/icons";
 import { apiGet } from "@/lib/api";
 import { getSector } from "@/lib/content/api";
+import { withSectorPhoto } from "@/lib/content/sector-images";
+import { DesignImg } from "@/components/ui/DesignImg";
+import { designPhoto } from "@/lib/design-assets";
 import { PROJECT_STEPS, PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import { telHref } from "@/lib/phone";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata({ params }: PageProps<"/solutions/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const sector = await getSector(slug);
-  return {
+  return seoMetadata({
     title: sector.seo.title ?? sector.name,
-    description: sector.seo.description ?? sector.heroText ?? undefined,
-    alternates: { canonical: sector.href },
-    robots: sector.seo.noindex ? { index: false } : undefined,
-  };
+    description: sector.seo.description ?? sector.heroText,
+    path: sector.href,
+    noindex: sector.seo.noindex,
+  });
 }
 
 /** Sector page (design: Restaurants.dc.html). */
@@ -33,6 +38,7 @@ export default async function SectorPage({ params }: PageProps<"/solutions/[slug
   const phone = phoneFor(sector.contact, PROJECTS_PHONE_LABEL);
   const h1 = sector.seo.h1 ?? sector.name;
   const wa = waLink(sector.whatsappText ?? undefined, sector.contact.whatsapp);
+  const heroImage = withSectorPhoto(sector).image;
 
   return (
     <>
@@ -56,7 +62,13 @@ export default async function SectorPage({ params }: PageProps<"/solutions/[slug
           </div>
         </div>
         <div aria-hidden className="flex h-full min-h-[200px] items-center justify-center px-5 pt-3 pb-6 md:min-h-[280px] md:px-12 md:py-6 xl:min-h-[380px]">
-          <SectorScene scene={sector.scene} width="100%" strokeWidth={2} style={{ maxWidth: 560, maxHeight: "none" }} />
+          {heroImage ? (
+            // Photo set in the back office (Secteurs › Photo), else the design's line scene.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={heroImage} alt="" fetchPriority="high" className="rounded-24 block aspect-[4/3] w-full max-w-[560px] object-cover" />
+          ) : (
+            <SectorScene scene={sector.scene} width="100%" strokeWidth={2} style={{ maxWidth: 560, maxHeight: "none" }} />
+          )}
         </div>
       </section>
 
@@ -89,10 +101,26 @@ export default async function SectorPage({ params }: PageProps<"/solutions/[slug
               const body = (
                 <>
                   <div className="flex h-[170px] items-center justify-center">
-                    {s.art && (
-                      <div className="flex h-full items-center justify-center" style={{ width: s.art === "cassette" ? "52%" : "100%" }}>
-                        <ProductArt art={s.art} className="h-auto max-h-full w-full" />
-                      </div>
+                    {s.image ? (
+                      // Photo uploaded on this block in the back office (Secteurs › Solutions).
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={s.image} alt="" loading="lazy" className="block h-auto max-h-full w-auto max-w-full object-contain" />
+                    ) : s.href ? (
+                      // The category's photo (back office, then the owner's), else its drawing.
+                      <CategoryVisual
+                        href={s.href}
+                        art={s.art}
+                        sizes="(min-width: 760px) 30vw, 90vw"
+                        className="h-auto max-h-full w-auto max-w-full object-contain"
+                        artClassName="flex h-full items-center justify-center"
+                        artStyle={{ width: s.art === "cassette" ? "52%" : "100%" }}
+                      />
+                    ) : (
+                      s.art && (
+                        <div className="flex h-full items-center justify-center" style={{ width: s.art === "cassette" ? "52%" : "100%" }}>
+                          <ProductArt art={s.art} className="h-auto max-h-full w-full" />
+                        </div>
+                      )
                     )}
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -163,12 +191,14 @@ export default async function SectorPage({ params }: PageProps<"/solutions/[slug
                     className="absolute right-[-4%] bottom-[-8%] block w-[46%] drop-shadow-[0_14px_18px_rgba(14,40,70,0.22)] md:w-[42%]"
                   />
                 ) : (
-                  t.art && (
-                    // No cut-out photo yet: the line drawing, kept inside the tile.
-                    <div aria-hidden className="absolute right-[5%] bottom-[10%] w-[34%] md:w-[30%]">
-                      <ProductArt art={t.art} className="h-auto w-full" />
-                    </div>
-                  )
+                  // The range's photo (as on the home page), else the line drawing kept inside the tile.
+                  <CategoryVisual
+                    href={t.href}
+                    art={t.art}
+                    sizes="(min-width: 760px) 25vw, 45vw"
+                    className="absolute right-[-4%] bottom-[-8%] block h-auto w-[46%] drop-shadow-[0_14px_18px_rgba(14,40,70,0.22)] md:w-[42%]"
+                    artClassName="absolute right-[5%] bottom-[10%] w-[34%] md:w-[30%]"
+                  />
                 )}
               </Link>
             ))}
@@ -187,21 +217,24 @@ export default async function SectorPage({ params }: PageProps<"/solutions/[slug
             En images
           </h2>
           <div className={GRID_3}>
-            {sector.imageBand.map((b) => (
-              <figure
-                key={b.caption}
-                className="rounded-24 relative m-0 flex aspect-[4/3] items-center justify-center overflow-hidden"
-                style={{ background: b.bg ?? "#E8EFF8" }}
-              >
-                {b.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={b.image} alt={b.alt ?? ""} className="block size-full object-cover" />
-                ) : (
-                  <SectorScene scene={b.scene} width="72%" />
-                )}
-                <figcaption className="absolute bottom-3 left-3 rounded-full bg-white px-3 py-1.5 text-sm font-bold">{b.caption}</figcaption>
-              </figure>
-            ))}
+            {sector.imageBand.map((b) => {
+              // A tile with neither image nor scene is the design's photo slot (hotel lobby photo).
+              const photo = b.image ? { src: b.image } : b.scene ? null : designPhoto("solutions-category.png");
+              return (
+                <figure
+                  key={b.caption}
+                  className="rounded-24 relative m-0 flex aspect-[4/3] items-center justify-center overflow-hidden"
+                  style={{ background: b.bg ?? "#E8EFF8" }}
+                >
+                  {photo ? (
+                    <DesignImg photo={photo} alt={b.alt ?? ""} sizes="(max-width: 759px) 100vw, 33vw" className="block size-full object-cover" />
+                  ) : (
+                    <SectorScene scene={b.scene} width="72%" />
+                  )}
+                  <figcaption className="absolute bottom-3 left-3 rounded-full bg-white px-3 py-1.5 text-sm font-bold">{b.caption}</figcaption>
+                </figure>
+              );
+            })}
           </div>
         </Section>
       )}
@@ -245,7 +278,7 @@ export default async function SectorPage({ params }: PageProps<"/solutions/[slug
           </div>
           <div className={GRID_4}>
             {sector.others.map((s) => (
-              <SectorCard key={s.slug} sector={s} />
+              <SectorCard key={s.slug} sector={withSectorPhoto(s)} />
             ))}
           </div>
         </Section>

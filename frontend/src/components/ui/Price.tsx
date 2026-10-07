@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { dh, savingText } from "@/lib/format";
+import { ON_REQUEST, dh, isOnRequest, savingText } from "@/lib/format";
 
 /**
  * Price block of the product card: optional "À partir de", price 28/800, struck regular price,
@@ -18,6 +18,18 @@ export function PriceBlock({
   size?: "card" | "pdp" | "mini";
   className?: string;
 }) {
+  if (isOnRequest(price)) {
+    // « Prix sur demande »: same block height, no "À partir de", struck price or saving line.
+    return (
+      <div className={cn("flex flex-col gap-0.5", className)}>
+        {size === "card" && <span className="min-h-4" aria-hidden />}
+        <span className={cn("leading-[1.1] font-extrabold tracking-[-0.02em]", size === "pdp" ? "text-[28px]" : size === "mini" ? "text-lg" : "text-[22px]")}>
+          {ON_REQUEST}
+        </span>
+        {size !== "mini" && <span className="min-h-[18px]" aria-hidden />}
+      </div>
+    );
+  }
   const discounted = !from && regularPrice != null && regularPrice > price;
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>

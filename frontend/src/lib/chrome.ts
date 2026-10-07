@@ -4,10 +4,15 @@ import path from "node:path";
 import { cookies } from "next/headers";
 import { CART_COOKIE, cartCount, parseCart } from "./cart/cookie";
 
-/** Logo URL if the Ariha Froid logo file is present in public/brand/, otherwise null (text wordmark). */
+/**
+ * Site logo URL: the owner's « Arfro by Ariha Froid » SVG (public/logo-arfro.svg, from
+ * design/logo_arfro.svg), else the design's PNG if synced to public/brand/, else null (text wordmark).
+ */
 export function logoSrc(): string | null {
-  const file = path.join(process.cwd(), "public", "brand", "logo-ariha-froid.png");
-  return existsSync(file) ? "/brand/logo-ariha-froid.png" : null;
+  for (const file of ["logo-arfro.svg", "brand/logo-ariha-froid.png"]) {
+    if (existsSync(path.join(process.cwd(), "public", file))) return `/${file}`;
+  }
+  return null;
 }
 
 /** Cart count from the cookie, so the header renders the right number on the server. */

@@ -7,19 +7,23 @@ import { DesktopToc } from "@/components/blog/ArticleToc";
 import { ContactCtaBand } from "@/components/blog/ContactCtaBand";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { getArticle } from "@/lib/blog/api";
-import { SITE_NAME, siteUrl } from "@/lib/site";
+import { siteUrl } from "@/lib/site";
+import { JsonLd, blogPostingSchema } from "@/lib/seo/jsonld";
 import type { Crumb } from "@/lib/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const { article, seo } = await getArticle(slug);
-  return {
+  return seoMetadata({
     title: seo.title,
-    description: seo.description ?? undefined,
-    alternates: { canonical: seo.canonical ?? article.href },
-    robots: seo.noindex ? { index: false } : undefined,
-    openGraph: { type: "article", title: seo.title, url: siteUrl(article.href), publishedTime: article.publishedAt ?? undefined },
-  };
+    description: seo.description ?? article.excerpt,
+    path: seo.canonical ?? article.href,
+    noindex: seo.noindex,
+    image: article.cover,
+    type: "article",
+    publishedTime: article.publishedAt,
+  });
 }
 
 const dateFormat = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Casablanca" });
@@ -37,17 +41,16 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
   if (article.category) crumbs.push({ label: article.category.name, href: article.category.href });
   crumbs.push({ label: article.title });
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.h1,
-    description: article.excerpt ?? undefined,
-    mainEntityOfPage: siteUrl(article.href),
-    datePublished: article.publishedAt ?? undefined,
-    dateModified: article.updatedAt ?? undefined,
-    author: article.author ? { "@type": "Person", name: article.author } : { "@type": "Organization", name: "Ariha Froid" },
-    publisher: { "@type": "Organization", name: SITE_NAME },
-  };
+  const jsonLd = blogPostingSchema({
+    title: article.h1,
+    description: article.excerpt,
+    href: article.href,
+    publishedAt: article.publishedAt,
+    updatedAt: article.updatedAt,
+    category: article.category?.name ?? null,
+    image: article.cover,
+    author: article.author,
+  });
 
   return (
     <>
@@ -63,8 +66,8 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
       </header>
 
       <ArticleCalcProvider>
-        <div className="grid grid-cols-1 items-start gap-14 pt-8 xl:grid-cols-[minmax(0,720px)_260px]">
-          <article className="flex max-w-[720px] min-w-0 flex-col gap-5">
+        <div className="grid grid-cols-1 items-start gap-14 pt-8 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <article className="flex min-w-0 flex-col gap-5">
             <ArticleBody blocks={article.blocks} toc={article.toc} />
             <ShareBar title={article.title} url={siteUrl(article.href)} />
           </article>
@@ -84,7 +87,7 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
       )}
 
       <ContactCtaBand title="Besoin d’aide pour choisir ?" whatsappText="Bonjour, j’ai besoin d’un conseil pour choisir un climatiseur." />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
     </>
   );
 }

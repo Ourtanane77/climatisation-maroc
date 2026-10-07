@@ -111,7 +111,8 @@ class ReferenceSeeder extends Seeder
                 'seo' => ['title' => 'Climatisation et climatiseurs au Maroc', 'h1' => 'Climatisation et climatiseurs au Maroc'],
                 'faq' => [
                     ['Quelle puissance choisir ?', 'Environ 600 BTU par m² : 9 000 BTU jusqu’à 15 m², 12 000 jusqu’à 20 m², 18 000 jusqu’à 30 m², 24 000 jusqu’à 40 m², 30 000 et plus au-delà. Une taille au-dessus pour une pièce très ensoleillée ou au dernier étage.'],
-                    ['La livraison est-elle gratuite ?', 'Oui, partout au Maroc, sous 48 heures.'],
+                    // No "sous 48 heures": Livraison et paiement says the delay depends on the city (owner to confirm).
+                    ['La livraison est-elle gratuite ?', 'Oui, partout au Maroc. Le délai dépend de votre ville : il vous est confirmé lors de l’appel de confirmation.'],
                     ['Proposez-vous la pose ?', 'Oui, par nos propres techniciens, sur devis.'],
                 ],
             ], [
@@ -137,6 +138,7 @@ class ReferenceSeeder extends Seeder
                 ['grilles-et-diffuseurs', 'Grilles et diffuseurs', null, CategoryTemplate::Listing, []],
             ]],
             ['gaines', 'Gaines circulaires', 'Gaines', CategoryTemplate::Landing, ['icon' => 'duct', 'tile_bg' => '#FDF0E6', 'art_key' => 'flex', 'tile_text' => 'Gaines circulaires · Flexibles'], [
+                ['gaines-circulaires', 'Gaines circulaires', null, CategoryTemplate::Listing, ['art_key' => 'flex']],
                 ['flexibles-souples', 'Flexibles souples', null, CategoryTemplate::Listing, ['art_key' => 'flex']],
                 ['flexibles-isoles', 'Flexibles isolés', null, CategoryTemplate::Listing, ['art_key' => 'flex']],
             ]],

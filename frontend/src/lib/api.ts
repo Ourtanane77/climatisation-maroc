@@ -18,7 +18,8 @@ export class ApiError extends Error {
 }
 
 interface ApiOptions {
-  /** Cache tags for on-demand revalidation (Laravel calls /api/revalidate on save). */
+  /** Cache tags for on-demand revalidation. Every cached call also gets the "api" tag, which
+   * Laravel expires through /api/revalidate after any back-office change. */
   tags?: string[];
   /** Seconds before background revalidation; false = no time-based revalidation. */
   revalidate?: number | false;
@@ -35,7 +36,7 @@ export async function apiGet<T>(path: string, { tags, revalidate = 300, token, i
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init?.headers,
     },
-    ...(token ? { cache: "no-store" as const } : { next: { tags, revalidate } }),
+    ...(token ? { cache: "no-store" as const } : { next: { tags: ["api", ...(tags ?? [])], revalidate } }),
   });
   if (!res.ok) {
     throw new ApiError(res.status, `GET ${path} → ${res.status}`, await res.json().catch(() => undefined));

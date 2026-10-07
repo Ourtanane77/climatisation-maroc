@@ -26,7 +26,7 @@ export function iceError(ice: string): string | null {
 }
 
 /** Reseller application (design: Devenir revendeur.dc.html) and its confirmation. Posts to /api/forms/reseller. */
-export function ResellerForm({ cities, aside }: { cities: string[]; aside: React.ReactNode }) {
+export function ResellerForm({ cities, aside, cgvHref = null }: { cities: string[]; aside: React.ReactNode; cgvHref?: string | null }) {
   const formRef = useRef<HTMLFormElement>(null);
   const antiSpam = useFormTimer();
   const [v, setV] = useState({
@@ -158,12 +158,18 @@ export function ResellerForm({ cities, aside }: { cities: string[]; aside: React
                 <PasswordInput id="r-password" autoComplete="new-password" value={v.password} onChange={set("password")} invalid={!!err.password} />
               </Field>
               <Field label="Message" optional htmlFor="r-message" className="md:col-span-2">
-                <Textarea id="r-message" rows={3} placeholder="Marques travaillées, volumes, zone d'intervention…" value={v.message} onChange={set("message")} />
+                <Textarea
+                  id="r-message"
+                  rows={3}
+                  placeholder="Marques travaillées, volumes, zone d'intervention…"
+                  value={v.message}
+                  onChange={set("message")}
+                />
               </Field>
             </div>
           </fieldset>
           <div className="flex flex-col gap-1.5">
-            <ConsentBox checked={cgv} onChange={setCgv} invalid={!!err.cgv} />
+            <ConsentBox checked={cgv} onChange={setCgv} invalid={!!err.cgv} cgvHref={cgvHref} />
             {err.cgv && <FieldError>{err.cgv}</FieldError>}
           </div>
           {general && (
@@ -182,7 +188,7 @@ export function ResellerForm({ cities, aside }: { cities: string[]; aside: React
 }
 
 /** "J'accepte les conditions générales de vente": 44px hit area, 24px box (radius 7), as drawn. */
-function ConsentBox({ checked, onChange, invalid }: { checked: boolean; onChange: (v: boolean) => void; invalid: boolean }) {
+function ConsentBox({ checked, onChange, invalid, cgvHref }: { checked: boolean; onChange: (v: boolean) => void; invalid: boolean; cgvHref: string | null }) {
   return (
     <div className="flex min-h-11 items-center gap-3.5 text-base font-semibold">
       <button
@@ -205,9 +211,13 @@ function ConsentBox({ checked, onChange, invalid }: { checked: boolean; onChange
       </button>
       <span>
         J&apos;accepte les{" "}
-        <Link href="/cgv" className="underline">
-          conditions générales de vente
-        </Link>
+        {cgvHref ? (
+          <Link href={cgvHref} className="underline">
+            conditions générales de vente
+          </Link>
+        ) : (
+          "conditions générales de vente"
+        )}
       </span>
     </div>
   );

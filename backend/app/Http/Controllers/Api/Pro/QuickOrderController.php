@@ -128,7 +128,9 @@ class QuickOrderController extends Controller
             'proPrice' => $variant->priceFor(true),
             'art' => $product->art_key,
             'image' => ImageUrl::for(ProductCardResource::imageFor($product, $variant), 320),
-            'inStock' => $variant->stock_status->isOrderable(),
+            // « Prix sur demande » items (price 0) can't be added to an order.
+            'inStock' => $variant->stock_status->isOrderable() && ! $variant->isOnRequest(),
+            'onRequest' => $variant->isOnRequest(),
         ];
     }
 

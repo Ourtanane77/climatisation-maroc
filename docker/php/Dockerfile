@@ -40,8 +40,11 @@ COPY docker/php/opcache-prod.ini /usr/local/etc/php/conf.d/zz-opcache.ini
 COPY --from=vendor /var/www/backend/vendor ./vendor
 COPY backend/ ./
 # Seed and price authority (config/catalog.php reads ../data/catalog.json).
-COPY data/catalog.json /var/www/data/catalog.json
-RUN composer dump-autoload --optimize --no-dev \
+COPY data/catalog.json data/excel-additions.json /var/www/data/
+# storage/ subfolders are excluded from the build context (.dockerignore): recreate them.
+RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views \
+        storage/logs storage/app/public storage/app/private bootstrap/cache \
+    && composer dump-autoload --optimize --no-dev \
     && php artisan filament:assets \
     && chown -R www-data:www-data storage bootstrap/cache
 COPY docker/php/entrypoint.sh /usr/local/bin/app-entrypoint

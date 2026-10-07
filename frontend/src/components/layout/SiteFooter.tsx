@@ -15,7 +15,9 @@ const socialIcon: Record<Social["name"], React.ReactNode> = {
 export function SiteFooter({ footer, logoSrc, bottomPadding = 0 }: { footer: SiteNavigation["footer"]; logoSrc: string | null; bottomPadding?: number }) {
   return (
     <footer className="bg-brand text-white" style={{ paddingBottom: bottomPadding }}>
-      <div className="flex flex-col gap-8 px-4 pt-10 md:gap-12 md:px-10 md:pt-16">
+      {/* Parent of the column headings (h3), so every page keeps a valid heading order. */}
+      <h2 className="sr-only">Informations sur Climatisation Maroc</h2>
+      <div className="site-gutter flex flex-col gap-8 pt-10 md:gap-12 md:pt-16">
         <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <div className="flex max-w-[420px] flex-col gap-5">
             <span className="rounded-14 flex self-start bg-white px-3.5 py-2">
@@ -69,7 +71,7 @@ export function SiteFooter({ footer, logoSrc, bottomPadding = 0 }: { footer: Sit
           <span>{footer.copyright}</span>
           <nav aria-label="Informations légales" className="flex flex-wrap gap-x-5 gap-y-2">
             {footer.legal.map((l) => (
-              <Link key={l.href} href={l.href} className="text-footer-text hover:text-tint-orange">
+              <Link key={l.href} href={l.href} prefetch={false} className="text-footer-text hover:text-tint-orange inline-flex min-h-6 items-center">
                 {l.label}
               </Link>
             ))}

@@ -17,7 +17,7 @@ export default async function CheckoutLayout({ children }: LayoutProps<"/">) {
         Aller au contenu
       </a>
       <CheckoutHeader logoSrc={logo} phone={nav.salesPhone} />
-      <main id="contenu" className="mx-auto box-border px-4 pb-10 md:px-10 md:pb-14">
+      <main id="contenu" className="site-container pb-10 md:pb-14">
         {children}
       </main>
       <SiteFooter footer={nav.footer} logoSrc={logo} />

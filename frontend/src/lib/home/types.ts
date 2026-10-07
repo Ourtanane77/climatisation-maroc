@@ -23,8 +23,13 @@ export interface DuctItem {
   sku: string;
   href: string;
   diameter: number | null;
-  kind: "souple" | "calo" | "alu";
+  /** rigide: "Gaines circulaires 3 m"; the others are flexibles (drawn when there is no photo). */
+  kind: "rigide" | "souple" | "calo" | "alu";
+  /** Product photo (WebP rendition), else the drawing. */
+  image?: string | null;
   price: number;
+  /** Price 0: « Prix sur demande », not orderable. */
+  onRequest?: boolean;
 }
 
 export interface BrandLogo {

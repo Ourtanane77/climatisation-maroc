@@ -5,11 +5,9 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { cn } from "@/lib/cn";
 import { getSiteMap } from "@/lib/content/api";
 import type { SiteMapData, SiteMapLink } from "@/lib/content/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Plan du site",
-  alternates: { canonical: "/plan-du-site" },
-};
+export const metadata: Metadata = seoMetadata({ title: "Plan du site", path: "/plan-du-site" });
 
 interface Item extends SiteMapLink {
   quote?: boolean;

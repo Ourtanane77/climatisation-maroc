@@ -10,8 +10,9 @@ import { ButtonLink } from "@/components/ui/Button";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { StyleguideForms } from "./StyleguideForms";
 import type { ArtKey, ProductCardData } from "@/lib/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = { title: "Composants", robots: { index: false, follow: false } };
+export const metadata: Metadata = seoMetadata({ title: "Composants", noindex: true, follow: false });
 
 /**
  * Component gallery (development only): every shared component with design data, for the

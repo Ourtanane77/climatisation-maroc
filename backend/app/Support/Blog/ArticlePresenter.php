@@ -98,7 +98,7 @@ class ArticlePresenter
 
         return [
             'image' => $variant ? ImageUrl::for(ProductCardResource::imageFor($variant->product, $variant), 1200) : null,
-            'art' => $variant?->product->art_key ?? 'mural',
+            'art' => $variant?->product->art_key,
             'dark' => $variant?->colour === 'Noir',
             'alt' => $data['alt'] ?? ($variant?->displayName() ?? ''),
             'caption' => $data['caption'] ?? null,

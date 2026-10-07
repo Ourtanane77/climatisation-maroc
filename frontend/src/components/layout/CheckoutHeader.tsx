@@ -7,8 +7,8 @@ import { Logo } from "./Logo";
 export function CheckoutHeader({ logoSrc, phone }: { logoSrc: string | null; phone: Phone }) {
   return (
     <header className="shadow-hairline bg-white">
-      <div className="mx-auto flex h-[76px] items-center gap-3 px-4 md:px-10">
-        <Link href="/" className="flex shrink-0" aria-label="Accueil · Climatisation Maroc">
+      <div className="site-gutter flex h-[76px] items-center gap-3">
+        <Link href="/" className="flex shrink-0">
           <Logo src={logoSrc} height={36} className="md:hidden" />
           <Logo src={logoSrc} height={50} className="hidden md:flex" />
         </Link>

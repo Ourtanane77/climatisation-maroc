@@ -36,7 +36,7 @@ export interface MegaMenu {
     sku: string;
     price: number;
     image?: string | null;
-    art?: ArtKey;
+    art?: ArtKey | null;
     href: string;
   };
 }
@@ -59,6 +59,8 @@ export interface SiteNavigation {
   ranges: NavRange[];
   promotions: Link;
   rightLinks: Link[];
+  /** Mobile drawer links between Promotions and the right-hand links (Solutions, Blog). */
+  drawerLinks?: Link[];
   searchScopes: string[];
   whatsapp: { number: string; display: string };
   salesPhone: Phone;
@@ -82,6 +84,8 @@ export interface ProductOption {
   price: number;
   regularPrice?: number | null;
   image?: string | null;
+  /** WebP renditions of `image` ("url 320w, url 640w"). */
+  imageSrcSet?: string | null;
   dark?: boolean;
 }
 
@@ -97,8 +101,10 @@ export interface ProductCardData {
   regularPrice?: number | null;
   fromPrice?: boolean;
   image?: string | null;
+  /** WebP renditions of `image` ("url 320w, url 640w"). */
+  imageSrcSet?: string | null;
   imageAlt?: string;
-  art?: ArtKey;
+  art?: ArtKey | null;
   dark?: boolean;
   badge?: { text: string; tone: "promo" | "brand" } | null;
   options?: ProductOption[];
@@ -123,7 +129,7 @@ export interface DenseRowData {
   price: number;
   href?: string;
   image?: string | null;
-  art?: ArtKey;
+  art?: ArtKey | null;
   inStock: boolean;
 }
 

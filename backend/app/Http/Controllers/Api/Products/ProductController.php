@@ -63,7 +63,8 @@ class ProductController extends Controller
                 'regularPrice' => ProductCardResource::discount($v, $reseller) > 0 ? $v->price : null,
                 'stock' => $v->stock_status->value,
                 'stockLabel' => $v->stock_status->getLabel(),
-                'orderable' => $v->stock_status->isOrderable(),
+                'orderable' => $v->stock_status->isOrderable() && ! $v->isOnRequest(),
+                'onRequest' => $v->isOnRequest(),
                 'dark' => $v->colour === 'Noir',
                 // Index in `images` of this variant's photo (the gallery jumps to it), or null.
                 'image' => ($index = $images->search(fn (ProductImage $i) => $i->product_variant_id === $v->id)) === false ? null : $index,
@@ -72,6 +73,7 @@ class ProductController extends Controller
             'images' => $images->map(fn (ProductImage $i) => [
                 'src' => ImageUrl::for($i, 1200),
                 'thumb' => ImageUrl::for($i, 320),
+                'srcSet' => ImageUrl::srcSet($i),
                 'alt' => $i->alt ?: $product->name,
             ])->values(),
             'specs' => $product->specs->map(fn (ProductSpec $s) => ['label' => $s->label, 'value' => $s->value])->values(),
@@ -87,7 +89,8 @@ class ProductController extends Controller
                         'price' => $v->priceFor($reseller),
                         'image' => ImageUrl::for(ProductCardResource::imageFor($a, $v), 320),
                         'art' => $a->art_key,
-                        'orderable' => $v->stock_status->isOrderable(),
+                        'orderable' => $v->stock_status->isOrderable() && ! $v->isOnRequest(),
+                        'onRequest' => $v->isOnRequest(),
                     ];
                 })->values(),
             'technicalVisitPrice' => $settings->technical_visit_price,

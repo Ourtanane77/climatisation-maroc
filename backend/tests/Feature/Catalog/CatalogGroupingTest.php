@@ -13,10 +13,12 @@ beforeEach(function () {
     $this->families = collect((new CatalogGrouper(config('catalog')))->group($this->rows))->keyBy('name');
 });
 
-it('groups the 106 rows into 62 families, 17 of them with variants', function () {
-    expect(count($this->rows))->toBe(106)
-        ->and($this->families)->toHaveCount(62)
-        ->and($this->families->filter(fn ($f) => count($f['rows']) > 1))->toHaveCount(17);
+it('groups the 167 rows into 112 families, 18 of them with variants', function () {
+    // Fitco gainable On/Off: two old-site spellings form one family since the names were normalised.
+    // 106 rows of the first snapshot + 61 added from the old site (catalog:scrape-legacy, 2026-10-07).
+    expect(count($this->rows))->toBe(167)
+        ->and($this->families)->toHaveCount(112)
+        ->and($this->families->filter(fn ($f) => count($f['rows']) > 1))->toHaveCount(18);
 });
 
 it('orders power variants and keeps references', function () {
@@ -41,7 +43,7 @@ it('treats colour as a variant attribute for air conditioners only', function ()
 it('groups capacities and diameters only for the listed families', function () {
     expect($this->families['Chauffe-eau Solaire Simsek Circuit Fermé']['labels'])->toBe(['200 L', '300 L', '500 L'])
         ->and($this->families['Ventilateur de Gaine Nanyo Galvanisé']['labels'])->toBe(['Ø 100', 'Ø 125', 'Ø 160', 'Ø 200', 'Ø 315'])
-        ->and($this->families['Flexible Souple Esbo 10 m']['rows'])->toHaveCount(4)
+        ->and($this->families['Flexible Souple Esbo 10 m']['rows'])->toHaveCount(5)
         // Accessories by size stay separate products (client decision 4).
         ->and($this->families)->toHaveKeys(['Bande Perforée 10 m', 'Bande Perforée 25 m', 'Colle PVC 1 kg', 'Colle PVC 125 ml']);
 });
@@ -50,7 +52,20 @@ it('places products in the new sub-categories by name', function () {
     expect($this->families['Multizone']['category_path'])->toBe('ventilation/multizone')
         ->and($this->families['Flexible Calorifugé Q160 Arfro 10 m']['category_path'])->toBe('gaines/flexibles-isoles')
         ->and($this->families['Télécommande LG Split']['category_path'])->toBe('pieces-de-rechange/telecommandes')
-        ->and($this->families['Trappe de Visite Modèle 60X60']['category_path'])->toBe('pieces-de-rechange/trappes-de-visite')
+        ->and($this->families['Trappe de Visite Modèle 60×60']['category_path'])->toBe('pieces-de-rechange/trappes-de-visite')
         ->and($this->families['Pompe à Vide Value 115']['category_path'])->toBe('pieces-de-rechange/outillage')
         ->and($this->families['Filtre Eau 7 Étapes Vivo Pompe Inox']['category_path'])->toBe('pieces-de-rechange');
+});
+
+it('places the products added from the old site in their categories', function () {
+    $path = fn (string $sku) => $this->families->first(fn ($f) => in_array($sku, array_column($f['rows'], 'sku'), true))['category_path'];
+
+    expect($path('CUIV0005'))->toBe('cuivre-et-gaz/cuivre')
+        ->and($path('CUIV0042'))->toBe('cuivre-et-gaz/kits-duo')
+        ->and($path('CLIM00003'))->toBe('cuivre-et-gaz/isolant')
+        ->and($path('GAZ00049'))->toBe('cuivre-et-gaz/gaz-frigorifique')
+        ->and($path('VENT00022'))->toBe('ventilation/grilles-et-diffuseurs')
+        ->and($path('VENT00131'))->toBe('gaines/gaines-circulaires')
+        ->and($path('TV09SDH0'))->toBe('climatisation/mural')
+        ->and($this->families['LG Jetcool Inverter R32']['labels'])->toBe(["9\u{00A0}000 BTU", "12\u{00A0}000 BTU", "18\u{00A0}000 BTU"]); // 12 000 was in the first snapshot
 });

@@ -44,10 +44,10 @@ class CategoryController extends Controller
             'body' => $category->body,
             'breadcrumb' => $this->breadcrumb($category),
             'parent' => $parent ? ['label' => $parent->name, 'href' => $parent->url()] : null,
-            'children' => $category->children()->active()->get()
+            'children' => $category->children()->public()->get()
                 ->map(fn (Category $c) => $this->tile($c))->values(),
             // Sister type chips: the parent's children (or this range's children on a range page).
-            'siblings' => $root->children()->active()->get()->map(fn (Category $c) => [
+            'siblings' => $root->children()->public()->get()->map(fn (Category $c) => [
                 'label' => $c->short_name ?? $c->name,
                 'href' => $c->url(),
                 'active' => $c->id === $category->id,
@@ -97,6 +97,8 @@ class CategoryController extends Controller
             'facets' => Listing::facets($all, $filters),
             'meta' => [
                 'total' => $matching->count(),
+                // Families in the category before filtering: the page shows filters and sort from 2.
+                'unfilteredTotal' => $all->count(),
                 'page' => $page,
                 'perPage' => $perPage,
                 'lastPage' => $lastPage,
@@ -107,7 +109,7 @@ class CategoryController extends Controller
 
     private function find(string $path): Category
     {
-        return Category::query()->active()->where('path', trim($path, '/'))->firstOrFail();
+        return Category::query()->public()->where('path', trim($path, '/'))->firstOrFail();
     }
 
     /** @return list<array{label: string, href?: string}> */
@@ -211,7 +213,7 @@ class CategoryController extends Controller
                 'name' => $b->name,
                 'slug' => $b->slug,
                 'href' => $b->url(),
-                'logo' => ImageUrl::path($b->logo),
+                'logo' => ImageUrl::logo($b->logo),
                 'logoAspect' => $b->logo_aspect !== null ? (float) $b->logo_aspect : null,
                 'note' => $b->is_official_distributor ? 'Distributeur officiel' : null,
             ])->values()->all();

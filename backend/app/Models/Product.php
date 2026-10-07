@@ -119,7 +119,10 @@ class Product extends Model implements HasPublicUrl
     /** Lowest public selling price among variants (centimes), for "À partir de". */
     public function fromPrice(): ?int
     {
-        return $this->variants->map(fn (ProductVariant $v) => $v->sellingPrice())->min();
+        // Variants « sur demande » (price 0) don't count when another variant has a real price.
+        return $this->variants->reject(fn (ProductVariant $v) => $v->isOnRequest())
+            ->map(fn (ProductVariant $v) => $v->sellingPrice())->min()
+            ?? ($this->variants->isNotEmpty() ? 0 : null);
     }
 
     public function isOnPromotion(): bool

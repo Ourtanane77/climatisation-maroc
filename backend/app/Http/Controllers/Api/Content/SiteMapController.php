@@ -21,8 +21,8 @@ class SiteMapController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        $ranges = Category::query()->active()->roots()->orderBy('position')
-            ->with(['children' => fn ($q) => $q->where('is_active', true)->orderBy('position')])->get();
+        $ranges = Category::query()->public()->roots()->orderBy('position')
+            ->with(['children' => fn ($q) => $q->whereIn('id', Category::query()->public()->select('id'))->orderBy('position')])->get();
 
         $link = fn (string $title, string $href) => ['title' => $title, 'href' => $href];
 

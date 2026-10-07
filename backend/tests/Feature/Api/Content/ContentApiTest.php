@@ -6,6 +6,7 @@ use App\Models\City;
 use App\Models\CityPage;
 use App\Models\Page;
 use App\Models\SectorPage;
+use App\Models\ServicePage;
 
 beforeEach(fn () => $this->seed());
 
@@ -112,4 +113,20 @@ it('builds the plan du site from active categories and published pages only', fu
         ->and(collect($response->json('pages'))->pluck('kind')->unique()->values()->all())->not->toContain(PageKind::Legal->value)
         ->and($response->json('cities'))->toBe([])
         ->and(collect($response->json('articles'))->pluck('href')->all())->toBe(['/blog/quelle-puissance-de-climatiseur-pour-ma-piece']);
+});
+
+it('serves the photos uploaded in the back office for sectors, their solutions and services', function () {
+    $sector = SectorPage::query()->where('slug', 'restaurants')->firstOrFail();
+    $solutions = $sector->solutions;
+    $solutions[0]['image'] = 'secteurs/solution.png';
+    $sector->update(['image' => 'secteurs/salle.png', 'solutions' => $solutions]);
+    ServicePage::query()->where('slug', 'installation')->firstOrFail()->update(['image' => 'services/pose.png']);
+
+    $page = $this->getJson('/api/v1/sectors/restaurants')->assertOk()->json();
+    expect($page['image'])->toEndWith('/storage/secteurs/salle.png')
+        ->and($page['solutions'][0]['image'])->toEndWith('/storage/secteurs/solution.png')
+        ->and($page['solutions'][1]['image'])->toBeNull()
+        ->and($this->getJson('/api/v1/sectors')->json('data.0.image'))->toEndWith('/storage/secteurs/salle.png')
+        ->and($this->getJson('/api/v1/services/installation')->json('image'))->toEndWith('/storage/services/pose.png')
+        ->and($this->getJson('/api/v1/services/visite-technique')->json('image'))->toBeNull();
 });

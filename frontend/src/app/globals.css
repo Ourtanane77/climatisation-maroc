@@ -20,11 +20,11 @@
   --color-brand-hover: #084683;
   --color-accent: #f4731f;
   --color-accent-hover: #d85a17;
-  --color-promo: #c4501a;
+  --color-promo: #be4d19; /* design #c4501a, darkened for AA (4.5:1) on #f4f6f8 */
   --color-ink: #1a1a1a;
   --color-ink-2: #3c4043;
   --color-muted: #5f6368;
-  --color-muted-2: #7a828b;
+  --color-muted-2: #6a7178; /* design #7a828b, darkened for AA (4.5:1) */
   --color-line-strong: #9aa3ad;
   --color-bg: #f4f6f8;
   --color-tint-blue: #e8eff8;
@@ -45,7 +45,7 @@
   --color-zebra: #f7f9fb;
   --color-zebra-2: #f9fafc;
   --color-whatsapp: #25d366;
-  --color-success: #1f9d57;
+  --color-success: #198047; /* design #1f9d57, darkened for AA (4.5:1) */
   --color-success-bg: #e3f5ea;
   --color-error-bg: #fff7f2;
   --color-reco: #12a6e8;
@@ -54,7 +54,7 @@
   --color-footer-text-2: #e3ecf7;
   --color-upload-line: #b9c6d4;
   --color-hairline: #e6e9ec;
-  --color-facebook: #1877f2;
+  --color-facebook: #1772e8; /* design #1877f2, darkened for AA with white text */
   --color-instagram: #e4405f;
 
   --radius-6: 6px;
@@ -101,6 +101,8 @@
   }
   body {
     margin: 0;
+    /* Lets full-width bands measure the page without the scrollbar (cqw, see .bleed). */
+    container-type: inline-size;
     background: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
@@ -138,6 +140,38 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+:root {
+  /* Page container (owner's request, 2026-10-06): content at most 1440 px wide, centred, with the
+     design's side gutters (16 px mobile, 40 px from 760 px). Change --site-max to widen or narrow it. */
+  --site-max: 1440px;
+  --site-gutter: 16px;
+}
+@media (min-width: 760px) {
+  :root {
+    --site-gutter: 40px;
+  }
+}
+
+/* Centred page column (main content, checkout). */
+@utility site-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(var(--site-max) + 2 * var(--site-gutter));
+  margin-inline: auto;
+  padding-inline: var(--site-gutter);
+}
+
+/* Full-width element whose content lines up with the page column (header, footer, sticky bars). */
+@utility site-gutter {
+  box-sizing: border-box;
+  padding-inline: max(var(--site-gutter), calc((100% - var(--site-max)) / 2));
+}
+
+/* Breaks out of the page column to the full page width (home hero band). */
+@utility bleed {
+  margin-inline: calc(50% - 50cqw);
 }
 
 @utility scrollbar-none {

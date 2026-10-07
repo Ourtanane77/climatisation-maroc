@@ -2,13 +2,29 @@ import { ProductArt } from "@/components/catalog/ProductArt";
 import { GRID_4, IconTile, PageTitle } from "@/components/content/blocks";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { designPhoto } from "@/lib/design-assets";
+import { DesignImg } from "@/components/ui/DesignImg";
 
 /**
  * Service page sections (design: Service.dc.html): hero, "Ce qui est inclus" and the Tarifs band.
- * The hero cut-out photo (uploads/clima-cut2.png) is missing from the design export: the wall unit
- * line drawing stands in until it is added (docs/deviations.md).
+ * The hero shows the service's back-office photo, else the design's cut-out photo
+ * (uploads/clima-cut2.png), else the wall unit line drawing.
  */
-export function ServiceHero({ name, h1, text, whatsappHref }: { name: string; h1: string; text: string | null; whatsappHref: string }) {
+export function ServiceHero({
+  name,
+  h1,
+  text,
+  whatsappHref,
+  image = null,
+}: {
+  name: string;
+  h1: string;
+  text: string | null;
+  whatsappHref: string;
+  /** Photo uploaded on the service in the back office; else the design's wall unit. */
+  image?: string | null;
+}) {
+  const photo = image ? { src: image } : designPhoto("clima-cut2.png");
   return (
     <section className="rounded-28 bg-tint-blue mt-6 grid grid-cols-1 items-center overflow-hidden xl:min-h-[440px] xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
       <div className="flex flex-col gap-5 px-5 pt-7 pb-2 md:px-10 md:pt-10 xl:p-14">
@@ -26,7 +42,11 @@ export function ServiceHero({ name, h1, text, whatsappHref }: { name: string; h1
       </div>
       <div aria-hidden className="flex min-h-[160px] items-center justify-center px-5 pb-7 md:min-h-[240px] md:px-10 md:py-6 xl:min-h-[300px]">
         <div className="w-full max-w-[640px] drop-shadow-[0_24px_30px_rgba(14,40,70,0.25)]">
-          <ProductArt art="mural" className="h-auto w-full" />
+          {photo ? (
+            <DesignImg photo={photo} sizes="(max-width: 999px) 90vw, 640px" priority className="block h-auto w-full" />
+          ) : (
+            <ProductArt art="mural" className="h-auto w-full" />
+          )}
         </div>
       </div>
     </section>

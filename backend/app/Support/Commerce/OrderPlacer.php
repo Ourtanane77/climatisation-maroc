@@ -31,6 +31,12 @@ class OrderPlacer
         $technicalVisit = (bool) ($data['technical_visit'] ?? false);
         $quote = $this->pricer->quote($data['lines'], $reseller, $technicalVisit);
 
+        $onRequest = array_values(array_filter($quote['lines'], fn (array $l) => $l['onRequest']));
+        if ($onRequest !== []) {
+            throw ValidationException::withMessages([
+                'lines' => 'Prix sur demande : '.implode(', ', array_column($onRequest, 'name')).'. Retirez cet article du panier et demandez-nous un devis.',
+            ]);
+        }
         $unavailable = array_values(array_filter($quote['lines'], fn (array $l) => ! $l['available']));
         if ($quote['lines'] === [] || $quote['invalid'] !== [] || $unavailable !== []) {
             $names = array_merge(array_column($unavailable, 'name'), array_column($quote['invalid'], 'sku'));

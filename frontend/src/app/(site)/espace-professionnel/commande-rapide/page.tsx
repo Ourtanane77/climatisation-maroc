@@ -9,11 +9,9 @@ import { getToken } from "@/lib/auth";
 import { getNavigation } from "@/lib/navigation";
 import { getReseller } from "@/lib/pro/session";
 import type { QuickItem } from "@/lib/pro/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Commande rapide · Espace professionnel",
-  robots: { index: false },
-};
+export const metadata: Metadata = seoMetadata({ title: "Commande rapide · Espace professionnel", noindex: true });
 
 const PATH = "/espace-professionnel/commande-rapide";
 
@@ -29,9 +27,7 @@ export default async function QuickOrderPage() {
 
   return (
     <>
-      <Breadcrumb
-        items={[{ label: "Accueil", href: "/" }, { label: "Espace professionnel", href: "/espace-professionnel" }, { label: "Commande rapide" }]}
-      />
+      <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Espace professionnel", href: "/espace-professionnel" }, { label: "Commande rapide" }]} />
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 pt-6">
         <div className="flex flex-col gap-2">
           <h1 className={H1}>Commande rapide par référence</h1>

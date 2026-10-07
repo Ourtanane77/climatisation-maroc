@@ -27,7 +27,10 @@ export function MobileDrawer({ open, onClose, nav, logoSrc }: { open: boolean; o
 
   if (!open) return null;
 
-  const extra = [{ ...nav.promotions, tone: "promo" as const }, ...nav.rightLinks.map((l) => ({ ...l, tone: "ink" as const }))];
+  const extra = [
+    { ...nav.promotions, tone: "promo" as const },
+    ...[...(nav.drawerLinks ?? []), ...nav.rightLinks].map((l) => ({ ...l, tone: "ink" as const })),
+  ];
 
   return (
     <nav

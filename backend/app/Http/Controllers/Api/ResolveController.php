@@ -21,7 +21,8 @@ class ResolveController extends Controller
         $path = Redirect::normalize((string) $request->query('path', '/'));
         $trimmed = ltrim($path, '/');
 
-        $category = Category::query()->active()->where('path', $trimmed)->first();
+        // Empty categories are not public (404 until a product is published in them).
+        $category = Category::query()->public()->where('path', $trimmed)->first();
         if ($category) {
             return response()->json([
                 'type' => 'category',
@@ -52,6 +53,8 @@ class ResolveController extends Controller
             return response()->json(['type' => 'redirect', 'to' => $redirect->to_path, 'status' => (int) $redirect->status_code]);
         }
 
-        return response()->json(['type' => 'none'], 404);
+        // 200, not 404: Next caches only 200 responses, so "nothing here" must be cacheable too, or
+        // a page that becomes unpublished keeps being served from the cached earlier answer.
+        return response()->json(['type' => 'none']);
     }
 }

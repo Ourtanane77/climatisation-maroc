@@ -1,5 +1,5 @@
 // Catalogue listings (agent A): node scripts/visual-compare.mjs phase-4a
-export default [
+const pairs = [
   ["gamme", "Climatisation.dc.html", "/climatisation", null, { full: true }],
   ["categorie", "Categorie Climatiseurs muraux.dc.html", "/climatisation/mural", null, { full: true }],
   ["categorie-comparer", "Categorie Climatiseurs muraux.dc.html?comparer=1", "/climatisation/mural", "pickCompare", {}],
@@ -10,6 +10,8 @@ export default [
   ["recherche", "Recherche.dc.html?q=cuivre", "/recherche?q=cuivre", null, { full: true }],
   ["recherche-vide", "Recherche.dc.html?q=climatiseur%20portable", "/recherche?q=climatiseur%20portable", null, { full: true }],
 ];
+
+export default pairs;
 
 export const actions = {
   async pickCompare(page) {

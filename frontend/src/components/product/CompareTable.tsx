@@ -6,8 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { toast } from "@/components/ui/Toast";
 import { addToCart } from "@/lib/cart/store";
+import { setCompare } from "@/lib/compare";
 import { cn } from "@/lib/cn";
-import { dh, plural } from "@/lib/format";
+import { dh, isOnRequest, plural, priceRequestHref, priceText } from "@/lib/format";
 import type { CompareData } from "@/lib/product/types";
 
 const EMPTY = "—";
@@ -30,6 +31,9 @@ export function CompareTable({ data, addHref }: { data: CompareData; addHref: st
 
   const products = data.products;
   const n = products.length;
+  // The page (?p=) is the source of truth: keep the category pages' compare tray in step with it.
+  const selection = JSON.stringify(products.map((p) => ({ sku: p.sku, name: p.name })));
+  useEffect(() => setCompare(JSON.parse(selection)), [selection]);
   const slot = n < data.max;
   const cols = n + (slot ? 1 : 0);
   const rows = visibleRows(data.rows, onlyDiff);
@@ -109,28 +113,37 @@ export function CompareTable({ data, addHref }: { data: CompareData; addHref: st
                     </svg>
                   </button>
                   <Link href={p.href} tabIndex={-1} aria-hidden className="flex h-[100px] items-center justify-center px-6 pt-2 md:h-[150px]">
-                    <ProductVisual image={p.image} art={p.art ?? "mural"} dark={p.dark} alt={p.name} shadow={false} />
+                    <ProductVisual image={p.image} art={p.art} dark={p.dark} alt={p.name} shadow={false} />
                   </Link>
                   <Link href={p.href} className="text-ink hover:text-brand min-h-[46px] text-[15px] leading-[1.3] font-semibold md:text-lg">
                     {p.name}
                   </Link>
                   <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="text-[22px] font-extrabold tracking-[-0.02em] md:text-[26px]">{dh(p.price)}</span>
+                    <span className="text-[22px] font-extrabold tracking-[-0.02em] md:text-[26px]">{priceText(p.price)}</span>
                     {p.regularPrice != null && p.regularPrice > p.price && <span className="text-muted-2 text-sm line-through">{dh(p.regularPrice)}</span>}
                   </div>
-                  <button
-                    type="button"
-                    disabled={!p.orderable}
-                    onClick={() => add(p.sku, p.name)}
-                    className={cn(
-                      "rounded-12 h-12 border-[1.5px] text-[15px] font-bold transition-colors disabled:opacity-50",
-                      added === p.sku
-                        ? "border-success bg-success text-white"
-                        : "border-line-strong text-ink hover:border-ink hover:bg-ink bg-white hover:text-white",
-                    )}
-                  >
-                    {!p.orderable ? "Rupture de stock" : added === p.sku ? "Ajouté ✓" : "Ajouter au panier"}
-                  </button>
+                  {isOnRequest(p.price) ? (
+                    <Link
+                      href={priceRequestHref(p.sku)}
+                      className="rounded-12 border-line-strong text-ink hover:border-ink hover:bg-ink flex h-12 items-center justify-center border-[1.5px] bg-white text-[15px] font-bold transition-colors hover:text-white"
+                    >
+                      Demander un prix
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={!p.orderable}
+                      onClick={() => add(p.sku, p.name)}
+                      className={cn(
+                        "rounded-12 h-12 border-[1.5px] text-[15px] font-bold transition-colors disabled:opacity-50",
+                        added === p.sku
+                          ? "border-success bg-success text-white"
+                          : "border-line-strong text-ink hover:border-ink hover:bg-ink bg-white hover:text-white",
+                      )}
+                    >
+                      {!p.orderable ? "Rupture de stock" : added === p.sku ? "Ajouté ✓" : "Ajouter au panier"}
+                    </button>
+                  )}
                 </div>
               ))}
               {slot && (

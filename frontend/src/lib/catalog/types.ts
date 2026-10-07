@@ -56,7 +56,8 @@ export interface PageMeta {
 export interface ListingData {
   data: ProductCardData[];
   facets: Facet[];
-  meta: PageMeta & { sort: string };
+  /** `unfilteredTotal`: families in the category before filtering (filters and sort show from 2). */
+  meta: PageMeta & { sort: string; unfilteredTotal: number };
 }
 
 /** GET /categories/{path}/products?flat=1 */

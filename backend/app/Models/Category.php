@@ -89,6 +89,32 @@ class Category extends Model implements HasPublicUrl
         $query->where('is_active', true);
     }
 
+    /**
+     * Categories visitors can see: active, and either a quote-only range (Froid) or holding at
+     * least one published product in it or in a sub-category. An empty category (e.g. Chaudière
+     * before its first product) is hidden from menus and links and its URL answers 404; it comes
+     * back on its own when a product is published in it. The tree is two levels deep.
+     *
+     * @param  Builder<Category>  $query
+     */
+    public function scopePublic(Builder $query): void
+    {
+        $table = $query->getModel()->getTable();
+        $query->where("{$table}.is_active", true)->where(fn (Builder $q) => $q
+            ->where("{$table}.is_quote_only", true)
+            ->orWhereExists(fn ($products) => $products->selectRaw('1')->from('products')
+                ->where('products.is_published', true)
+                ->where(fn ($w) => $w->whereColumn('products.category_id', "{$table}.id")
+                    ->orWhereIn('products.category_id', fn ($sub) => $sub->select('sub.id')->from('categories as sub')
+                        ->whereColumn('sub.parent_id', "{$table}.id")))));
+    }
+
+    /** Whether visitors can see this category (same rule as scopePublic). */
+    public function isPublic(): bool
+    {
+        return static::query()->public()->whereKey($this->id)->exists();
+    }
+
     /** @param Builder<Category> $query */
     public function scopeRoots(Builder $query): void
     {

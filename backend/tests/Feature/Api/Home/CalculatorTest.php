@@ -42,8 +42,8 @@ it('answers GET /calculator/power with the call to action and matching air condi
         ->assertJsonPath('tierIndex', 1)
         ->assertJsonPath('cta.href', '/climatisation/mural?puissance=12000')
         ->assertJsonPath('products.0.sku', 'D13AJH.N')
-        ->assertJsonPath('products.0.price', 570000)
-        ->assertJsonPath('products.0.regularPrice', 650000);
+        ->assertJsonPath('products.0.price', 550000)
+        ->assertJsonPath('products.0.regularPrice', 670000);
 
     $this->getJson('/api/v1/calculator/power?surface=55')
         ->assertOk()

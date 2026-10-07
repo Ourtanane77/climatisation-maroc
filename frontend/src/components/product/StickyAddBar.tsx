@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProductArt } from "@/components/catalog/ProductArt";
-import { dh } from "@/lib/format";
+import { dh, isOnRequest } from "@/lib/format";
 import { useAddSelected } from "./ProductBuyBox";
 import { useProduct } from "./ProductContext";
 
@@ -19,17 +19,18 @@ export function StickyAddBar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (!scrolled || !variant.orderable) return null;
+  // Not for « Prix sur demande » variants (price 0): they are never added to the basket.
+  if (!scrolled || !variant.orderable || isOnRequest(variant.price)) return null;
   const image = variant.image != null ? product.images[variant.image] : product.images[0];
 
   return (
-    <div className="shadow-bottom-bar fixed inset-x-0 bottom-0 z-30 flex items-center gap-4 bg-white px-4 py-3 md:px-10">
+    <div className="shadow-bottom-bar site-gutter fixed inset-x-0 bottom-0 z-30 flex items-center gap-4 bg-white py-3">
       <span aria-hidden className="hidden h-11 w-16 shrink-0 items-center justify-center md:flex">
         {image?.thumb ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={image.thumb} alt="" className="block h-11 w-16 object-contain" />
         ) : (
-          <ProductArt art={product.art ?? "mural"} dark={variant.dark} className="h-auto w-full" />
+          <ProductArt art={product.art} dark={variant.dark} className="h-auto w-full" />
         )}
       </span>
       <span className="min-w-0 flex-1 truncate text-base font-bold">{variant.name}</span>

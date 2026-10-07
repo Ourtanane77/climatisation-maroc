@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import type { BrandTile, CategoryTile } from "@/lib/catalog/types";
-import { ProductArt } from "./ProductArt";
+import { CategoryVisual } from "./CategoryVisual";
 
 /**
  * Building blocks of the range and category pages (design: Climatisation.dc.html,
@@ -52,14 +52,15 @@ export function TypeTiles({ tiles }: { tiles: CategoryTile[] }) {
           <span className="text-[26px] leading-[1.15] font-bold">{t.shortName ?? t.name}</span>
           {t.text && <span className="text-ink-2 max-w-[80%] text-[15px] leading-[1.4]">{t.text}</span>}
           <span aria-hidden className="absolute inset-x-6 bottom-5 flex h-[55%] items-end justify-center">
-            {t.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={t.image} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" loading="lazy" />
-            ) : t.art ? (
-              <span className="flex max-h-full items-end justify-center" style={{ width: artWidth[t.art] ?? "80%" }}>
-                <ProductArt art={t.art} className="h-auto max-h-full w-full" />
-              </span>
-            ) : null}
+            <CategoryVisual
+              href={t.href}
+              image={t.image}
+              art={t.art}
+              sizes="(min-width: 1100px) 300px, (min-width: 760px) 45vw, 90vw"
+              className="h-auto max-h-full w-auto max-w-full object-contain"
+              artClassName="flex max-h-full items-end justify-center"
+              artStyle={{ width: (t.art && artWidth[t.art]) || "80%" }}
+            />
           </span>
         </Link>
       ))}

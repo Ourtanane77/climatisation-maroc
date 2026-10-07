@@ -44,7 +44,7 @@ class PageController extends Controller
                 ->map(fn (Brand $b) => [
                     'name' => $b->name,
                     'href' => $b->url(),
-                    'logo' => ImageUrl::path($b->logo),
+                    'logo' => ImageUrl::logo($b->logo),
                     'aspect' => $b->logo_aspect ? (float) $b->logo_aspect : null,
                     'official' => (bool) $b->is_official_distributor,
                 ])->values();

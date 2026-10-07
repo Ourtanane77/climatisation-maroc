@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
+import { withSectorPhoto } from "@/lib/content/sector-images";
 import { ProjectCtaBand, PageTitle, Section, SectionTitle, SectorCard, StepList, GRID_4 } from "@/components/content/blocks";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ButtonLink } from "@/components/ui/Button";
 import { getSectors } from "@/lib/content/api";
 import { PROJECT_STEPS, PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import { telHref } from "@/lib/phone";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: { absolute: "Climatisation professionnelle au Maroc · Ariha Froid" },
+export const metadata: Metadata = seoMetadata({
+  title: "Climatisation professionnelle au Maroc · Ariha Froid",
+  absolute: true,
   description:
     "Hôtels, restaurants, bureaux, commerces : chaque espace a ses contraintes. Ariha Froid étudie, fournit et installe la solution adaptée, partout au Maroc, depuis 2008.",
-  alternates: { canonical: "/solutions" },
-};
+  path: "/solutions",
+});
 
 /** Solutions professionnelles (design: Solutions professionnelles.dc.html). Only published sectors are listed. */
 export default async function SolutionsPage() {
@@ -46,7 +49,7 @@ export default async function SolutionsPage() {
           </h2>
           <div className={GRID_4}>
             {sectors.map((s) => (
-              <SectorCard key={s.slug} sector={s} />
+              <SectorCard key={s.slug} sector={withSectorPhoto(s)} />
             ))}
           </div>
         </section>

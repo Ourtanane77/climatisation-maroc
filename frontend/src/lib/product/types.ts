@@ -38,6 +38,8 @@ export interface ProductVariantData {
   stock: "en_stock" | "rupture" | "sur_commande";
   stockLabel: string;
   orderable: boolean;
+  /** « Prix sur demande » (price 0): not orderable, no price markup. */
+  onRequest?: boolean;
   dark: boolean;
   /** Index in `images` of this variant's photo. */
   image: number | null;
@@ -48,6 +50,8 @@ export interface ProductVariantData {
 export interface ProductImageData {
   src: string | null;
   thumb: string | null;
+  /** WebP renditions ("url 320w, url 640w, url 1200w"). */
+  srcSet?: string | null;
   alt: string;
 }
 

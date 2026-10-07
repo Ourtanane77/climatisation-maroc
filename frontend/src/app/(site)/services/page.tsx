@@ -4,11 +4,9 @@ import { ArrowIcon, GRID_3, PageTitle, ProjectCtaBand, Section } from "@/compone
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { getServices } from "@/lib/content/api";
 import { PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Services",
-  alternates: { canonical: "/services" },
-};
+export const metadata: Metadata = seoMetadata({ title: "Services", path: "/services" });
 
 /**
  * Services hub. Not drawn (the design's breadcrumb "Services" points back to the Service page):

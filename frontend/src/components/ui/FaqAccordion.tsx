@@ -2,13 +2,15 @@
 
 import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
+import { JsonLd } from "@/lib/seo/jsonld";
 import type { FaqItem } from "@/lib/types";
 
 /**
  * FAQ accordion (all pages): white card, one item open at a time, first item open by default,
- * "+" turning 45°, height animated with grid-template-rows. Emits FAQPage JSON-LD.
+ * "+" turning 45°, height animated with grid-template-rows. FAQPage JSON-LD is off by default:
+ * Google shows FAQ rich results only for government and health sites (docs/audits/schema.md P1-3).
  */
-export function FaqAccordion({ items, jsonLd = true }: { items: FaqItem[]; jsonLd?: boolean }) {
+export function FaqAccordion({ items, jsonLd = false }: { items: FaqItem[]; jsonLd?: boolean }) {
   const [open, setOpen] = useState(0);
   const id = useId();
   if (!items.length) return null;
@@ -57,7 +59,7 @@ export function FaqAccordion({ items, jsonLd = true }: { items: FaqItem[]; jsonL
           </div>
         );
       })}
-      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />}
+      {jsonLd && <JsonLd data={schema} />}
     </div>
   );
 }

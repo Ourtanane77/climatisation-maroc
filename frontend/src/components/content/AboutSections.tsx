@@ -1,23 +1,21 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import type { PageDetail } from "@/lib/content/types";
-import { GRID_2, PageTitle, PlaceholderChip, Section, SectionTitle } from "./blocks";
+import { GRID_2, PageTitle, Section, SectionTitle } from "./blocks";
 
 /**
  * À propos sections that come from shared data rather than the page body (design: A propos.dc.html):
  * the blue hero, "Nos marques" (brand logos sized by equal area) and "Nos magasins à Marrakech".
- * The photo slots keep the design's placeholders until the shop photos are supplied.
+ * The design's photo slots ("[PHOTO MAGASIN]", "[PHOTO ÉQUIPE]") are not rendered: they come back
+ * when the owner supplies real shop photos (never a placeholder shown to visitors).
  */
 
 export function AboutHero({ h1, intro }: { h1: string; intro: string | null }) {
   return (
-    <section className="rounded-28 bg-brand mt-6 grid grid-cols-1 items-center gap-8 px-5 py-8 text-white md:px-10 md:py-12 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] xl:p-14">
-      <div className="flex flex-col gap-[18px]">
+    <section className="rounded-28 bg-brand mt-6 px-5 py-8 text-white md:px-10 md:py-12 xl:p-14">
+      <div className="flex max-w-[760px] flex-col gap-[18px]">
         <PageTitle className="text-white">{h1}</PageTitle>
         {intro && <p className="text-footer-text-2 m-0 max-w-[600px] text-[19px] leading-[1.55] text-pretty">{intro}</p>}
-      </div>
-      <div className="rounded-24 flex min-h-[180px] items-center justify-center bg-white/12 md:min-h-[300px]">
-        <PlaceholderChip solid>[PHOTO MAGASIN]</PlaceholderChip>
       </div>
     </section>
   );
@@ -68,24 +66,15 @@ export function BrandLogos({ brands }: { brands: NonNullable<PageDetail["brands"
   );
 }
 
-const STORE_SLOTS = [
-  { bg: "#DCE8F5", label: "[PHOTO MAGASIN]" },
-  { bg: "#FCE6D6", label: "[PHOTO ÉQUIPE]" },
-];
-
 export function StoreCards({ stores, hours }: { stores: { name: string; address: string }[]; hours: string }) {
   if (!stores.length) return null;
   return (
     <Section>
       <SectionTitle>Nos magasins à Marrakech</SectionTitle>
       <div className={GRID_2}>
-        {stores.map((s, i) => {
-          const slot = STORE_SLOTS[i % STORE_SLOTS.length];
+        {stores.map((s) => {
           return (
             <article key={s.name} className="rounded-24 flex flex-col overflow-hidden bg-white">
-              <div className="flex aspect-[16/7] items-center justify-center" style={{ background: slot.bg }}>
-                <PlaceholderChip solid>{slot.label}</PlaceholderChip>
-              </div>
               <div className="flex flex-col gap-2.5 p-6">
                 <h3 className="m-0 text-[22px] font-bold">{s.name}</h3>
                 <address className="text-[17px] leading-[1.5] not-italic">{s.address}</address>

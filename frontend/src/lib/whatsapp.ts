@@ -9,5 +9,7 @@ export function waLink(text?: string, number: string = DEFAULT_WHATSAPP): string
 
 /** "Bonjour, je souhaite commander : LG Dual Inverter 12 000 BTU (réf. D13AJH.N)" */
 export function waProductLink(productName: string, sku: string, number?: string): string {
-  return waLink(`Bonjour, je souhaite commander : ${productName} (réf. ${sku})`, number);
+  // No temporary « XLS-… » reference in the message (products from the Excel list awaiting theirs).
+  const ref = /^XLS-/i.test(sku) ? "" : ` (réf. ${sku})`;
+  return waLink(`Bonjour, je souhaite commander : ${productName}${ref}`, number);
 }

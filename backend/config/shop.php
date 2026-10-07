@@ -9,6 +9,8 @@ return [
     'frontend_url' => env('FRONTEND_URL', env('APP_URL')),
     'frontend_internal_url' => env('FRONTEND_INTERNAL_URL', 'http://next:3000'),
     'revalidate_secret' => env('REVALIDATE_SECRET'),
+    // Public read API responses cached in Redis (App\Http\Middleware\CacheApiResponses).
+    'api_cache' => (bool) env('API_CACHE', true),
 
     // Shop inbox for new orders and leads.
     'notification_email' => env('SHOP_NOTIFICATION_EMAIL', 'ecom@arihafroid.com'),

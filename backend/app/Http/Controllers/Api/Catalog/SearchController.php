@@ -79,7 +79,8 @@ class SearchController extends Controller
                 'name' => $p->name,
                 'href' => $p->url(),
                 'sku' => $p->variants->count() === 1 ? $variant?->sku : null,
-                'price' => $p->variants->map(fn (ProductVariant $v) => $v->priceFor($reseller))->min(),
+                // Lowest real price (« sur demande » variants at 0 only when nothing else is priced).
+                'price' => $p->variants->reject(fn (ProductVariant $v) => $v->isOnRequest())->map(fn (ProductVariant $v) => $v->priceFor($reseller))->min() ?? 0,
                 'fromPrice' => $p->variants->count() > 1,
                 'image' => ImageUrl::for(ProductCardResource::imageFor($p, $variant), 320),
                 'art' => $p->art_key,

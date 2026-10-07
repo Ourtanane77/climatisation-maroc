@@ -72,7 +72,7 @@ trait PresentsContent
         if (! $path) {
             return null;
         }
-        $this->activePaths ??= Category::query()->active()->pluck('path')->flip()->all();
+        $this->activePaths ??= Category::query()->public()->pluck('path')->flip()->all();
 
         return isset($this->activePaths[$path]) ? '/'.$path : null;
     }

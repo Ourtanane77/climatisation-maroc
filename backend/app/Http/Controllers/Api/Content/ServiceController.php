@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Content;
 use App\Http\Controllers\Api\Content\Concerns\PresentsContent;
 use App\Http\Controllers\Controller;
 use App\Models\ServicePage;
+use App\Support\Api\ImageUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -38,6 +39,7 @@ class ServiceController extends Controller
             'name' => $service->name,
             'href' => $service->url(),
             'heroText' => $service->hero_text,
+            'image' => ImageUrl::path($service->image),
             'whatsappText' => $service->whatsapp_text,
             'included' => $this->rows($service->included),
             'steps' => $this->rows($service->steps),

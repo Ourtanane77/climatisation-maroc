@@ -5,10 +5,14 @@ import { ProductArt } from "./ProductArt";
 /**
  * Product picture as drawn in the design (`pic()` helper): the photo (multiply-blended so white
  * backgrounds melt into the card) or the line illustration, over a soft blurred floor shadow.
+ * A photo always wins: the drawing only appears when the product has none.
  */
 export function ProductVisual({
   image,
-  art = "mural",
+  srcSet,
+  // Cards: 2 columns on phones, 3 on tablets, ~300 px from 1100 px.
+  sizes = "(max-width: 759px) 45vw, (max-width: 1099px) 30vw, 300px",
+  art,
   dark,
   alt,
   width = "100%",
@@ -17,7 +21,11 @@ export function ProductVisual({
   priority = false,
 }: {
   image?: string | null;
-  art?: ArtKey;
+  /** WebP renditions of `image`, with the rendered width in `sizes`. */
+  srcSet?: string | null;
+  sizes?: string;
+  /** Drawing used without photo; null/absent → neutral placeholder (never a default appliance). */
+  art?: ArtKey | null;
   dark?: boolean;
   alt: string;
   width?: string;
@@ -33,6 +41,8 @@ export function ProductVisual({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image}
+            srcSet={srcSet ?? undefined}
+            sizes={srcSet ? sizes : undefined}
             alt={alt}
             loading={priority ? "eager" : "lazy"}
             decoding="async"

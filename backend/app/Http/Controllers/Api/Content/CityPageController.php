@@ -8,6 +8,7 @@ use App\Http\Resources\ProductCardResource;
 use App\Models\Category;
 use App\Models\CityPage;
 use App\Models\Product;
+use App\Support\Api\ImageUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,7 +28,7 @@ class CityPageController extends Controller
 
         $range = Category::query()->active()->whereNull('parent_id')->where('slug', 'climatisation')->first();
         $types = $range
-            ? $range->children()->active()->orderBy('position')->get()
+            ? $range->children()->public()->orderBy('position')->get()
             : collect();
 
         $products = $range
@@ -47,6 +48,7 @@ class CityPageController extends Controller
                 'text' => $c->tile_text,
                 'art' => $c->art_key,
                 'bg' => $c->tile_bg,
+                'image' => ImageUrl::path($c->image),
                 'href' => $c->url(),
             ])->values(),
             'products' => ProductCardResource::collection($products)->resolve($request),

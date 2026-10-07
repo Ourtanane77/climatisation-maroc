@@ -8,7 +8,7 @@ import { ErrorIcon } from "@/components/ui/icons";
 import { toast } from "@/components/ui/Toast";
 import { addToCart } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
-import { dh, plural } from "@/lib/format";
+import { dh, isOnRequest, plural, priceRequestHref, priceText } from "@/lib/format";
 import type { QuickItem } from "@/lib/pro/types";
 import { waLink } from "@/lib/whatsapp";
 
@@ -156,13 +156,12 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
     setRows((rs) => {
       const kept = rs.filter((r) => r.ref.trim() !== "");
       const existing = kept.find((r) => norm(r.ref) === item.sku.toUpperCase());
-      return existing
-        ? kept.map((r) => (r === existing ? { ...r, qty: Math.min(MAX_QTY, r.qty + 1), item } : r))
-        : [...kept, newRow(item.sku, 1, item)];
+      return existing ? kept.map((r) => (r === existing ? { ...r, qty: Math.min(MAX_QTY, r.qty + 1), item } : r)) : [...kept, newRow(item.sku, 1, item)];
     });
   }
 
-  const valid = rows.filter((r): r is Row & { item: QuickItem } => !!r.item);
+  // Items « Prix sur demande » (price 0) are never added to the basket.
+  const valid = rows.filter((r): r is Row & { item: QuickItem } => !!r.item && !isOnRequest(r.item.price));
   const toFix = rows.filter((r) => r.item === null).length;
   const articles = valid.reduce((n, r) => n + r.qty, 0);
   const total = valid.reduce((n, r) => n + r.item.price * r.qty, 0);
@@ -243,14 +242,17 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
                               e.preventDefault();
                               pick(row, m);
                             }}
-                            className={cn("rounded-12 hover:bg-tint-blue flex min-h-[52px] items-center gap-3 px-2.5 py-1.5 text-left", i === highlight && "bg-tint-select")}
+                            className={cn(
+                              "rounded-12 hover:bg-tint-blue flex min-h-[52px] items-center gap-3 px-2.5 py-1.5 text-left",
+                              i === highlight && "bg-tint-select",
+                            )}
                           >
                             <Thumb item={m} w={44} h={36} radius={8} />
                             <span className="flex min-w-0 flex-1 flex-col">
                               <span className="text-sm font-extrabold tracking-[0.02em]">{m.sku}</span>
                               <span className="text-ink-2 truncate text-sm">{m.name}</span>
                             </span>
-                            <span className="text-sm font-bold whitespace-nowrap">{dh(m.price)}</span>
+                            <span className="text-sm font-bold whitespace-nowrap">{priceText(m.price)}</span>
                           </button>
                         ))}
                       </div>
@@ -268,14 +270,29 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
                         <Link href={item.href} className="text-ink hover:text-brand text-base leading-[1.35] font-semibold">
                           {item.name}
                         </Link>
+                        {isOnRequest(item.price) && (
+                          <Link href={priceRequestHref(item.sku)} className="text-sm font-bold underline">
+                            Prix sur demande : demander un prix
+                          </Link>
+                        )}
                         <span className="text-ink-2 flex flex-wrap items-center gap-2 text-sm lg:hidden">
-                          {dh(item.price)} / unité <ProBadge price={item.proPrice} />
+                          {priceText(item.price)}{" "}
+                          {!isOnRequest(item.price) && (
+                            <>
+                              / unité <ProBadge price={item.proPrice} />
+                            </>
+                          )}
                         </span>
                       </>
                     ) : error ? (
                       <>
                         <span className="text-promo text-base leading-[1.35] font-semibold">Aucun produit pour cette référence</span>
-                        <a href={waLink(`Bonjour, je cherche la référence ${norm(row.ref)}`, whatsappNumber)} target="_blank" rel="noopener" className="text-sm font-bold underline">
+                        <a
+                          href={waLink(`Bonjour, je cherche la référence ${norm(row.ref)}`, whatsappNumber)}
+                          target="_blank"
+                          rel="noopener"
+                          className="text-sm font-bold underline"
+                        >
                           Demander sur WhatsApp
                         </a>
                       </>
@@ -286,16 +303,16 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
                     )}
                   </div>
                   <div className="hidden flex-col items-start gap-1.5 pt-3.5 [grid-area:unit] lg:flex">
-                    <span className="text-base font-bold whitespace-nowrap">{item ? dh(item.price) : "—"}</span>
+                    <span className="text-base font-bold whitespace-nowrap">{item ? priceText(item.price) : "—"}</span>
                     {item && <ProBadge price={item.proPrice} />}
                   </div>
-                  <div className={cn("border-control flex h-12 items-center self-start rounded-full border-[1.5px] [grid-area:qty] lg:w-fit", !item && "opacity-45")}>
-                    <button
-                      type="button"
-                      aria-label="Diminuer"
-                      onClick={() => update(row.id, { qty: Math.max(1, row.qty - 1) })}
-                      className="size-11 text-xl"
-                    >
+                  <div
+                    className={cn(
+                      "border-control flex h-12 items-center self-start rounded-full border-[1.5px] [grid-area:qty] lg:w-fit",
+                      !item && "opacity-45",
+                    )}
+                  >
+                    <button type="button" aria-label="Diminuer" onClick={() => update(row.id, { qty: Math.max(1, row.qty - 1) })} className="size-11 text-xl">
                       −
                     </button>
                     <input
@@ -305,11 +322,18 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
                       aria-label="Quantité"
                       className="w-9 border-0 bg-transparent text-center text-base font-bold outline-none"
                     />
-                    <button type="button" aria-label="Augmenter" onClick={() => update(row.id, { qty: Math.min(MAX_QTY, row.qty + 1) })} className="size-11 text-xl">
+                    <button
+                      type="button"
+                      aria-label="Augmenter"
+                      onClick={() => update(row.id, { qty: Math.min(MAX_QTY, row.qty + 1) })}
+                      className="size-11 text-xl"
+                    >
                       +
                     </button>
                   </div>
-                  <span className="justify-self-end pt-3 text-lg font-extrabold whitespace-nowrap [grid-area:tot]">{item ? dh(item.price * row.qty) : "—"}</span>
+                  <span className="justify-self-end pt-3 text-lg font-extrabold whitespace-nowrap [grid-area:tot]">
+                    {item ? priceText(item.price * row.qty) : "—"}
+                  </span>
                   <button
                     type="button"
                     aria-label="Supprimer la ligne"
@@ -371,7 +395,7 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
                       <span className="min-w-[104px] text-sm font-extrabold tracking-[0.02em]">{f.sku}</span>
                       <span className="text-ink truncate text-[15px]">{f.name}</span>
                     </span>
-                    <span className="text-[15px] font-bold whitespace-nowrap">{dh(f.price)}</span>
+                    <span className="text-[15px] font-bold whitespace-nowrap">{priceText(f.price)}</span>
                     <button
                       type="button"
                       onClick={() => addFrequent(f)}
@@ -443,7 +467,10 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
 /** Reseller price in the dashed badge (the design's "[TARIF REVENDEUR]" placeholder). */
 function ProBadge({ price }: { price: number }) {
   return (
-    <span className="border-line-strong text-muted inline-flex items-center rounded-6 border-[1.5px] border-dashed px-2 py-0.5 text-xs font-bold whitespace-nowrap" title="Votre prix revendeur">
+    <span
+      className="border-line-strong text-muted rounded-6 inline-flex items-center border-[1.5px] border-dashed px-2 py-0.5 text-xs font-bold whitespace-nowrap"
+      title="Votre prix revendeur"
+    >
       {dh(price)}
     </span>
   );
@@ -451,7 +478,11 @@ function ProBadge({ price }: { price: number }) {
 
 function Thumb({ item, w, h, radius }: { item: QuickItem; w: number; h: number; radius: number }) {
   return (
-    <span aria-hidden className="bg-tint-thumb flex shrink-0 items-center justify-center overflow-hidden p-1" style={{ width: w, height: h, borderRadius: radius }}>
+    <span
+      aria-hidden
+      className="bg-tint-thumb flex shrink-0 items-center justify-center overflow-hidden p-1"
+      style={{ width: w, height: h, borderRadius: radius }}
+    >
       {item.image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={item.image} alt="" className="size-full object-contain mix-blend-multiply" loading="lazy" />

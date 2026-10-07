@@ -44,7 +44,8 @@ class CompareController extends Controller
             'image' => ImageUrl::for(ProductCardResource::imageFor($v->product, $v), 640),
             'art' => $v->product->art_key,
             'dark' => $v->colour === 'Noir',
-            'orderable' => $v->stock_status->isOrderable(),
+            'orderable' => $v->stock_status->isOrderable() && ! $v->isOnRequest(),
+            'onRequest' => $v->isOnRequest(),
             'category' => Present::category($v->product->category),
         ]);
 

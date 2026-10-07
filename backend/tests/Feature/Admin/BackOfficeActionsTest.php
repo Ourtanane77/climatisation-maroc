@@ -72,7 +72,7 @@ it('filters the products to verify', function () {
 
     Livewire::test(ListProducts::class)
         ->filterTable('a_verifier', true)
-        ->assertCountTableRecords(17)
+        ->assertCountTableRecords(73) // 7 from the catalogue + 62 Excel additions + 4 families with merged Excel powers
         ->assertCanNotSeeTableRecords(Product::query()->where('slug', 'lg-dual-inverter')->get());
 });
 

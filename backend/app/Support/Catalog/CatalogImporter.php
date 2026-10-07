@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Redirect;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -72,7 +73,9 @@ class CatalogImporter
         $categoryId = $this->categoryIds[$family['category_path']]
             ?? throw new RuntimeException("Catégorie absente : {$family['category_path']} ({$family['name']})");
 
-        $existing = ProductVariant::query()->whereIn('sku', array_column($rows, 'sku'))->value('product_id');
+        // Products that hold these references today (several when families were merged by a rename).
+        $previous = ProductVariant::query()->whereIn('sku', array_column($rows, 'sku'))->orderBy('product_id')->pluck('product_id')->unique()->values();
+        $existing = $previous->first();
         $product = $existing ? Product::query()->findOrFail($existing) : new Product;
 
         $product->fill([
@@ -84,12 +87,18 @@ class CatalogImporter
             'description' => $first['description'] ?: null,
             'technology' => $this->technology($family['name']),
             'refrigerant' => $this->refrigerant($family['name']),
-            'art_key' => $product->art_key ?? $this->artKey($family['category_path']),
+            // Derived from the category and name on every import (wrong drawings are worse than none).
+            'art_key' => $this->artKey($family['category_path'], $family['name']),
             'is_new' => collect($rows)->contains('is_new', true),
             'is_featured' => collect($rows)->contains('is_featured', true),
             'is_published' => collect($rows)->contains('is_active', true),
             'position' => $product->exists ? $product->position : $position,
-        ])->save();
+        ]);
+        // A product first seeded from the design is confirmed once the old site's catalogue has it.
+        if (str_starts_with((string) $product->verification_note, 'Produit repris du design')) {
+            $product->fill(['needs_verification' => false, 'verification_note' => null, 'position' => $position]);
+        }
+        $product->save();
 
         $sharedSpecs = $this->sharedSpecs($rows);
         $product->specs()->delete();
@@ -98,7 +107,7 @@ class CatalogImporter
         }
 
         foreach ($rows as $i => $row) {
-            $verifyNote = $this->config['verify'][$row['sku']] ?? null;
+            $verifyNote = $this->config['verify'][$row['sku']] ?? ($row['verify_note'] ?? null);
             $variant = ProductVariant::query()->updateOrCreate(['sku' => $row['sku']], [
                 'product_id' => $product->id,
                 'label' => $family['labels'][$i],
@@ -129,7 +138,28 @@ class CatalogImporter
             }
         }
 
+        $this->retireMergedProducts($previous->reject(fn ($id) => $id === $product->id)->all(), $product);
+
         return count($rows);
+    }
+
+    /**
+     * A product left without variants after its references joined another family (e.g. a rename
+     * that merged two families): its photos move to the family, its URL redirects there, and it
+     * is deleted.
+     *
+     * @param  list<int>  $productIds
+     */
+    private function retireMergedProducts(array $productIds, Product $into): void
+    {
+        foreach (Product::query()->whereKey($productIds)->withCount('variants')->get() as $old) {
+            if ($old->variants_count > 0) {
+                continue;
+            }
+            $old->images()->update(['product_id' => $into->id]);
+            Redirect::query()->updateOrCreate(['from_path' => Redirect::normalize($old->url())], ['to_path' => $into->url(), 'status_code' => 301]);
+            $old->delete();
+        }
     }
 
     /**
@@ -182,19 +212,27 @@ class CatalogImporter
         };
     }
 
-    private function artKey(string $categoryPath): ?string
+    /**
+     * Line drawing shown when a product has no photo, only when it really depicts the product
+     * (front office: null → neutral placeholder, never another appliance).
+     */
+    private function artKey(string $categoryPath, string $name): ?string
     {
         return match (true) {
             str_starts_with($categoryPath, 'climatisation/gainable') => 'gainable',
             str_starts_with($categoryPath, 'climatisation/cassette') => 'cassette',
             str_starts_with($categoryPath, 'climatisation/console') => 'console',
             str_starts_with($categoryPath, 'climatisation') => 'mural',
-            str_starts_with($categoryPath, 'chauffe-eau') => 'solaire',
-            str_starts_with($categoryPath, 'ventilation') => 'vent',
-            str_starts_with($categoryPath, 'gaines') => 'flex',
-            str_starts_with($categoryPath, 'pieces-de-rechange/telecommandes') => 'remote',
-            str_starts_with($categoryPath, 'pieces-de-rechange/supports') => 'support',
-            str_starts_with($categoryPath, 'pieces-de-rechange/adhesifs') => 'scotch',
+            $categoryPath === 'chauffe-eau/solaire' => 'solaire',
+            $categoryPath === 'cuivre-et-gaz/kits-duo' => 'duo',
+            $categoryPath === 'cuivre-et-gaz/isolant' => 'iso',
+            $categoryPath === 'cuivre-et-gaz/gaz-frigorifique' => 'gaz',
+            $categoryPath === 'cuivre-et-gaz/cuivre' => 'coilL',
+            $categoryPath === 'ventilation/ventilateurs-de-gaine' => 'vent',
+            in_array($categoryPath, ['gaines/flexibles-souples', 'gaines/flexibles-isoles'], true) => 'flex',
+            $categoryPath === 'pieces-de-rechange/telecommandes' => 'remote',
+            str_starts_with($categoryPath, 'pieces-de-rechange/supports') && (bool) preg_match('/^Support/i', $name) => 'support',
+            str_starts_with($categoryPath, 'pieces-de-rechange/adhesifs') && (bool) preg_match('/^(Scotch|Bande)/i', $name) => 'scotch',
             default => null,
         };
     }

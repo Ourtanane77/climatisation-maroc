@@ -36,13 +36,13 @@ it('returns the product page with variants, specs, accessories, FAQ and same-ran
         ->assertJsonPath('breadcrumb.3', ['label' => 'LG Dual Inverter'])
         ->assertJsonPath('selectorLabel', 'Puissance')
         ->assertJsonPath('variants.1.sku', 'D13AJH.N')
-        ->assertJsonPath('variants.1.price', 570000)
-        ->assertJsonPath('variants.1.regularPrice', 650000)
+        ->assertJsonPath('variants.1.price', 550000)
+        ->assertJsonPath('variants.1.regularPrice', 670000)
         ->assertJsonPath('variants.1.orderable', true)
         ->assertJsonPath('accessories.0.sku', 'CUIV0018')
         ->assertJsonPath('accessories.1.sku', 'CLIM00076')
         ->assertJsonPath('technicalVisitPrice', 30000)
-        ->assertJsonPath('faq.0.question', 'Quelle puissance choisir ?')
+        ->assertJsonPath('faq.0.question', "Quelle puissance choisir\u{202F}?") // French typography
         ->assertJsonPath('sameRange.0.brand', 'LG')
         ->assertJsonCount(4, 'sameRange')
         ->assertJsonPath('isReseller', false);
@@ -66,10 +66,10 @@ it('hides unpublished and unknown products', function () {
 it('shows pro prices to validated resellers only', function () {
     ProductVariant::query()->where('sku', 'D13AJH.N')->update(['pro_price' => 500000]);
 
-    $this->getJson('/api/v1/products/lg-dual-inverter')->assertJsonPath('variants.1.price', 570000);
+    $this->getJson('/api/v1/products/lg-dual-inverter')->assertJsonPath('variants.1.price', 550000);
 
     Sanctum::actingAs(productApiReseller(ResellerStatus::EnAttente));
-    $this->getJson('/api/v1/products/lg-dual-inverter')->assertJsonPath('variants.1.price', 570000);
+    $this->getJson('/api/v1/products/lg-dual-inverter')->assertJsonPath('variants.1.price', 550000);
 
     Sanctum::actingAs(productApiReseller());
     $this->getJson('/api/v1/products/lg-dual-inverter')
@@ -82,7 +82,7 @@ it('compares up to three variants in the requested order', function () {
         ->assertOk()
         ->assertJsonCount(3, 'products')
         ->assertJsonPath('products.0.sku', 'FSW12T24PM/N')
-        ->assertJsonPath('products.1.name', "LG Dual Inverter 12\u{00A0}000 BTU")
+        ->assertJsonPath('products.1.name', "LG Dual Inverter 12\u{00A0}000\u{00A0}BTU")
         ->assertJsonPath('products.1.href', '/produit/lg-dual-inverter?v=D13AJH.N')
         ->assertJsonPath('rows.0', ['label' => 'Marque', 'values' => ['Fitco', 'LG', 'Carrier'], 'differs' => true])
         ->assertJsonPath('rows.1.differs', false)

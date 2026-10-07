@@ -38,7 +38,7 @@ it('returns an article with its blocks, table of contents and resolved products'
 
     $products = collect($res->json('article.blocks'))->firstWhere('type', 'products')['items'];
     expect(array_column($products, 'sku'))->toBe(['D13AJH.N', 'FSW12T24PM/N'])
-        ->and($products[0]['price'])->toBe(570000)
+        ->and($products[0]['price'])->toBe(550000)
         ->and($products[0]['href'])->toBe('/produit/lg-dual-inverter?v=D13AJH.N');
 });
 

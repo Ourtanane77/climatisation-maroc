@@ -25,6 +25,19 @@ class ProductForm
         return $schema->components([
             Tabs::make()->columnSpanFull()->persistTabInQueryString()->tabs([
                 Tab::make('Général')->schema([
+                    // First on the page, and open, when the product or one of its variants is flagged
+                    // (temporary XLS-… references, prices to enter…).
+                    Section::make('À vérifier')
+                        ->description('Signale une fiche dont la référence, le prix ou le contenu doit être confirmé. Les notes des variantes sont dans l’onglet Variantes.')
+                        ->icon('heroicon-o-exclamation-triangle')
+                        ->iconColor('warning')
+                        ->collapsible()
+                        ->collapsed(fn (?Product $record) => ! self::flagged($record))
+                        ->columns(2)
+                        ->schema([
+                            Toggle::make('needs_verification')->label('Fiche à vérifier'),
+                            Textarea::make('verification_note')->label('Note')->rows(2),
+                        ]),
                     Grid::make(2)->schema([
                         Fields::name(label: 'Nom de la famille'),
                         Fields::slug('/produit/'),
@@ -47,13 +60,6 @@ class ProductForm
                         Toggle::make('is_featured')->label('Mis en avant'),
                         TextInput::make('position')->label('Ordre')->numeric()->default(0),
                     ]),
-                    Section::make('À vérifier')
-                        ->description('Signale une fiche dont la référence, le prix ou le contenu doit être confirmé.')
-                        ->columns(2)
-                        ->schema([
-                            Toggle::make('needs_verification')->label('Fiche à vérifier'),
-                            Textarea::make('verification_note')->label('Note')->rows(2),
-                        ]),
                 ]),
 
                 Tab::make('Variantes')->badge(fn (?Product $record) => $record?->variants()->count())->schema([
@@ -90,7 +96,7 @@ class ProductForm
                         ->addActionLabel('Ajouter une image')
                         ->grid(3)
                         ->schema([
-                            FileUpload::make('path')->label('Image')->image()->disk('public')->directory('products/uploads')->maxSize(8192)->imagePreviewHeight('160'),
+                            FileUpload::make('path')->label('Image')->image()->required()->disk('public')->directory('products/uploads')->maxSize(8192)->imagePreviewHeight('160'),
                             TextInput::make('alt')->label('Texte alternatif')->helperText('Décrit l’image : marque, modèle, puissance.'),
                             Select::make('product_variant_id')->label('Variante')
                                 ->relationship('variant', 'sku', fn ($query, $livewire) => $query->where('product_id', $livewire->record?->id))
@@ -139,5 +145,11 @@ class ProductForm
                 Tab::make('SEO')->schema([Fields::seo()->collapsed(false)]),
             ]),
         ]);
+    }
+
+    private static function flagged(?Product $record): bool
+    {
+        return (bool) $record?->needs_verification
+            || (bool) $record?->variants()->where('needs_verification', true)->exists();
     }
 }

@@ -57,13 +57,19 @@ export function LoginForm({ next }: { next?: string }) {
         </div>
       )}
       <Field label="E-mail ou téléphone" htmlFor="login">
-        <TextInput id="login" autoComplete="username" value={login} onChange={(e) => setLogin(e.target.value)} style={bad ? { borderColor: "#C4501A" } : undefined} />
+        <TextInput
+          id="login"
+          autoComplete="username"
+          value={login}
+          onChange={(e) => setLogin(e.target.value)}
+          style={bad ? { borderColor: "#C4501A" } : undefined}
+        />
       </Field>
       <Field
         label="Mot de passe"
         htmlFor="password"
         labelAside={
-          <Link href="/connexion/mot-de-passe-oublie" className="text-brand text-sm font-bold underline">
+          <Link href="/connexion/mot-de-passe-oublie" className="text-brand inline-flex min-h-6 items-center text-sm font-bold underline">
             Mot de passe oublié ?
           </Link>
         }
@@ -89,7 +95,17 @@ export function LoginForm({ next }: { next?: string }) {
 function BackToLogin() {
   return (
     <Link href="/connexion" className="text-ink hover:text-brand flex min-h-11 items-center gap-1.5 self-start text-[15px] font-bold">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
         <path d="M15 6l-6 6 6 6" />
       </svg>
       Retour à la connexion

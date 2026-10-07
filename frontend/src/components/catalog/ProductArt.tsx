@@ -3,6 +3,8 @@ import type { ArtKey } from "@/lib/types";
 /**
  * Line illustrations used when a product has no photo. Port of design/art.js (window.AFDraw)
  * plus the "iso" (Armaflex) and "console" drawings inlined in Cuivre et gaz / Climatisation.
+ * Without a drawing that really depicts the product (`art` null), a neutral picture frame is
+ * drawn instead, never another appliance.
  */
 
 const B = "#0B5CAD";
@@ -12,14 +14,14 @@ const CU2 = "#E39A62";
 const ST = "#CDD6E0";
 
 interface Props {
-  art: ArtKey;
+  art?: ArtKey | null;
   dark?: boolean;
   className?: string;
   title?: string;
 }
 
 export function ProductArt({ art, dark = false, className, title }: Props) {
-  const body = renderArt(art, dark);
+  const body = (art ? renderArt(art, dark) : null) ?? PLACEHOLDER;
   if (!body) return null;
   const [viewBox, children] = body;
   return (
@@ -35,6 +37,16 @@ export function ProductArt({ art, dark = false, className, title }: Props) {
     </svg>
   );
 }
+
+/** Neutral "no photo" frame (muted, no product shape). */
+const PLACEHOLDER: [string, React.ReactNode] = [
+  "0 0 160 120",
+  <g key="placeholder" fill="none" stroke={ST} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+    <rect x={28} y={18} width={104} height={84} rx={12} />
+    <circle cx={60} cy={46} r={9} />
+    <path d="M36 94l30-28 20 18 14-12 26 22" />
+  </g>,
+];
 
 function renderArt(k: ArtKey, dark: boolean): [string, React.ReactNode] | null {
   switch (k) {

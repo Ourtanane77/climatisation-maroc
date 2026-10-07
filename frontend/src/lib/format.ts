@@ -36,3 +36,30 @@ export function savingText(regular: number, selling: number): string {
 export function plural(count: number, singular: string, pluralForm = `${singular}s`): string {
   return `${count}${NBSP}${count > 1 ? pluralForm : singular}`;
 }
+
+/** Items without a price (price 0, e.g. added from the client's Excel list) are « sur demande ». */
+export const ON_REQUEST = "Prix sur demande";
+
+export function isOnRequest(centimes: number | null | undefined): boolean {
+  return centimes == null || centimes <= 0;
+}
+
+/** "5 700 Dhs", or « Prix sur demande » for an item without a price. */
+export function priceText(centimes: number): string {
+  return isOnRequest(centimes) ? ON_REQUEST : dh(centimes);
+}
+
+/** Quote form prefilled with the reference (« Demander un prix »). */
+export function priceRequestHref(sku?: string | null): string {
+  // A temporary « XLS-… » reference means nothing to the visitor or the team: no prefill then.
+  const ref = publicRef(sku);
+  return ref ? `/demander-un-devis?ref=${encodeURIComponent(ref)}` : "/demander-un-devis";
+}
+
+/**
+ * Reference shown to visitors: null for the temporary « XLS-… » references of products added from
+ * the client's Excel list until the real reference is entered (the cart still uses the SKU).
+ */
+export function publicRef(sku: string | null | undefined): string | null {
+  return sku && !/^XLS-/i.test(sku) ? sku : null;
+}

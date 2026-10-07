@@ -3,21 +3,23 @@ import { ProductArt } from "@/components/catalog/ProductArt";
 import { ButtonLink } from "@/components/ui/Button";
 import { SearchIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { getSiteMap } from "@/lib/content/api";
+import { DesignImg } from "@/components/ui/DesignImg";
+import { categoryPhoto } from "@/lib/design-assets";
 import type { ArtKey } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
 
 /**
  * 404 (design: Page introuvable.dc.html): "404" numeral, search, two buttons, "Nos gammes" tiles,
- * WhatsApp help line. The range cut-out photos are missing from the design export, so the tiles
- * use the line drawings; only active ranges are shown.
+ * WhatsApp help line. Tiles show the design's cut-out photos (line drawings when a file is absent);
+ * only active ranges are shown.
  */
-const RANGE_TILES: { label: string; path: string; bg: string; art: ArtKey; width: string }[] = [
-  { label: "Climatisation", path: "/climatisation", bg: "#DCE8F5", art: "mural", width: "80%" },
-  { label: "Chauffe-eau", path: "/chauffe-eau", bg: "#FCE6D6", art: "solaire", width: "56%" },
-  { label: "Ventilation", path: "/ventilation", bg: "#E8EFF8", art: "vent", width: "62%" },
-  { label: "Gaines", path: "/gaines", bg: "#FDF0E6", art: "flex", width: "70%" },
-  { label: "Cuivre et gaz", path: "/cuivre-et-gaz", bg: "#FCE6D6", art: "coilL", width: "50%" },
-  { label: "Pièces de rechange", path: "/pieces-de-rechange", bg: "#DCE8F5", art: "remote", width: "28%" },
+const RANGE_TILES: { label: string; path: string; bg: string; art: ArtKey; width: string; photoWidth: string }[] = [
+  { label: "Climatisation", path: "/climatisation", bg: "#DCE8F5", art: "mural", width: "80%", photoWidth: "90%" },
+  { label: "Chauffe-eau", path: "/chauffe-eau", bg: "#FCE6D6", art: "solaire", width: "56%", photoWidth: "56%" },
+  { label: "Ventilation", path: "/ventilation", bg: "#E8EFF8", art: "vent", width: "62%", photoWidth: "62%" },
+  { label: "Gaines", path: "/gaines", bg: "#FDF0E6", art: "flex", width: "70%", photoWidth: "70%" },
+  { label: "Cuivre et gaz", path: "/cuivre-et-gaz", bg: "#FCE6D6", art: "coilL", width: "50%", photoWidth: "62%" },
+  { label: "Pièces de rechange", path: "/pieces-de-rechange", bg: "#DCE8F5", art: "remote", width: "28%", photoWidth: "28%" },
 ];
 
 export async function NotFoundContent() {
@@ -69,23 +71,37 @@ export async function NotFoundContent() {
             Nos gammes
           </h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-            {tiles.map((t) => (
-              <Link
-                key={t.path}
-                href={t.path}
-                className="rounded-20 text-ink hover:text-ink relative h-[120px] overflow-hidden p-4 text-base font-bold hover:brightness-[0.97] md:h-[150px]"
-                style={{ background: t.bg }}
-              >
-                {t.label}
-                <span
-                  aria-hidden
-                  className="absolute right-[6%] bottom-[8%] drop-shadow-[0_10px_14px_rgba(14,40,70,0.2)]"
-                  style={{ width: `calc(${t.width} * 0.6)` }}
+            {tiles.map((t) => {
+              // The range's photo (shared map with the home bento and the sector tiles).
+              const photo = categoryPhoto(t.path);
+              return (
+                <Link
+                  key={t.path}
+                  href={t.path}
+                  className="rounded-20 text-ink hover:text-ink relative h-[120px] overflow-hidden p-4 text-base font-bold hover:brightness-[0.97] md:h-[150px]"
+                  style={{ background: t.bg }}
                 >
-                  <ProductArt art={t.art} className="h-auto w-full" />
-                </span>
-              </Link>
-            ))}
+                  {t.label}
+                  {photo ? (
+                    // Design: right -6 %, bottom -8 %, width per range, soft drop shadow.
+                    <DesignImg
+                      photo={photo}
+                      sizes="(max-width: 759px) 45vw, 200px"
+                      className="absolute right-[-6%] bottom-[-8%] block h-auto drop-shadow-[0_10px_14px_rgba(14,40,70,0.2)]"
+                      style={{ width: t.photoWidth }}
+                    />
+                  ) : (
+                    <span
+                      aria-hidden
+                      className="absolute right-[6%] bottom-[8%] drop-shadow-[0_10px_14px_rgba(14,40,70,0.2)]"
+                      style={{ width: `calc(${t.width} * 0.6)` }}
+                    >
+                      <ProductArt art={t.art} className="h-auto w-full" />
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

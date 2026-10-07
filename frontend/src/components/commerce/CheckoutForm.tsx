@@ -17,7 +17,18 @@ import { CardTitle, CompactLines, Divider, SummaryRow, TotalRow } from "./parts"
  * Checkout form and order summary (design/Commande.dc.html). Cash on delivery only. The page
  * checks the phone and the CGV box as drawn; the API re-validates and re-prices everything.
  */
-export function CheckoutForm({ quote, cities, initialVisit = false }: { quote: Quote; cities: City[]; initialVisit?: boolean }) {
+export function CheckoutForm({
+  quote,
+  cities,
+  initialVisit = false,
+  cgvHref = null,
+}: {
+  quote: Quote;
+  cities: City[];
+  initialVisit?: boolean;
+  /** Linked only once the CGV page is published. */
+  cgvHref?: string | null;
+}) {
   const router = useRouter();
   // When the form appeared, for the API's minimum form time (`_t`).
   const shownAt = useRef(0);
@@ -218,9 +229,13 @@ export function CheckoutForm({ quote, cities, initialVisit = false }: { quote: Q
             </button>
             <span>
               J&apos;accepte les{" "}
-              <Link href="/cgv" className="underline">
-                conditions générales de vente
-              </Link>
+              {cgvHref ? (
+                <Link href={cgvHref} className="underline">
+                  conditions générales de vente
+                </Link>
+              ) : (
+                "conditions générales de vente"
+              )}
             </span>
           </div>
           {errors.cgv && (

@@ -10,12 +10,13 @@ import { dh } from "@/lib/format";
 import { PRO_PERKS, SI, projectsPhone } from "@/lib/leads/contacts";
 import { getNavigation } from "@/lib/navigation";
 import type { ProLanding } from "@/lib/pro/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = seoMetadata({
   title: "Espace professionnel",
   description: "Installateurs, revendeurs et projets : vos prix, votre stock et vos commandes au même endroit.",
-  alternates: { canonical: "/espace-professionnel" },
-};
+  path: "/espace-professionnel",
+});
 
 const AUDIENCE = [
   { title: "Installateurs", text: "Les appareils et le matériel de pose pour vos chantiers.", icon: "wrench", bg: "#DCE8F5" },
@@ -82,9 +83,9 @@ export default async function ProPage() {
             <MatIcon d={MAT.phone} size={24} className="text-brand" />
           </span>
           <span className="flex flex-col gap-0.5">
-            <span className="text-footer-text-2 text-[15px]">{phone.label}</span>
+            <span className="text-[15px] text-white">{phone.label}</span>
             <span className="text-[28px] font-extrabold tracking-[-0.01em]">{phone.display}</span>
-            <span className="text-footer-text text-sm">{nav.footer.hours}</span>
+            <span className="text-sm text-white">{nav.footer.hours}</span>
           </span>
         </a>
       </section>

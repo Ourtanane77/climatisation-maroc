@@ -18,8 +18,9 @@ class HomeSeeder extends Seeder
         $settings->new_product_ids = $this->families(['ABNW36GM2S1.ENWBME', 'CHAUFF0061']);
         // "Promotions" rail: LG Dual, Fitco Mural Inverter, Carrier Mural Inverter R32, CIAT, Carrier Miroir, LG Artcool.
         $settings->promo_product_ids = $this->families(['D13AJH.N', 'FSW12T24PM/N', '42QHG009D8SC-R32', '38HG09VSA', '42QHG012D8S-BM', 'UA19MKH0.NJ0']);
-        // "Gaines circulaires": the six flexibles.
-        $settings->ducts_product_ids = $this->families(['CLIM00319', 'VENT0135', 'CLIM00320']);
+        // "Gaines circulaires": the whole Gaines range is shown automatically (rigid ducts first);
+        // this list only puts chosen families first.
+        $settings->ducts_product_ids = [];
         // "Cuivre, gaz et pièces de rechange".
         $settings->supplies_product_ids = $this->families(['CUIV0005', 'CUIV0006', 'CUIV0018', 'GAZ00042', 'CLIM00076', 'CLIM00080']);
         $settings->brand_ids = Brand::query()

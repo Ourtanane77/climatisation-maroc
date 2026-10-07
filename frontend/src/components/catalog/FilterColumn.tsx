@@ -19,6 +19,8 @@ export function FilterColumn({
 }) {
   return (
     <aside aria-label="Filtres" className={cn("rounded-24 flex flex-col gap-1 overflow-auto bg-white p-5", className)}>
+      {/* Parent of the facet headings (h3), for a valid heading order under the page h1. */}
+      <h2 className="sr-only">Filtres</h2>
       {facets.map((facet) => (
         <div key={facet.key} className="border-divider border-b py-3.5 last:border-b-0">
           <h3 className="mb-2.5 text-base font-bold">{facet.label}</h3>

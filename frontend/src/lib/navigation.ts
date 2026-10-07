@@ -3,9 +3,9 @@ import { apiGet } from "./api";
 import type { SiteNavigation } from "./types";
 
 /**
- * Header, drawer and footer data. Served by GET /api/v1/navigation (built in phase 3 from
- * categories and settings). Until then — and only if the API has no such endpoint yet — the
- * values below, taken verbatim from design/Accueil.dc.html, are used.
+ * Header, drawer and footer data, served by GET /api/v1/navigation (categories and settings).
+ * In development only, when the API is unreachable, the values below (taken verbatim from
+ * design/Accueil.dc.html) are used so the chrome still renders.
  */
 export async function getNavigation(): Promise<SiteNavigation> {
   try {
@@ -229,3 +229,11 @@ export const DESIGN_NAVIGATION: SiteNavigation = {
     copyright: "© 2026 Ariha Froid · Climatisation Maroc",
   },
 };
+
+/**
+ * A legal page's URL when it is published (it then appears in the footer's legal links), else null:
+ * consent texts link the CGV only once the page is online (unpublished pages are never linked).
+ */
+export function publishedLegalHref(nav: SiteNavigation, href: string): string | null {
+  return nav.footer.legal.some((l) => l.href === href) ? href : null;
+}

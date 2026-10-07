@@ -38,6 +38,7 @@ class SectorController extends Controller
                 'title' => $s['title'] ?? '',
                 'text' => $s['text'] ?? null,
                 'art' => $s['art'] ?? null,
+                'image' => ImageUrl::path($s['image'] ?? null),
                 'bg' => $s['bg'] ?? null,
                 'cta' => $s['cta'] ?? null,
                 'href' => $this->categoryHref($s['category_path'] ?? null),

@@ -1,23 +1,28 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/blog/ArticleCard";
 import { BlogIntro, BlogPagination, CategoryChips, FeaturedArticle } from "@/components/blog/BlogParts";
 import { ContactCtaBand } from "@/components/blog/ContactCtaBand";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { getBlog, pageParam } from "@/lib/blog/api";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata({ searchParams }: PageProps<"/blog">): Promise<Metadata> {
   const page = pageParam((await searchParams).page);
-  return {
-    title: "Conseils et guides climatisation",
+  // A page past the last one is a 404, not an empty listing.
+  if (page > 1 && page > (await getBlog(null, page)).meta.lastPage) notFound();
+  return seoMetadata({
+    title: page > 1 ? `Conseils et guides climatisation · page ${page}` : "Conseils et guides climatisation",
     description: "Choisir, installer et entretenir votre climatiseur ou votre chauffe-eau, expliqué simplement.",
-    alternates: { canonical: page > 1 ? `/blog?page=${page}` : "/blog" },
-  };
+    path: page > 1 ? `/blog?page=${page}` : "/blog",
+  });
 }
 
 /** Blog index (design/Blog.dc.html): featured guide, category chips, article grid. */
 export default async function BlogPage({ searchParams }: PageProps<"/blog">) {
   const page = pageParam((await searchParams).page);
   const blog = await getBlog(null, page);
+  if (page > blog.meta.lastPage) notFound();
 
   return (
     <>

@@ -6,11 +6,9 @@ import { projectsPhone } from "@/lib/leads/contacts";
 import { getNavigation } from "@/lib/navigation";
 import { safeNext } from "@/lib/pro/cookie";
 import { getReseller } from "@/lib/pro/session";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Connexion · Espace professionnel",
-  robots: { index: false },
-};
+export const metadata: Metadata = seoMetadata({ title: "Connexion · Espace professionnel", noindex: true });
 
 /** Reseller login (design: Connexion.dc.html). `?suite=` is where to go after logging in. */
 export default async function LoginPage({ searchParams }: PageProps<"/connexion">) {

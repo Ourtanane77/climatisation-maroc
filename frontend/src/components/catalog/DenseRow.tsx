@@ -6,7 +6,7 @@ import { QtyStepper } from "@/components/ui/QtyStepper";
 import { toast } from "@/components/ui/Toast";
 import { addToCart } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
-import { dh } from "@/lib/format";
+import { isOnRequest, priceRequestHref, priceText, publicRef } from "@/lib/format";
 import type { DenseRowData } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
 import { ProductArt } from "./ProductArt";
@@ -32,6 +32,8 @@ export function DenseRowHeader() {
 export function DenseRow({ item, inSelection = false, onAdded }: { item: DenseRowData; inSelection?: boolean; onAdded?: (qty: number) => void }) {
   const [qty, setQty] = useState(1);
   const oos = !item.inStock;
+  // « Prix sur demande » (price 0): no quantity, a quote link instead of "Ajouter".
+  const onRequest = isOnRequest(item.price);
 
   function add() {
     addToCart(item.sku, qty);
@@ -45,33 +47,40 @@ export function DenseRow({ item, inSelection = false, onAdded }: { item: DenseRo
       className={cn(
         "border-divider grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b py-3.5 last:border-b-0 md:grid-cols-[64px_minmax(0,1fr)_110px_110px_132px_110px] md:py-3",
         "[grid-template-areas:'img_name_price'_'img_qty_act'] md:[grid-template-areas:'img_name_ref_price_qty_act']",
-        oos && "opacity-60",
       )}
     >
-      <div className="rounded-12 bg-tint-thumb flex size-14 items-center justify-center p-1.5 [grid-area:img] md:size-16">
+      {/* Out of stock: only the thumbnail is faded (design fades the row; text kept at AA contrast). */}
+      <div className={cn("rounded-12 bg-tint-thumb flex size-14 items-center justify-center p-1.5 [grid-area:img] md:size-16", oos && "opacity-60")}>
         {item.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={item.image} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" loading="lazy" />
         ) : (
-          <ProductArt art={item.art ?? "coilL"} className="h-auto w-full" />
+          <ProductArt art={item.art} className="h-auto w-full" />
         )}
       </div>
       <div className="min-w-0 [grid-area:name]">
         {item.href ? (
-          <Link href={item.href} className="text-ink hover:text-brand text-base font-bold">
+          <Link href={item.href} className="text-ink hover:text-brand inline-block py-0.5 text-base leading-5 font-bold">
             {item.name}
           </Link>
         ) : (
           <span className="text-base font-bold">{item.name}</span>
         )}
-        <span className="text-muted block text-[13px] md:hidden">{item.sku}</span>
+        <span className="text-muted block text-[13px] md:hidden">{publicRef(item.sku)}</span>
         {oos && <span className="text-promo block text-[13px] font-bold">Rupture de stock</span>}
       </div>
-      <span className="text-ink-2 hidden text-sm tabular-nums [grid-area:ref] md:block">{item.sku}</span>
-      <span className="text-right text-lg font-extrabold [grid-area:price]">{dh(item.price)}</span>
-      <div className="[grid-area:qty]">{!oos && <QtyStepper value={qty} onChange={setQty} size={40} label={`Quantité pour ${item.name}`} />}</div>
+      <span className="text-ink-2 hidden text-sm tabular-nums [grid-area:ref] md:block">{publicRef(item.sku)}</span>
+      <span className={cn("text-right font-extrabold [grid-area:price]", onRequest ? "text-sm leading-tight" : "text-lg")}>{priceText(item.price)}</span>
+      <div className="[grid-area:qty]">{!oos && !onRequest && <QtyStepper value={qty} onChange={setQty} size={40} label={`Quantité pour ${item.name}`} />}</div>
       <div className="justify-self-end [grid-area:act]">
-        {oos ? (
+        {onRequest ? (
+          <Link
+            href={priceRequestHref(item.sku)}
+            className="border-line-strong text-ink hover:border-ink hover:bg-ink inline-flex h-10 min-w-24 items-center justify-center rounded-full border-[1.5px] bg-white px-3 text-sm font-bold whitespace-nowrap transition-colors hover:text-white md:min-w-[100px]"
+          >
+            Demander un prix
+          </Link>
+        ) : oos ? (
           <a
             href={waLink(`Bonjour, prévenez-moi quand ${item.name} (${item.sku}) sera disponible.`)}
             target="_blank"

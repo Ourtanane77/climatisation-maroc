@@ -8,24 +8,30 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { iconPaths } from "@/components/product/Highlights";
 import { Section } from "@/components/product/Section";
 import { DuoIcon, WhatsAppIcon } from "@/components/ui/icons";
+import { DesignImg } from "@/components/ui/DesignImg";
+import { designPhoto } from "@/lib/design-assets";
 import { getBrand } from "@/lib/product/api";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
 /** Brand page (design: Marque LG). */
 export async function generateMetadata({ params }: PageProps<"/marques/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const { brand, seo } = await getBrand(slug);
-  return {
+  return seoMetadata({
     title: seo.title ?? `${brand.name} au Maroc`,
-    description: seo.description ?? brand.intro ?? undefined,
-    alternates: { canonical: seo.canonical ?? brand.href },
-    robots: seo.noindex ? { index: false } : undefined,
-  };
+    description: seo.description ?? brand.intro,
+    path: seo.canonical ?? brand.href,
+    noindex: seo.noindex,
+    image: seo.ogImage,
+  });
 }
 
 export default async function BrandPage({ params }: PageProps<"/marques/[slug]">) {
   const { slug } = await params;
   const data = await getBrand(slug);
+  // Marque LG.dc.html shows the design's LG wall-unit cut-out; other brands use their own product photo.
+  const heroPhoto = (data.brand.slug === "lg" ? designPhoto("clima-cut2.png") : null) ?? (data.heroImage ? { src: data.heroImage } : null);
   const { brand } = data;
   const h1 = data.seo.h1 ?? brand.name;
   // The design's WhatsApp text names the product kind ("un climatiseur LG"); other brands get "un produit".
@@ -45,13 +51,12 @@ export default async function BrandPage({ params }: PageProps<"/marques/[slug]">
           {brand.intro && <p className="text-ink-2 m-0 max-w-[620px] text-[19px] leading-[1.55] text-pretty">{brand.intro}</p>}
         </div>
         <div aria-hidden className="rounded-24 bg-tint-blue-2 box-border flex min-h-[180px] items-center justify-center p-6 md:min-h-[300px]">
-          {data.heroImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={data.heroImage}
-              alt=""
-              fetchPriority="high"
-              className="block max-h-[200px] w-auto max-w-full object-contain mix-blend-multiply md:max-h-[300px] xl:max-w-[520px]"
+          {heroPhoto ? (
+            <DesignImg
+              photo={heroPhoto}
+              sizes="(max-width: 999px) 90vw, 520px"
+              priority
+              className="block h-auto max-h-[200px] w-auto max-w-full object-contain mix-blend-multiply md:max-h-[300px] xl:max-w-[520px]"
             />
           ) : (
             <ProductArt art="mural" className="h-auto w-full max-w-[520px]" />

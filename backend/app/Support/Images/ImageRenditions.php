@@ -67,6 +67,33 @@ class ImageRenditions
         return $renditions;
     }
 
+    /**
+     * Small WebP copy of a brand logo (logos display at 32–64 px tall; the PNG masters are
+     * 110–520 px and up to 70 KB). Named after the source with its height, rebuilt when the
+     * source is newer. Returns the WebP path, or null when the source is missing or unreadable.
+     */
+    public function logo(string $path, int $height = 96): ?string
+    {
+        if (! $this->disk->exists($path)) {
+            return null;
+        }
+        $target = pathinfo($path, PATHINFO_DIRNAME).'/'.pathinfo($path, PATHINFO_FILENAME)."-h{$height}.webp";
+        if ($this->disk->exists($target) && $this->disk->lastModified($target) >= $this->disk->lastModified($path)) {
+            return $target;
+        }
+        try {
+            $image = $this->manager->read((string) $this->disk->get($path));
+            if ($image->height() > $height) {
+                $image->scaleDown(height: $height);
+            }
+            $this->disk->put($target, (string) $image->toWebp(85));
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $target;
+    }
+
     private function extension(string $binary): string
     {
         return match (true) {

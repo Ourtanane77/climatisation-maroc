@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Fragment } from "react";
+import { withoutPlaceholders } from "@/lib/content/placeholders";
 import type { Block } from "@/lib/content/types";
-import { ArrowIcon, GRID_2, GRID_3, GRID_4, IconTile, PlaceholderChip, Section, SectionTitle, StepList } from "./blocks";
+import { ArrowIcon, GRID_2, GRID_3, GRID_4, IconTile, Section, SectionTitle, StepList } from "./blocks";
 
 /**
  * Renders the Builder blocks of a static page (back office: Pages légales et statiques).
@@ -12,11 +13,9 @@ import { ArrowIcon, GRID_2, GRID_3, GRID_4, IconTile, PlaceholderChip, Section, 
 
 type Item = { title?: string; text?: string; icon?: string; href?: string; bg?: string };
 
-const str = (v: unknown): string | undefined => (typeof v === "string" && v.trim() !== "" ? v : undefined);
+// Text from the back office, without any design placeholder ("[DÉLAI PAR VILLE]"…).
+const str = (v: unknown): string | undefined => withoutPlaceholders(v);
 const items = (v: unknown): Item[] => (Array.isArray(v) ? (v as Item[]) : []);
-
-/** A placeholder of the design ("[DÉLAI PAR VILLE]") rather than real copy. */
-export const isPlaceholder = (text: string) => /^\[[^\]]+\]$/.test(text.trim());
 
 export function PageBlocks({ blocks }: { blocks: Block[] }) {
   // Consecutive "info" blocks are laid out side by side (Livraison: Délais / Retours).
@@ -141,16 +140,10 @@ function renderBlock(block: Block) {
 function InfoCard({ data }: { data: Record<string, unknown> }) {
   const link = data.link as { label?: string; href?: string } | undefined;
   const text = str(data.text);
-  const placeholder = str(data.placeholder);
   return (
     <div className="rounded-24 flex flex-col items-start gap-3.5 bg-white p-5 md:p-8">
       <h2 className="m-0 text-[28px] font-bold tracking-[-0.02em]">{str(data.title)}</h2>
       {text && <p className="text-ink-2 m-0 text-[17px] leading-[1.6]">{text}</p>}
-      {placeholder && (
-        <span className="self-stretch">
-          <PlaceholderChip>{placeholder}</PlaceholderChip>
-        </span>
-      )}
       {link?.href && link.label && (
         <Link href={link.href} className="flex min-h-11 items-center gap-2 text-base font-bold">
           {link.label.replace(/\s*→$/, "")}

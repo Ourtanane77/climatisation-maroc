@@ -7,6 +7,7 @@ import type { SearchParams } from "@/lib/types";
 /** Front-office param → API facet key. */
 export const FACET_PARAMS = {
   puissance: "power",
+  dimension: "size",
   marque: "brand",
   techno: "tech",
   fluide: "fluid",
@@ -103,4 +104,15 @@ export function setParamHref(base: string, params: SearchParams, key: string, va
   else q.set(key, value);
   if (key !== "page") q.delete("page");
   return withQuery(base, q);
+}
+
+/**
+ * Which listing controls a category shows. Decided on the category's families before filtering,
+ * so a filter that leaves 0 or 1 result keeps the column (the visitor can undo it):
+ * - 1 family: nothing to filter or sort;
+ * - 2+: the sort and view toggle, and the filter column when a facet splits the listing.
+ */
+export function listingControls(unfilteredTotal: number, facetCount: number): { filters: boolean; sort: boolean } {
+  const several = unfilteredTotal >= 2;
+  return { filters: several && facetCount > 0, sort: several };
 }

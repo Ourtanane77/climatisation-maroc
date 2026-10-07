@@ -195,14 +195,3 @@ export function SectorCard({
     </Link>
   );
 }
-
-/** Dashed placeholder chip of the design ("[DÉLAI PAR VILLE]", "[PHOTO MAGASIN]"). */
-export function PlaceholderChip({ children, solid = false }: { children: ReactNode; solid?: boolean }) {
-  return solid ? (
-    <span className="rounded-8 text-brand bg-white px-3 py-1.5 text-[15px] font-bold">{children}</span>
-  ) : (
-    <span className="rounded-8 border-line-strong text-ink-2 block border-[1.5px] border-dashed px-2 py-0.5 text-sm font-bold tracking-[0.02em]">
-      {children}
-    </span>
-  );
-}

@@ -43,7 +43,9 @@ class DownloadCatalogImages extends Command
             try {
                 $response = Http::timeout(30)->retry(2, 500)->get((string) $image->source_url);
                 $response->throw();
-                $basename = pathinfo((string) parse_url((string) $image->source_url, PHP_URL_PATH), PATHINFO_FILENAME);
+                // Decoded and made URL-safe: a "%20" kept in a file name would 404 once served.
+                $basename = pathinfo(rawurldecode((string) parse_url((string) $image->source_url, PHP_URL_PATH)), PATHINFO_FILENAME);
+                $basename = trim((string) preg_replace('/[^A-Za-z0-9._-]+/', '-', $basename), '-');
                 $stored = $renditions->store($response->body(), 'products/'.$image->product->slug, $basename);
                 $image->update($stored);
             } catch (Throwable $e) {

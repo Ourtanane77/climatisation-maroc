@@ -11,12 +11,20 @@ import type { FilterOption, PromotionsData } from "@/lib/catalog/types";
 import { cn } from "@/lib/cn";
 import { plural } from "@/lib/format";
 import type { SearchParams } from "@/lib/types";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Promotions",
-  description: "Climatiseurs en promotion chez Climatisation Maroc : livraison gratuite partout au Maroc, paiement à la livraison.",
-  alternates: { canonical: "/promotions" },
-};
+export async function generateMetadata({ searchParams }: PageProps<"/promotions">): Promise<Metadata> {
+  const params = await searchParams;
+  const page = Number.parseInt(first(params.page), 10) || 1;
+  // Brand / range filters change the content: not indexed (the canonical page is /promotions).
+  const filtered = !!(first(params.marque) || first(params.gamme));
+  return seoMetadata({
+    title: page > 1 ? `Promotions · page ${page}` : "Promotions",
+    description: "Climatiseurs en promotion chez Climatisation Maroc : livraison gratuite partout au Maroc, paiement à la livraison.",
+    path: page > 1 ? `/promotions?page=${page}` : "/promotions",
+    noindex: filtered,
+  });
+}
 
 function href(params: { marque?: string; gamme?: string; page?: number }): string {
   const q = new URLSearchParams();
@@ -36,7 +44,7 @@ function FilterRow({ label, options, current, hrefFor }: { label: string; option
           key={o.value || "all"}
           href={hrefFor(o.value)}
           scroll={false}
-          aria-pressed={o.selected}
+          aria-current={o.selected ? "true" : undefined}
           className={cn(
             "flex h-11 shrink-0 items-center rounded-full border-[1.5px] px-4 text-[15px] font-semibold whitespace-nowrap",
             o.selected ? "border-ink bg-ink text-white hover:text-white" : "border-border text-ink hover:border-ink hover:text-ink bg-white",
@@ -83,7 +91,7 @@ export default async function PromotionsPage({ searchParams }: PageProps<"/promo
       {promos.data.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {promos.data.map((p) => (
-            <ProductCard key={p.href} product={p} action="add" />
+            <ProductCard key={p.href} product={p} action="add" headingLevel="h2" />
           ))}
         </div>
       ) : (

@@ -20,8 +20,10 @@ export interface QuoteLine {
   regularPrice: number | null;
   qty: number;
   lineTotal: number;
-  /** False when out of stock: kept in the basket, left out of the total. */
+  /** False when out of stock or « Prix sur demande »: kept in the basket, left out of the total. */
   available: boolean;
+  /** « Prix sur demande » (no price yet): never orderable, the line links to the quote form. */
+  onRequest?: boolean;
 }
 
 export interface Suggestion {

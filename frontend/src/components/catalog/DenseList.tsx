@@ -7,7 +7,7 @@ import { toast } from "@/components/ui/Toast";
 import { addToCart, useCart } from "@/lib/cart/store";
 import type { DenseItem } from "@/lib/catalog/types";
 import { cn } from "@/lib/cn";
-import { dh, plural } from "@/lib/format";
+import { dh, isOnRequest, plural, priceRequestHref, priceText, publicRef } from "@/lib/format";
 import { DenseRow, DenseRowHeader } from "./DenseRow";
 import { ProductArt } from "./ProductArt";
 
@@ -29,8 +29,10 @@ export function filterDense(items: DenseItem[], query: string, sort: Sort): Dens
   const q = fold(query.trim());
   const matched = q ? items.filter((i) => fold(`${i.name} ${i.sku}`).includes(q)) : items;
   const sorted = [...matched];
-  if (sort === "prix-croissant") sorted.sort((a, b) => a.price - b.price);
-  if (sort === "prix-decroissant") sorted.sort((a, b) => b.price - a.price);
+  // Items « Prix sur demande » (price 0) go last in both price orders.
+  const sortPrice = (p: number) => (isOnRequest(p) ? Number.POSITIVE_INFINITY : p);
+  if (sort === "prix-croissant") sorted.sort((a, b) => sortPrice(a.price) - sortPrice(b.price));
+  if (sort === "prix-decroissant") sorted.sort((a, b) => Number(isOnRequest(a.price)) - Number(isOnRequest(b.price)) || b.price - a.price);
   if (sort === "nom") sorted.sort((a, b) => a.name.localeCompare(b.name, "fr"));
   return sorted;
 }
@@ -50,7 +52,8 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
   const bySku = useMemo(() => new Map(items.map((i) => [i.sku, i])), [items]);
   const selection = cart.flatMap((line) => {
     const item = bySku.get(line.sku);
-    return item ? [{ item, qty: line.qty }] : [];
+    // Items « Prix sur demande » are never part of a selection (not orderable).
+    return item && !isOnRequest(item.price) ? [{ item, qty: line.qty }] : [];
   });
   const inSelection = new Set(selection.map((s) => s.item.sku));
   const total = selection.reduce((sum, s) => sum + s.item.price * s.qty, 0);
@@ -83,48 +86,51 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
           </nav>
         )}
 
-        <div className="flex flex-wrap gap-2.5">
-          <label className="border-input text-muted flex h-12 min-w-0 flex-[1_1_260px] items-center gap-2.5 rounded-full border-[1.5px] bg-white px-[18px]">
-            <SearchIcon size={18} />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Filtrer : nom ou référence"
-              aria-label="Filtrer la liste"
-              className="text-ink min-w-0 flex-1 border-0 bg-transparent text-base outline-none"
-            />
-          </label>
-          <span className="relative flex">
-            <select
-              aria-label="Trier"
-              value={sort}
-              onChange={(e) => setSort(e.target.value as Sort)}
-              className="border-input h-12 cursor-pointer appearance-none rounded-full border-[1.5px] bg-white pr-11 pl-[18px] text-[15px] font-bold"
-            >
-              {SORTS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon size={14} aria-hidden className="pointer-events-none absolute top-1/2 right-[18px] -translate-y-1/2" />
-          </span>
-          <div role="radiogroup" aria-label="Affichage" className="flex rounded-full bg-white p-[3px] shadow-[inset_0_0_0_1.5px_var(--color-input)]">
-            {(["liste", "grille"] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                role="radio"
-                aria-checked={view === v}
-                onClick={() => setView(v)}
-                className={cn("h-[42px] rounded-full px-[18px] text-[15px] font-bold", view === v ? "bg-ink text-white" : "text-ink")}
+        {/* One product: nothing to filter, sort or rearrange. */}
+        {items.length > 1 && (
+          <div className="flex flex-wrap gap-2.5">
+            <label className="border-input text-muted flex h-12 min-w-0 flex-[1_1_260px] items-center gap-2.5 rounded-full border-[1.5px] bg-white px-[18px]">
+              <SearchIcon size={18} />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Filtrer : nom ou référence"
+                aria-label="Filtrer la liste"
+                className="text-ink min-w-0 flex-1 border-0 bg-transparent text-base outline-none"
+              />
+            </label>
+            <span className="relative flex">
+              <select
+                aria-label="Trier"
+                value={sort}
+                onChange={(e) => setSort(e.target.value as Sort)}
+                className="border-input h-12 cursor-pointer appearance-none rounded-full border-[1.5px] bg-white pr-11 pl-[18px] text-[15px] font-bold"
               >
-                {v === "liste" ? "Liste" : "Grille"}
-              </button>
-            ))}
+                {SORTS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon size={14} aria-hidden className="pointer-events-none absolute top-1/2 right-[18px] -translate-y-1/2" />
+            </span>
+            <div role="radiogroup" aria-label="Affichage" className="flex rounded-full bg-white p-[3px] shadow-[inset_0_0_0_1.5px_var(--color-input)]">
+              {(["liste", "grille"] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="radio"
+                  aria-checked={view === v}
+                  onClick={() => setView(v)}
+                  className={cn("h-[42px] rounded-full px-[18px] text-[15px] font-bold", view === v ? "bg-ink text-white" : "text-ink")}
+                >
+                  {v === "liste" ? "Liste" : "Grille"}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <p className="m-0 text-[15px] font-bold" aria-live="polite">
           {plural(shown.length, "produit")}
@@ -140,21 +146,29 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
         ) : (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             {shown.map((item) => (
-              <article key={item.sku} className={cn("rounded-20 flex flex-col gap-2.5 bg-white p-4", !item.inStock && "opacity-60")}>
-                <Link href={item.href} tabIndex={-1} aria-hidden className="flex h-[110px] items-center justify-center">
+              <article key={item.sku} className="rounded-20 flex flex-col gap-2.5 bg-white p-4">
+                {/* Out of stock: only the picture is faded (design fades the card; text kept at AA contrast). */}
+                <Link href={item.href} tabIndex={-1} aria-hidden className={cn("flex h-[110px] items-center justify-center", !item.inStock && "opacity-60")}>
                   {item.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={item.image} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" loading="lazy" />
                   ) : (
-                    <ProductArt art={item.art ?? "coilL"} className="h-auto max-h-full w-[70%]" />
+                    <ProductArt art={item.art} className="h-auto max-h-full w-[70%]" />
                   )}
                 </Link>
                 <Link href={item.href} className="text-ink hover:text-brand min-h-10 text-[15px] leading-[1.3] font-bold">
                   {item.name}
                 </Link>
-                <span className="text-muted text-[13px]">{item.sku}</span>
-                <span className="text-xl font-extrabold">{dh(item.price)}</span>
-                {item.inStock ? (
+                <span className="text-muted text-[13px]">{publicRef(item.sku)}</span>
+                <span className={cn("font-extrabold", isOnRequest(item.price) ? "text-base" : "text-xl")}>{priceText(item.price)}</span>
+                {isOnRequest(item.price) ? (
+                  <Link
+                    href={priceRequestHref(item.sku)}
+                    className="rounded-12 border-line-strong text-ink hover:border-ink hover:bg-ink mt-auto flex h-11 items-center justify-center border-[1.5px] bg-white text-[15px] font-bold transition-colors hover:text-white"
+                  >
+                    Demander un prix
+                  </Link>
+                ) : item.inStock ? (
                   <button
                     type="button"
                     onClick={() => addGrid(item)}
@@ -212,7 +226,7 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
 
       {/* Below 1100px the selection becomes a bottom bar; the page keeps room for it. */}
       <style>{"@media (max-width: 1099px) { body { padding-bottom: 80px; } }"}</style>
-      <div className="shadow-bottom-bar fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 bg-white px-4 py-3 md:px-10 xl:hidden">
+      <div className="shadow-bottom-bar site-gutter fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 bg-white py-3 xl:hidden">
         <div className="flex flex-col">
           <span className="text-ink-2 text-[13px]">{plural(articles, "article")} dans votre sélection</span>
           <strong className="text-[22px] font-extrabold">{dh(total)}</strong>

@@ -58,8 +58,9 @@ export function SortSelect({ options, value }: { options: { value: string; label
   const router = useRouter();
   const current = options.find((o) => o.value === value) ?? options[0];
   return (
-    <label className="border-control relative flex h-11 items-center gap-1 rounded-full border-[1.5px] bg-white px-3 text-[15px] leading-[1.1] md:px-4">
-      <span>Trier :</span> <strong>{current.label}</strong>
+    <label className="border-control relative flex h-11 items-center gap-1 rounded-full border-[1.5px] bg-white px-3 text-[15px] leading-[1.1] whitespace-nowrap md:px-4">
+      {/* On phones the pill shows the value only, so the toolbar stays on one line. */}
+      <span className="max-md:sr-only">Trier :</span> <strong>{current.label}</strong>
       <select
         aria-label="Trier"
         value={current.value}

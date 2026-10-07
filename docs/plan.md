@@ -51,6 +51,42 @@ Sources:
   bind-mounted `vendor/` is far too slow on Windows.
 - **Routing.** Only `/api/v1` is routed to Laravel. Next.js owns the other
   `/api/*` routes (BFF auth, forms, revalidation).
+- **Cache invalidation (phases 4–7).** Every cached API fetch carries the
+  tag `api`. After any change to the catalogue, content or settings, Laravel
+  (`App\Support\Frontend\Revalidator`) calls Next's `/api/revalidate` with
+  the shared `REVALIDATE_SECRET`, which expires the tag at once
+  (`{ expire: 0 }`). Next never replaces a cached 200 with a 404 by itself, so
+  without this an unpublished page would stay online.
+- **Tests (phases 4–7).** `phpunit.xml` forces the test settings as `<env>`
+  and `<server>` (Docker puts the dev values in `$_SERVER`, which Laravel reads
+  first). `TEST_DB_DATABASE=climatisation_test_x` selects another test
+  database for parallel runs.
+- **Front-office URL parameters** are French: `marque`, `puissance`, `techno`,
+  `fluide`, `couleur`, `prix`, `promo`, `tri`, `vue`, `page`; search `q`,
+  `gamme`, `onglet`; product `?v=<sku>`; compare `?p=<sku>,<sku>,<sku>`.
+- **Agents never commit** (2026-10-06): the owner reviews and commits.
+- **Old-site import (2026-10-07).** `php artisan catalog:scrape-legacy` reads
+  climatisationmaroc.com (category pages, then product pages) and writes a merged
+  copy of `data/catalog.json` plus a report to `storage/app/private/legacy/`.
+  Missing products are added; existing ones are compared, never overwritten.
+  Rules (old category → category, per-product overrides, skipped rows) are in
+  `config/legacy_scrape.php`. First run: 45 products added (copper, duo kits,
+  Armaflex, gases, vent caps, diffusers, circular ducts, LG Jetcool, Fitco Hyper
+  Plazma), then 16 more found only on the old brand pages (gainables, Carrier
+  cassette, Fitco armoire…): 167 rows. Photos come from the product page, else
+  from the listing card (some old product pages are broken). Design-only
+  products found on the old site lost their « à vérifier » flag. New category
+  `gaines/gaines-circulaires`.
+- **Prices (2026-10-07):** the old site's current prices win (`--update-prices`).
+- **Client Excel list (2026-10-07,** `docs/Produits - Climatisationmaroc.xlsx`**):**
+  it only adds what the site lacks. Products not in the Excel stay online;
+  old-site prices win, Excel prices are used for new items only. The 74 new
+  references (67 families: Carrier cassette R32 and CIAT powers, Cuivre SRK,
+  caissons, diffuseurs linéaires, grilles simple/double…) are created hidden and
+  « à vérifier » with temporary references `XLS-…`
+  (`scripts/excel-additions.py` → `data/excel-additions.json` →
+  `ExcelAdditionsSeeder`, which never overwrites a family that exists).
+  Photos and datasheets named in the Excel are not attached yet.
 - **Libraries resolved at install.** Laravel 13.35, Filament 5.9, Sanctum 4,
   spatie/laravel-permission 8, spatie/laravel-settings 3, Pest 4, Larastan 3,
   Next.js 16.3, React 19.2, Tailwind 4, Vitest 5, Playwright 1.63.
@@ -206,8 +242,8 @@ button), 56 (primary CTA).
 **Motion:** `rise` keyframe (translateY 14px → 0) and `cubic-bezier(.2,.7,.2,1)`.
 Hover lift is -4px.
 
-These go in `frontend/src/styles/tokens.css` as CSS variables, mapped in
-`tailwind` theme config.
+These go in `frontend/src/app/globals.css` (`@theme`) as CSS variables, mapped in
+the Tailwind 4 theme (no separate config file).
 
 ## 2. Information architecture and route map
 
@@ -538,7 +574,8 @@ Money is stored as **integer centimes**, because some prices have decimals
 All list endpoints are cached in Redis and tag-invalidated when Filament saves.
 Public `GET` routes are throttled at 120/min per IP. Form `POST` routes are
 throttled at 5/min per IP and per phone, and require an empty `website`
-honeypot plus a minimum form time (`_t` ≥ 3 s).
+honeypot plus a minimum form time: `_t`, the milliseconds the form was open,
+must be ≥ 3000 (same unit on every form).
 
 ### Catalogue and content
 

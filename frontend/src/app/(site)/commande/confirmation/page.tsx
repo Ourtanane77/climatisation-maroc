@@ -6,11 +6,9 @@ import { CheckIcon, MAT, MatIcon } from "@/components/ui/icons";
 import { getOrder } from "@/lib/commerce/server";
 import { dh } from "@/lib/format";
 import { waLink } from "@/lib/whatsapp";
+import { seoMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
-  title: "Commande confirmée",
-  robots: { index: false, follow: false },
-};
+export const metadata: Metadata = seoMetadata({ title: "Commande confirmée", noindex: true, follow: false });
 
 const STEPS = [
   ["Nous vous appelons pour confirmer", MAT.phone],

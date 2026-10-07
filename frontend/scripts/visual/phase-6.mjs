@@ -1,6 +1,6 @@
 // Phase 6 (leads, reseller auth, pro space): `node scripts/visual-compare.mjs phase-6`.
 // Pairs: [name, design page, site path, action, options].
-export default [
+const pairs = [
   ["devis", "Demander un devis.dc.html", "/demander-un-devis", null, { full: true }],
   ["devis-pro", "Demander un devis.dc.html?pro=1", "/demander-un-devis?pro=1", null, { clip: 900 }],
   ["devis-erreur", "Demander un devis.dc.html?erreur=1", "/demander-un-devis", "devisErreur", { full: true }],
@@ -14,6 +14,8 @@ export default [
   ["oubli", "Connexion.dc.html?oubli=1", "/connexion/mot-de-passe-oublie", null, { full: true }],
   ["commande-rapide", "Commande rapide.dc.html", "/espace-professionnel/commande-rapide", "login", { full: true }],
 ];
+
+export default pairs;
 
 async function fill(page, label, value) {
   await page.getByLabel(label, { exact: true }).first().fill(value);

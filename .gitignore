@@ -26,6 +26,7 @@ frontend/out/
 frontend/test-results/
 frontend/playwright-report/
 
-# Legacy dumps
+# Legacy dumps (the MySQL init script is not one)
 *.sql
 *.sql.gz
+!docker/mysql/init.sql

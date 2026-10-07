@@ -11,13 +11,13 @@ import { useProduct } from "./ProductContext";
  * design's drop-shadow (meant for cut-outs), which would draw a box around them.
  *
  * Gallery (design: 4:3 white frame with discount tag, 4 square thumbnails). Views are the product
- * photos, then the line drawing ("Schéma"). Picking a variant shows its photo.
+ * photos; the line drawing (or the neutral placeholder) only stands in when there is no photo at
+ * all, never next to real photos. Picking a variant shows its photo.
  */
 export function ProductGallery() {
   const { product, variant } = useProduct();
   const photos = product.images.filter((i) => i.src).map((i) => ({ kind: "photo" as const, ...i }));
-  // The drawing ("Schéma") completes the row of 4 thumbnails, or stands in when there is no photo.
-  const views = [...photos, ...(product.art && photos.length < 4 ? [{ kind: "art" as const, src: null, thumb: null, alt: `${product.name}, schéma` }] : [])];
+  const views = photos.length ? photos : [{ kind: "art" as const, src: null, thumb: null, srcSet: null, alt: product.name }];
   // A thumbnail pick holds until another variant is chosen, which shows that variant's photo.
   const [pick, setPick] = useState<{ sku: string; index: number } | null>(null);
   const index = pick?.sku === variant.sku ? pick.index : (variant.image ?? 0);
@@ -28,12 +28,22 @@ export function ProductGallery() {
 
   const render = (view: (typeof views)[number] | undefined, thumb = false) =>
     !view || view.kind === "art" ? (
-      <ProductArt art={product.art ?? "mural"} dark={variant.dark} className="h-auto w-full" title={thumb ? undefined : `${product.name}, schéma`} />
+      <ProductArt
+        art={product.art}
+        dark={variant.dark}
+        className={cn("h-auto w-full", !product.art && "max-w-[38%]")}
+        title={thumb ? undefined : product.name}
+      />
     ) : (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={(thumb ? view.thumb : view.src) ?? undefined}
+        srcSet={!thumb && view.srcSet ? view.srcSet : undefined}
+        sizes={!thumb && view.srcSet ? "(max-width: 999px) 92vw, 600px" : undefined}
         alt={thumb ? "" : view.alt}
+        // Thumbnails sit in ~80 px buttons; intrinsic size avoids layout shifts.
+        width={thumb ? 80 : undefined}
+        height={thumb ? 80 : undefined}
         loading={thumb ? "lazy" : "eager"}
         fetchPriority={thumb ? undefined : "high"}
         decoding="async"
