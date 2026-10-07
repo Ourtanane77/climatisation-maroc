@@ -3,7 +3,8 @@
 # ---- base: PHP runtime with the extensions Laravel and Filament need ----
 FROM php:8.4-fpm-alpine AS base
 
-RUN apk add --no-cache icu-libs libzip libpng libjpeg-turbo libwebp freetype mysql-client \
+# mariadb-connector-c: MySQL 8 authentication plugin for mysqldump (php artisan app:backup).
+RUN apk add --no-cache icu-libs libzip libpng libjpeg-turbo libwebp freetype mysql-client mariadb-connector-c \
     && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev libzip-dev libpng-dev \
         libjpeg-turbo-dev libwebp-dev freetype-dev linux-headers \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \

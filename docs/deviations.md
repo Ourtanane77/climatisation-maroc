@@ -144,4 +144,4 @@ the colours with dark `#1A1A1A` text. Left as drawn until decided.
 | Area | Design | Built | Why |
 |---|---|---|---|
 | Article page layout (≥ 1100 px) | Text column 720 px + « Sommaire » 260 px, leaving empty space on wide screens | Text 2/3 and « Sommaire » 1/3 of the page column | Owner's request (2026-10-07): the summary looked like it took half the page. |
-| « Gaines circulaires » type tile | — | Owner's photo with its white background removed (`design/uploads/gaines-cat/cat-gaines-circulaires.png`, made from `cat-gaine-circulaires.webp`) | The tiles show transparent photos on coloured backgrounds. |
+| « Gaines circulaires » type tile | — | Owner's photo with its white background removed (`design/uploads/gaines-cat/cat-gaines-circulaires.png`, made from the owner's photo) | The tiles show transparent photos on coloured backgrounds. |

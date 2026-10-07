@@ -1,24 +1,36 @@
 # Production stack: images are built from the repo, nothing is bind-mounted.
-#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
-# Put a TLS terminator (host nginx, Caddy or a load balancer) in front of port APP_PORT.
+#   cp .env.prod.example .env.prod   (fill every value)
+#   make prod-build && make prod-up  (or: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build)
+# Put a TLS terminator (host nginx, Caddy or a load balancer) in front of port APP_PORT; it must send
+# X-Forwarded-For and X-Forwarded-Proto. See docs/deployment.md.
 name: climatisation-maroc-prod
+
+# Container logs go to stdout/stderr (LOG_CHANNEL=stderr), rotated by Docker.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
 
 # php, queue and scheduler share one image; only the php service builds it.
 x-php: &php
   image: climatisation-maroc/php:prod
   pull_policy: never
-  env_file: .env.prod
+  env_file: ${PROD_ENV_FILE:-.env.prod}
   environment: &php-env
     APP_ENV: production
     APP_DEBUG: "false"
     DB_HOST: mysql
     REDIS_HOST: redis
   volumes:
-    - storage:/var/www/backend/storage/app/public
+    # Public uploads (served by nginx at /storage) and private files (quote attachments).
+    - storage_public:/var/www/backend/storage/app/public
+    - storage_private:/var/www/backend/storage/app/private
   depends_on:
     mysql: { condition: service_healthy }
     redis: { condition: service_healthy }
   restart: always
+  logging: *logging
 
 services:
   php:
@@ -31,18 +43,35 @@ services:
     environment:
       <<: *php-env
       APP_ROLE: app
-      APP_SEED: auto
+      # auto: seeds an empty database once (first deploy), then never again.
+      APP_SEED: ${APP_SEED:-auto}
     healthcheck:
-      test: ["CMD-SHELL", "php-fpm -t >/dev/null 2>&1"]
+      test: ["CMD-SHELL", "php-fpm -t >/dev/null 2>&1 && pidof php-fpm >/dev/null"]
       interval: 30s
+      timeout: 5s
+      start_period: 120s
+    deploy:
+      resources:
+        limits: { memory: "${PHP_MEMORY:-1g}" }
 
   queue:
     <<: *php
     environment:
       <<: *php-env
       APP_ROLE: worker
-    command: php artisan queue:work redis --sleep=1 --tries=3 --max-time=3600
-    depends_on: [php]
+    # Workers exit after an hour or 256 MB and are restarted; a deploy also signals them
+    # (the php entrypoint runs queue:restart).
+    command: php artisan queue:work redis --sleep=1 --tries=3 --max-time=3600 --memory=256
+    stop_grace_period: 60s
+    depends_on:
+      php: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'queue:work' >/dev/null"]
+      interval: 30s
+      timeout: 5s
+    deploy:
+      resources:
+        limits: { memory: "${QUEUE_MEMORY:-512m}" }
 
   scheduler:
     <<: *php
@@ -50,7 +79,15 @@ services:
       <<: *php-env
       APP_ROLE: worker
     command: php artisan schedule:work
-    depends_on: [php]
+    depends_on:
+      php: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'schedule:work' >/dev/null"]
+      interval: 60s
+      timeout: 5s
+    deploy:
+      resources:
+        limits: { memory: "${SCHEDULER_MEMORY:-256m}" }
 
   nginx:
     build:
@@ -61,12 +98,20 @@ services:
     image: climatisation-maroc/nginx:prod
     ports: ["${APP_PORT:-80}:80"]
     volumes:
-      - storage:/var/www/storage:ro
-    depends_on: [php, next]
+      - storage_public:/var/www/storage:ro
+    depends_on:
+      php: { condition: service_healthy }
+      next: { condition: service_healthy }
     restart: always
+    logging: *logging
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/up"]
       interval: 30s
+      timeout: 5s
+      start_period: 30s
+    deploy:
+      resources:
+        limits: { memory: "${NGINX_MEMORY:-256m}" }
 
   next:
     build:
@@ -75,20 +120,26 @@ services:
       target: prod
       args:
         API_INTERNAL_URL: http://nginx
-        NEXT_PUBLIC_SITE_URL: ${APP_URL:-https://climatisationmaroc.com}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://app.arfro.com}
     image: climatisation-maroc/next:prod
     environment:
       API_INTERNAL_URL: http://nginx
-      NEXT_PUBLIC_SITE_URL: ${APP_URL:-https://climatisationmaroc.com}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://app.arfro.com}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     restart: always
+    logging: *logging
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 30s
+      timeout: 5s
+      start_period: 30s
+    deploy:
+      resources:
+        limits: { memory: "${NEXT_MEMORY:-1g}" }
 
   mysql:
     image: mysql:8.4
-    env_file: .env.prod
+    env_file: ${PROD_ENV_FILE:-.env.prod}
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
@@ -97,21 +148,32 @@ services:
     command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     volumes: [mysql_data:/var/lib/mysql]
     restart: always
+    logging: *logging
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD"]
       interval: 5s
+      timeout: 5s
       retries: 30
+    deploy:
+      resources:
+        limits: { memory: "${MYSQL_MEMORY:-1g}" }
 
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
     volumes: [redis_data:/data]
     restart: always
+    logging: *logging
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
+      timeout: 5s
+    deploy:
+      resources:
+        limits: { memory: "${REDIS_MEMORY:-384m}" }
 
 volumes:
   mysql_data:
   redis_data:
-  storage:
+  storage_public:
+  storage_private:

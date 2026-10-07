@@ -1,5 +1,13 @@
+import { timingSafeEqual } from "node:crypto";
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
+
+/** Constant-time comparison: the response time must not reveal how much of the secret matched. */
+function sameSecret(given: string | null, expected: string): boolean {
+  const a = Buffer.from(given ?? "");
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
 
 /**
  * Called by Laravel after a back-office change (App\Support\Frontend\Revalidator). Expires the
@@ -8,11 +16,11 @@ import { NextResponse } from "next/server";
  */
 export async function POST(request: Request) {
   const secret = process.env.REVALIDATE_SECRET;
-  if (!secret || request.headers.get("x-revalidate-secret") !== secret) {
+  if (!secret || !sameSecret(request.headers.get("x-revalidate-secret"), secret)) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
   const body = (await request.json().catch(() => ({}))) as { tags?: unknown };
-  const tags = Array.isArray(body.tags) ? body.tags.filter((t): t is string => typeof t === "string" && t.length > 0) : ["api"];
+  const tags = Array.isArray(body.tags) ? body.tags.filter((t): t is string => typeof t === "string" && t.length > 0 && t.length <= 100).slice(0, 50) : ["api"];
   for (const tag of tags) revalidateTag(tag, { expire: 0 });
   return NextResponse.json({ revalidated: tags });
 }

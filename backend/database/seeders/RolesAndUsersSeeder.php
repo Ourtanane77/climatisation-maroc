@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -25,6 +26,10 @@ class RolesAndUsersSeeder extends Seeder
         foreach ($staff as [$email, $password, $name, $role]) {
             if (! $email || ! $password) {
                 continue;
+            }
+            // Production never gets a staff account with a development or short password.
+            if (app()->isProduction() && (str_starts_with((string) $password, 'change-me') || mb_strlen((string) $password) < 12)) {
+                throw new RuntimeException("Mot de passe trop faible pour {$email} : renseignez SEED_*_PASSWORD (12 caractères minimum) dans .env.prod.");
             }
 
             $user = User::query()->firstOrCreate(

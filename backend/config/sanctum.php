@@ -50,7 +50,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Backstop: reseller tokens are created with a 30-day expiry (Api\Pro\AuthController).
+    'expiration' => (int) env('SANCTUM_EXPIRATION', 60 * 24 * 30),
 
     /*
     |--------------------------------------------------------------------------

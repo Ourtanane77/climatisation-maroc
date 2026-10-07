@@ -3,13 +3,13 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 /**
- * Photos from the design (design/uploads), copied to public/design/ with WebP renditions and a
- * manifest by scripts/sync-design-assets.mjs. A photo is null when its file is absent, so the
- * section falls back to its line drawing or plain version. URLs carry the file's modification time
+ * Owner's photos, served from public/design/ as WebP renditions listed in manifest.json (built from
+ * design/uploads by `npm run sync-assets`, committed). A photo is null when it is not in the
+ * manifest, so the section falls back to its line drawing or plain version. URLs carry the file's modification time
  * (`?v=`): photos are replaced under the same name, and a reload must show the new one.
  */
 export interface DesignPhoto {
-  /** Default URL: a mid-size WebP rendition, else the PNG original. */
+  /** Default URL: a mid-size WebP rendition (the original only when no rendition exists). */
   src: string;
   /** `srcset` of the WebP renditions (empty when sharp was unavailable at sync time). */
   srcSet?: string;
@@ -44,10 +44,12 @@ function versioned(url: string): string {
 }
 
 export function designPhoto(file: string): DesignPhoto | null {
-  if (!existsSync(path.join(DIR, file))) return null;
   const entry = manifest()[file];
   const renditions = entry?.renditions ?? [];
-  if (!renditions.length) return { src: versioned(`/design/${file}`), width: entry?.width, height: entry?.height };
+  if (!renditions.length) {
+    // No renditions (sharp was unavailable at sync time): the original, if it was copied.
+    return existsSync(path.join(DIR, file)) ? { src: versioned(`/design/${file}`), width: entry?.width, height: entry?.height } : null;
+  }
   const mid = renditions[Math.min(1, renditions.length - 1)];
   return {
     src: versioned(mid.src),

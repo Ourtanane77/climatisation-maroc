@@ -11,10 +11,14 @@ backend/storage/app/private/*
 backend/bootstrap/cache/*.php
 backend/public/storage
 frontend/test-results
-frontend/public/design
+frontend/playwright-report
+frontend/.next-*
 backend/.env
 .env*
 !.env.example
 .git
 docs
 data/*.sql
+# Design reference (HTML pages, original photos): not needed to build or run the site.
+design
+

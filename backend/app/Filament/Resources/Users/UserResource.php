@@ -53,7 +53,7 @@ class UserResource extends Resource
                 ->getOptionLabelFromRecordUsing(fn ($record) => self::ROLES[$record->name] ?? $record->name)
                 ->multiple()->preload()->required(),
             TextInput::make('password')->label('Mot de passe')->password()->revealable()
-                ->minLength(8)
+                ->minLength(12) // staff accounts reach the whole back office
                 ->required(fn (string $operation) => $operation === 'create')
                 ->dehydrated(fn (?string $state) => filled($state))
                 ->helperText('Laisser vide pour ne pas le changer.'),

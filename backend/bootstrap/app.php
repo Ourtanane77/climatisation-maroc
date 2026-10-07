@@ -17,8 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // nginx and the Next.js server sit in front of PHP; trust them for client IPs (rate limits).
-        $middleware->trustProxies(at: '*');
+        // Trusted proxies (nginx, the Next.js server) come from config/trustedproxy.php: the private
+        // Docker network only, so visitors cannot forge X-Forwarded-For.
         // The only login page served by Laravel is the back office's.
         $middleware->redirectGuestsTo('/admin/login');
         // Public read API cached in Redis (after the rate limiter, which still counts every call).

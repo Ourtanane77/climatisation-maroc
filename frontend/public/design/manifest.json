@@ -1,0 +1,375 @@
+{
+  "cover-ariha.png": {
+    "src": "/design/cover-ariha.png",
+    "renditions": [
+      {
+        "width": 640,
+        "src": "/design/cover-ariha-640.webp"
+      },
+      {
+        "width": 1280,
+        "src": "/design/cover-ariha-1280.webp"
+      },
+      {
+        "width": 1920,
+        "src": "/design/cover-ariha-1920.webp"
+      }
+    ],
+    "width": 2048,
+    "height": 768
+  },
+  "clima-cut2.png": {
+    "src": "/design/clima-cut2.png",
+    "renditions": [
+      {
+        "width": 480,
+        "src": "/design/clima-cut2-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "/design/clima-cut2-960.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/design/clima-cut2-1440.webp"
+      }
+    ],
+    "width": 2172,
+    "height": 724
+  },
+  "chauffe-eau-b0352fa9.png": {
+    "src": "/design/chauffe-eau-b0352fa9.png",
+    "renditions": [
+      {
+        "width": 320,
+        "src": "/design/chauffe-eau-b0352fa9-320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/design/chauffe-eau-b0352fa9-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "/design/chauffe-eau-b0352fa9-960.webp"
+      }
+    ],
+    "width": 1206,
+    "height": 861
+  },
+  "ventilateur-cut.png": {
+    "src": "/design/ventilateur-cut.png",
+    "renditions": [
+      {
+        "width": 320,
+        "src": "/design/ventilateur-cut-320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/design/ventilateur-cut-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "/design/ventilateur-cut-960.webp"
+      }
+    ],
+    "width": 1170,
+    "height": 721
+  },
+  "gaines-cut.png": {
+    "src": "/design/gaines-cut.png",
+    "renditions": [
+      {
+        "width": 320,
+        "src": "/design/gaines-cut-320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/design/gaines-cut-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "/design/gaines-cut-960.webp"
+      }
+    ],
+    "width": 1302,
+    "height": 801
+  },
+  "cuivre-cut2.png": {
+    "src": "/design/cuivre-cut2.png",
+    "renditions": [
+      {
+        "width": 320,
+        "src": "/design/cuivre-cut2-320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/design/cuivre-cut2-480.webp"
+      },
+      {
+        "width": 538,
+        "src": "/design/cuivre-cut2-538.webp"
+      }
+    ],
+    "width": 538,
+    "height": 433
+  },
+  "telecommande-cut2.png": {
+    "src": "/design/telecommande-cut2.png",
+    "renditions": [
+      {
+        "width": 240,
+        "src": "/design/telecommande-cut2-240.webp"
+      },
+      {
+        "width": 364,
+        "src": "/design/telecommande-cut2-364.webp"
+      }
+    ],
+    "width": 364,
+    "height": 871
+  },
+  "solutions-category.png": {
+    "src": "/design/solutions-category.png",
+    "renditions": [
+      {
+        "width": 320,
+        "src": "/design/solutions-category-320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/design/solutions-category-480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/design/solutions-category-640.webp"
+      },
+      {
+        "width": 1280,
+        "src": "/design/solutions-category-1280.webp"
+      }
+    ],
+    "width": 1536,
+    "height": 1024
+  },
+  "cuivre-56818f19.png": {
+    "src": "/design/cuivre-56818f19.png",
+    "renditions": [
+      {
+        "width": 480,
+        "src": "/design/cuivre-56818f19-480.webp"
+      },
+      {
+        "width": 557,
+        "src": "/design/cuivre-56818f19-557.webp"
+      }
+    ],
+    "width": 557,
+    "height": 462
+  },
+  "cat-clima-mural.png": {
+    "src": "/design/cat-clima-mural.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-clima-mural-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-clima-mural-800.webp"
+      }
+    ],
+    "width": 1578,
+    "height": 414
+  },
+  "cat-clima-gainable.png": {
+    "src": "/design/cat-clima-gainable.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-clima-gainable-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-clima-gainable-800.webp"
+      }
+    ],
+    "width": 1595,
+    "height": 347
+  },
+  "cat-clima-cassette.png": {
+    "src": "/design/cat-clima-cassette.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-clima-cassette-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-clima-cassette-800.webp"
+      }
+    ],
+    "width": 1050,
+    "height": 665
+  },
+  "cat-clima-armoire.png": {
+    "src": "/design/cat-clima-armoire.png",
+    "renditions": [
+      {
+        "width": 252,
+        "src": "/design/cat-clima-armoire-252.webp"
+      }
+    ],
+    "width": 252,
+    "height": 777
+  },
+  "cat-chauffe-eau-elect.png": {
+    "src": "/design/cat-chauffe-eau-elect.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-chauffe-eau-elect-400.webp"
+      },
+      {
+        "width": 464,
+        "src": "/design/cat-chauffe-eau-elect-464.webp"
+      }
+    ],
+    "width": 464,
+    "height": 871
+  },
+  "cat-chauffe-eau-gaz.png": {
+    "src": "/design/cat-chauffe-eau-gaz.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-chauffe-eau-gaz-400.webp"
+      },
+      {
+        "width": 548,
+        "src": "/design/cat-chauffe-eau-gaz-548.webp"
+      }
+    ],
+    "width": 548,
+    "height": 1032
+  },
+  "cat-chauffe-eau-solaire.png": {
+    "src": "/design/cat-chauffe-eau-solaire.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-chauffe-eau-solaire-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-chauffe-eau-solaire-800.webp"
+      }
+    ],
+    "width": 955,
+    "height": 898
+  },
+  "cat-chauffe-eau-chaudiere.png": {
+    "src": "/design/cat-chauffe-eau-chaudiere.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-chauffe-eau-chaudiere-400.webp"
+      },
+      {
+        "width": 526,
+        "src": "/design/cat-chauffe-eau-chaudiere-526.webp"
+      }
+    ],
+    "width": 526,
+    "height": 1065
+  },
+  "cat-ventilateur-gain.png": {
+    "src": "/design/cat-ventilateur-gain.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-ventilateur-gain-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-ventilateur-gain-800.webp"
+      }
+    ],
+    "width": 964,
+    "height": 834
+  },
+  "cat-ventilateur-multizone.png": {
+    "src": "/design/cat-ventilateur-multizone.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-ventilateur-multizone-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-ventilateur-multizone-800.webp"
+      }
+    ],
+    "width": 1015,
+    "height": 775
+  },
+  "cat-grilles-diffuseurs.png": {
+    "src": "/design/cat-grilles-diffuseurs.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-grilles-diffuseurs-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-grilles-diffuseurs-800.webp"
+      }
+    ],
+    "width": 989,
+    "height": 614
+  },
+  "cat-flexibles-souples.png": {
+    "src": "/design/cat-flexibles-souples.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-flexibles-souples-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-flexibles-souples-800.webp"
+      }
+    ],
+    "width": 982,
+    "height": 752
+  },
+  "cat-flexibles-isoles.png": {
+    "src": "/design/cat-flexibles-isoles.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-flexibles-isoles-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-flexibles-isoles-800.webp"
+      }
+    ],
+    "width": 993,
+    "height": 794
+  },
+  "cat-gaines-circulaires.png": {
+    "src": "/design/cat-gaines-circulaires.png",
+    "renditions": [
+      {
+        "width": 400,
+        "src": "/design/cat-gaines-circulaires-400.webp"
+      },
+      {
+        "width": 800,
+        "src": "/design/cat-gaines-circulaires-800.webp"
+      }
+    ],
+    "width": 1468,
+    "height": 723
+  }
+}

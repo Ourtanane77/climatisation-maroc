@@ -16,14 +16,16 @@ RUN npm ci
 # ---- build ----
 FROM base AS build
 ARG API_INTERNAL_URL=http://nginx
-ARG NEXT_PUBLIC_SITE_URL=https://climatisationmaroc.com
+ARG NEXT_PUBLIC_SITE_URL=https://app.arfro.com
 ENV API_INTERNAL_URL=$API_INTERNAL_URL NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 COPY --from=deps /app/node_modules ./node_modules
+# frontend/public is self-contained (logo, design photos and their WebP renditions): design/ is
+# not part of the build context (.dockerignore).
 COPY frontend/ ./
-COPY design/uploads /design-uploads
 RUN npm run build
 
 # ---- prod: standalone server ----
+# Standalone output: only the traced production dependencies are copied, no dev dependencies.
 FROM node:22-alpine AS prod
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0

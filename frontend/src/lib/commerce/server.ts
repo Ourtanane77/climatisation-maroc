@@ -2,6 +2,7 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import { apiGet } from "@/lib/api";
 import { getToken } from "@/lib/auth";
+import { clientIpFrom } from "@/lib/client-ip";
 import { CART_COOKIE, VISIT_COOKIE, parseCart, type CartLine } from "@/lib/cart/cookie";
 import type { City, OrderView, Quote } from "./types";
 
@@ -36,10 +37,9 @@ export async function apiForward<T>(method: "GET" | "POST", path: string, body?:
   return { status: res.status, body: json };
 }
 
-/** First address of X-Forwarded-For (set by nginx), i.e. the visitor. */
+/** The visitor's IP as seen by nginx (never the client-supplied first X-Forwarded-For entry). */
 export async function visitorIp(): Promise<string | null> {
-  const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || null;
+  return clientIpFrom(await headers());
 }
 
 export async function cartFromCookie(): Promise<CartLine[]> {

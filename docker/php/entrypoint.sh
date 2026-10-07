@@ -34,6 +34,8 @@ if [ "${APP_ROLE:-app}" = "app" ]; then
   # or .env in development run `make cache`. Tests never read these caches (phpunit.xml).
   php artisan optimize
   php artisan filament:optimize
+  # A new release: queue workers finish their current job and restart on the new code.
+  php artisan queue:restart
 fi
 
 exec "$@"

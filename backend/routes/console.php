@@ -1,8 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Daily database + storage backup (production: BACKUP_ENABLED=true; the scheduler container runs
+// `php artisan schedule:work`). See config/backup.php and docs/deployment.md.
+if (config('backup.enabled')) {
+    Schedule::command('app:backup', ['--keep' => config('backup.keep')])
+        ->dailyAt((string) config('backup.at'))
+        ->withoutOverlapping()
+        ->onOneServer();
+}

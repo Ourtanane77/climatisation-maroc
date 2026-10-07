@@ -6,7 +6,8 @@ PHP     = $(DC) exec php
 NEXT    = $(DC) exec next
 ARTISAN = $(PHP) php artisan
 
-.PHONY: up down build migrate seed fresh cache test test-back test-front lint lint-back lint-front logs sh-php sh-next images e2e smoke
+.PHONY: up down build migrate seed fresh cache test test-back test-front lint lint-back lint-front logs sh-php sh-next images e2e smoke \
+	prod-build prod-up prod-down prod-logs prod-migrate prod-cache prod-ps backup prod-backup
 
 ## Build and start the stack. Migrations run on start; an empty database is seeded.
 up:
@@ -75,3 +76,42 @@ e2e:
 ## Smoke test through nginx: front office, API, back office, Livewire script, /storage, revalidation.
 smoke:
 	node scripts/smoke.mjs $(or $(BASE_URL),http://localhost:8080)
+
+## ---- Production (docker-compose.prod.yml + .env.prod, see docs/deployment.md) ----
+PROD_ENV_FILE ?= .env.prod
+PROD = PROD_ENV_FILE=$(PROD_ENV_FILE) $(DC) -f docker-compose.prod.yml --env-file $(PROD_ENV_FILE)
+
+## Build the production images (php, nginx, next).
+prod-build:
+	$(PROD) build
+
+## Start or update the production stack (migrations run on start; an empty database is seeded once).
+prod-up:
+	$(PROD) up -d
+
+## Stop the production stack (volumes kept).
+prod-down:
+	$(PROD) down
+
+## Follow the production logs (all containers, or SERVICE=php|queue|next|nginx…).
+prod-logs:
+	$(PROD) logs -f --tail=200 $(SERVICE)
+
+## Container states and health.
+prod-ps:
+	$(PROD) ps
+
+## Run pending migrations on the running production stack.
+prod-migrate:
+	$(PROD) exec php php artisan migrate --force
+
+## Rebuild Laravel and Filament caches (after changing .env.prod: also restart php, queue, scheduler).
+prod-cache:
+	$(PROD) exec php sh -c "php artisan optimize:clear && php artisan optimize && php artisan filament:optimize && php artisan queue:restart"
+
+# Backups (database + storage archives, rotated; see docs/deployment.md). Restore: scripts/restore.sh
+backup:
+	$(ARTISAN) app:backup
+
+prod-backup:
+	$(PROD) exec php php artisan app:backup

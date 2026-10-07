@@ -31,7 +31,7 @@ const lgDual: ProductCardData = {
   badge: { text: "−13 %", tone: "promo" },
   options: [
     { label: "9K", fullLabel: "9 000 BTU", sku: "D10AWH.NW0", price: 540000, regularPrice: 620000 },
-    { label: "12K", fullLabel: "12 000 BTU", sku: "D13AJH.N", price: 570000, regularPrice: 650000, image: "/brand/sample-lg-dual.png" },
+    { label: "12K", fullLabel: "12 000 BTU", sku: "D13AJH.N", price: 570000, regularPrice: 650000, image: "/design/clima-cut2-480.webp" },
     { label: "18K", fullLabel: "18 000 BTU", sku: "D19AKH.NK0", price: 760000, regularPrice: 810000 },
     { label: "24K", fullLabel: "24 000 BTU", sku: "D24AKH-N", price: 890000, regularPrice: 950000 },
   ],

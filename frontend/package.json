@@ -4,11 +4,8 @@
   "private": true,
   "scripts": {
     "sync-assets": "node scripts/sync-design-assets.mjs",
-    "predev": "node scripts/sync-design-assets.mjs",
     "dev": "next dev --hostname 0.0.0.0",
-    "predev:docker": "node scripts/sync-design-assets.mjs",
     "dev:docker": "next dev --webpack --hostname 0.0.0.0",
-    "prebuild": "node scripts/sync-design-assets.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -16,7 +13,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "audit:links": "node scripts/crawl-links.mjs",
+    "audit:seo": "node scripts/seo-audit.mjs",
+    "audit:semantics": "node scripts/semantics-audit.mjs",
+    "audit:a11y": "node scripts/a11y-audit.mjs",
+    "audit:responsive": "node scripts/responsive-audit.mjs"
   },
   "dependencies": {
     "next": "16.3.8",

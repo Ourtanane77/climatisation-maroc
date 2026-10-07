@@ -88,7 +88,7 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
       # Pages render per request (root layout): the build never calls the API.
       API_INTERNAL_URL: http://localhost:8080
-      NEXT_PUBLIC_SITE_URL: https://climatisationmaroc.com
+      NEXT_PUBLIC_SITE_URL: https://app.arfro.com
     steps:
       - uses: actions/checkout@v4
 

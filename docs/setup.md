@@ -130,11 +130,19 @@ Pairs are listed in `frontend/scripts/visual/<phase>.mjs`; screenshots at 1440 a
 
 ## Design assets
 
-`design/uploads/` holds the images of the design export. `frontend/scripts/sync-design-assets.mjs`
-(run before `dev` and `build`) copies the logo and the design photos to `frontend/public/brand/`
-and `frontend/public/design/` (not committed). Pages use a design photo only when the file is
-present, and an image uploaded in the back office wins. After replacing a file in
-`design/uploads/`, run `cd frontend && npm run sync-assets` (or restart the `next` container).
+`design/uploads/` holds the owner's photos (masters). The site serves WebP renditions of them from
+`frontend/public/design/` (with `manifest.json`), which are **committed**: dev and production
+builds never read `design/`. The logo is `frontend/public/logo-arfro.svg` (master:
+`design/logo_arfro.svg`). An image uploaded in the back office wins over these photos.
+
+After adding or replacing a photo in `design/uploads/` (keep the same file name, or add the new
+name to the list in `frontend/scripts/sync-design-assets.mjs`), run by hand:
+
+```sh
+cd frontend && npm run sync-assets
+```
+
+then commit the changed files in `frontend/public/design/`.
 
 ## Useful commands
 

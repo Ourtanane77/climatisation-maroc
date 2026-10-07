@@ -76,8 +76,10 @@ Laravel ──(after back-office changes)──► Next.js /api/revalidate
   visit option. The basket and checkout pages re-quote through the API on every change.
 - **Compare.** Up to three variant SKUs in `localStorage` (`src/lib/compare.ts`) and in the URL
   (`/comparer?p=SKU,SKU,SKU`).
-- **Design assets.** `frontend/scripts/sync-design-assets.mjs` copies the logo and design photos from
-  `design/uploads/` to `public/`; `src/lib/design-assets.ts` uses a photo only when present.
+- **Design assets.** The owner's photos are committed as WebP renditions in `public/design/`
+  (`manifest.json`), built by hand from `design/uploads/` with `npm run sync-assets`;
+  `src/lib/design-assets.ts` uses a photo only when it is in the manifest. Logo:
+  `public/logo-arfro.svg`.
 
 ## Caching and revalidation
 

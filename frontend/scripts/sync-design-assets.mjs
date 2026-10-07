@@ -1,5 +1,8 @@
-// Copies site-chrome images from the design reference into public/brand/ (run before dev and build).
-// Catalogue and content images are not handled here: they are seeded into Laravel storage.
+// Dev tool, run by hand: `npm run sync-assets` (not part of dev or build).
+// Turns the owner's photos in design/uploads/ into the WebP renditions and public/design/manifest.json
+// that the site serves (src/lib/design-assets.ts). The output in public/design/ is committed, so
+// production never needs design/. Run it after adding or replacing a photo in design/uploads/.
+// Catalogue and content images are not handled here: they live in Laravel storage.
 import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,13 +10,6 @@ import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const candidates = [path.resolve(here, "../../design/uploads"), "/design-uploads"];
 const source = candidates.find((dir) => existsSync(dir));
-const target = path.resolve(here, "../public/brand");
-
-const files = {
-  "pasted-1791221833312-0.png": "logo-ariha-froid.png",
-  // Used by the dev-only /styleguide page.
-  "New_DZ2.png": "sample-lg-dual.png",
-};
 
 // sharp ships with Next.js (optional dependency); without it the PNG originals are used as they are.
 let sharp = null;
@@ -23,20 +19,9 @@ try {
   console.log("[sync-design-assets] sharp unavailable: no WebP renditions, PNG originals served");
 }
 
-mkdirSync(target, { recursive: true });
 if (!source) {
-  console.log("[sync-design-assets] design/uploads not found, skipping");
+  console.log("[sync-design-assets] design/uploads not found, nothing to do");
 } else {
-  for (const [from, to] of Object.entries(files)) {
-    const src = path.join(source, from);
-    if (existsSync(src)) {
-      copyFileSync(src, path.join(target, to));
-      console.log(`[sync-design-assets] ${from} → public/brand/${to}`);
-    } else {
-      console.log(`[sync-design-assets] missing ${from} (fallback used)`);
-    }
-  }
-
   // Design photos, copied to public/design/ under the name the design uses, plus WebP renditions
   // (<name>-<width>.webp) and public/design/manifest.json (sizes, renditions) read by
   // src/lib/design-assets.ts. Each entry lists the accepted source files in design/uploads, first
@@ -114,7 +99,7 @@ if (!source) {
       [400, 800],
     ],
     [
-      ["cat-gaines-circulaires.png", "gaines-cat/cat-gaines-circulaires.png", "gaines-cat/cat-gaine-circulaires.webp"],
+      ["cat-gaines-circulaires.png", "gaines-cat/cat-gaines-circulaires.png"],
       [400, 800],
     ],
   ];
@@ -131,7 +116,6 @@ if (!source) {
       continue;
     }
     const src = path.join(source, found);
-    copyFileSync(src, dest);
     const entry = { src: `/design/${name}`, renditions: [] };
     if (sharp) {
       // Category tile photos (cat-*) have wide transparent margins: crop them so the object fills
@@ -155,8 +139,14 @@ if (!source) {
         .filter((f) => !keep.has(f))
         .forEach((f) => rmSync(path.join(designTarget, f)));
     }
+    // Only the WebP renditions are served; the original is copied only when sharp is unavailable.
+    if (entry.renditions.length) {
+      if (existsSync(dest)) rmSync(dest);
+    } else {
+      copyFileSync(src, dest);
+    }
     manifest[name] = entry;
-    console.log(`[sync-design-assets] ${found} → public/design/${name} (${entry.renditions.length} WebP)`);
+    console.log(`[sync-design-assets] ${found} → public/design/ (${entry.renditions.length} WebP renditions of ${name})`);
   }
   writeFileSync(path.join(designTarget, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 }
