@@ -48,6 +48,15 @@ Coolify (a VPS with Coolify's own proxy and TLS).
 Coolify's proxy sends `X-Forwarded-For`/`X-Forwarded-Proto` from the Docker network, which Laravel
 and nginx already trust; `TRUSTED_PROXIES` is not needed.
 
+**HTTPS behind Cloudflare.** With Cloudflare in front of Traefik, the request can reach the app as
+http: Cloudflare's « Flexible » SSL talks plain http to the server, and Traefik rewrites
+`X-Forwarded-Proto` for upstreams it does not trust. Livewire and Filament then generated `http://`
+URLs and the browser blocked the back-office login (mixed content). The app therefore generates
+https URLs whenever `APP_ENV=production` and `APP_URL` starts with `https://`
+(`AppServiceProvider`), so `APP_URL` must be the `https://` address. Prefer Cloudflare SSL mode
+**Full (strict)** anyway, so the whole path is encrypted. Check after a deploy:
+`curl -s https://app.arfro.com/admin/login | grep -c 'http://app.arfro.com'` must print `0`.
+
 ## Server, DNS and TLS
 
 - Docker Engine with the Compose plugin; 2 vCPU, 4 GB RAM and 20 GB disk are comfortable.

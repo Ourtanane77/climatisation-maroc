@@ -17,6 +17,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,6 +29,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Behind Cloudflare and Coolify's Traefik the request can reach PHP as http (Cloudflare
+        // "Flexible" SSL, or Traefik rewriting X-Forwarded-Proto for untrusted upstreams), so
+        // Livewire/Filament URLs came out as http:// and the browser blocked them (mixed content).
+        // A production site whose APP_URL is https always generates https URLs.
+        if ($this->app->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
+
         // Short, stable type names in polymorphic columns (SEO, FAQ, article links, lead source).
         Relation::morphMap([
             'user' => User::class,
