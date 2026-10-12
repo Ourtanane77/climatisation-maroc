@@ -20,6 +20,14 @@ export function generateMetadata(): Metadata {
     description: SITE.description,
     applicationName: SITE_NAME,
     openGraph: { type: "website", locale: "fr_MA", siteName: SITE_NAME },
+    // Per storefront (public/brand/<key>/), hence not the app/icon file convention.
+    icons: {
+      icon: [
+        { url: SITE.icons.favicon, sizes: "32x32", type: "image/png" },
+        { url: SITE.icons.icon, sizes: "512x512", type: "image/png" },
+      ],
+      apple: { url: SITE.icons.apple, sizes: "180x180", type: "image/png" },
+    },
   };
 }
 

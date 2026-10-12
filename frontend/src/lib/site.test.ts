@@ -32,10 +32,13 @@ describe("site config", () => {
     expect(site.resolveSiteKey(" ARFRO ")).toBe("arfro");
     expect(site.siteHeaders()).toEqual({ "X-Site": "cm" });
     expect(chrome.siteLogo()).toEqual({
-      src: "/logo-arfro.svg",
-      alt: "Arfro by Ariha Froid · Climatisation Maroc",
-      wordmark: { text: "Ariha Froid", tagline: "Climatisation Maroc", label: "Ariha Froid · Climatisation Maroc" },
+      src: "/brand/cm/logo.png",
+      white: "/brand/cm/logo-white.png",
+      alt: "Ariha Froid · Climatisation Maroc",
+      width: 621,
+      height: 180,
     });
+    expect(site.SITE.icons.favicon).toBe("/brand/cm/favicon-32.png");
   });
 
   it("serves Arfro with SITE_KEY=arfro, on its own base URL", async () => {
@@ -45,12 +48,18 @@ describe("site config", () => {
     expect(site.SITE.orderPrefix).toBe("AR");
     expect(site.siteHeaders()).toEqual({ "X-Site": "arfro" });
     expect(site.siteUrl("/contact")).toBe("https://arfro.com/contact");
-    expect(chrome.siteLogo()).toMatchObject({ src: "/logo-arfro.svg", alt: "Arfro by Ariha Froid", wordmark: { text: "Arfro" } });
+    expect(chrome.siteLogo()).toMatchObject({ src: "/brand/arfro/logo.png", white: "/brand/arfro/logo-white.png", alt: "Arfro by Ariha Froid" });
+    expect(site.SITE.icons.icon).toBe("/brand/arfro/icon.png");
   });
 
-  it("falls back to the wordmark when none of the logo files exists", async () => {
-    const { site, chrome } = await load({});
-    expect(chrome.logoSrc({ ...site.SITE, logoFiles: ["/absent.svg"] })).toBeNull();
+  it("ships every logo and icon file it names", async () => {
+    const { existsSync } = await import("node:fs");
+    const path = await import("node:path");
+    for (const key of ["cm", "arfro"] as const) {
+      const { site } = await load({ SITE_KEY: key });
+      const files = [site.SITE.logo.src, site.SITE.logo.white, ...Object.values(site.SITE.icons)];
+      for (const file of files) expect(existsSync(path.join(process.cwd(), "public", file)), file).toBe(true);
+    }
   });
 });
 
@@ -105,11 +114,11 @@ describe("SEO per storefront", () => {
     expect(metadata.fallbackDescription("Services")).toMatch(/^Services · Arfro\. /);
 
     expect(jsonld.websiteSchema()).toMatchObject({ name: "Arfro", alternateName: "Ariha Froid", url: "https://arfro.com/" });
-    expect(jsonld.organizationSchema(footer, "/logo-arfro.svg")).toMatchObject({
+    expect(jsonld.organizationSchema(footer, "/brand/arfro/logo.png")).toMatchObject({
       name: "Ariha Froid",
       alternateName: "Arfro",
       "@id": "https://arfro.com/#organisation",
-      logo: "https://arfro.com/logo-arfro.svg",
+      logo: "https://arfro.com/brand/arfro/logo.png",
     });
   });
 

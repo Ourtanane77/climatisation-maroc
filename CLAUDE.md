@@ -4,10 +4,10 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
 
 ## Standing rules
 
-- **Design files are the UI source of truth.** Use the 30 page files in
-  `design/` (the two boards cover structure and navigation).
-  `docs/design-inventory/` records their layout values and data. Reproduce the
-  pages faithfully and do not redesign. Record any deliberate deviation in
+- **The design is the UI source of truth.** `docs/design-inventory/` records the
+  layout values, states and data of the original design pages (the HTML files
+  were removed on 2026-10-12; git history keeps them). Keep the built pages as
+  they are and do not redesign. Record any deliberate deviation in
   `docs/deviations.md`.
 - **French only** (`lang="fr-MA"`).
 - **Money and payment.** Prices are in Dhs and formatted `5 700 Dhs` (fr-FR
@@ -39,7 +39,7 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
 | `backend/` | Laravel, REST API under `/api/v1`, Sanctum, Filament back office at `/admin` (French) |
 | `frontend/` | Next.js App Router, TypeScript, Tailwind; server-rendered |
 | `docker/` | nginx, php-fpm, queue worker, scheduler, mysql 8, redis, next + next-arfro, mailpit |
-| `design/` | design reference (do not ship its scripts) |
+| `design/` | source files: the owner's logos (`logos/`) and photos (`uploads/`) |
 | `docs/` | plan, inventory, deviations, guides |
 | `data/` | `catalog.json` (real catalogue snapshot) |
 

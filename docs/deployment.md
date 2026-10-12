@@ -152,7 +152,7 @@ The catalogue photos come from the old site. Two ways to get them on the server:
 - Placeholder or unconfirmed facts listed in `docs/audits/content-redaction.md` (delivery delays,
   returns and warranty, promotion rate in the promo bar, « Distributeur officiel LG »).
 - Photos of the shops and team for À propos (optional).
-- The logo is in place (`frontend/public/logo-arfro.svg`, favicon `frontend/src/app/icon.svg`).
+- The logos and icons are in place for both sites (`frontend/public/brand/cm/`, `frontend/public/brand/arfro/`).
 - Change the staff passwords; set `SHOP_NOTIFICATION_EMAIL`; send a test order and a test quote
   request and check the e-mails arrive.
 - Search Console: add both properties and submit `https://climatisationmaroc.com/sitemap.xml` and

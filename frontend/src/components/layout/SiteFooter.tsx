@@ -21,9 +21,7 @@ export function SiteFooter({ footer, logo, bottomPadding = 0 }: { footer: SiteNa
       <div className="site-gutter flex flex-col gap-8 pt-10 md:gap-12 md:pt-16">
         <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <div className="flex max-w-[420px] flex-col gap-5">
-            <span className="rounded-14 flex self-start bg-white px-3.5 py-2">
-              <Logo logo={logo} height={48} />
-            </span>
+            <Logo logo={logo} height={48} white className="self-start" />
             <p className="text-footer-text-2 m-0 text-[15px] leading-6 text-pretty">{footer.about}</p>
             <div className="flex gap-2">
               {footer.socials.map((s) => (

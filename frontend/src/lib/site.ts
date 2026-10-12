@@ -7,10 +7,29 @@ import "server-only";
  *   - SITE_KEY: cm | arfro (anything else = cm). Sent to Laravel as `X-Site` on every call.
  *   - SITE_URL: absolute base URL of this instance (canonical, Open Graph, sitemap, JSON-LD); falls
  *     back to NEXT_PUBLIC_SITE_URL, read through a dynamic lookup so Next does not inline it.
- * Client components get what they need as props (logo, order prefix): this module is server-only.
+ * Client components get what they need as props (logo, order prefix): this module is server-only
+ * (types are imported with `import type`, which leaves no runtime import).
  */
 
 export type SiteKey = "cm" | "arfro";
+
+/** A storefront's logo: colour version (header) and white version (footer, on the brand blue). */
+export interface SiteLogo {
+  src: string;
+  white: string;
+  alt: string;
+  /** Intrinsic size of both files (same artwork), for the width/height attributes. */
+  width: number;
+  height: number;
+}
+
+function brand(key: SiteKey, alt: string, width: number): Pick<SiteConfig, "logo" | "icons"> {
+  const dir = `/brand/${key}`;
+  return {
+    logo: { src: `${dir}/logo.png`, white: `${dir}/logo-white.png`, alt, width, height: 180 },
+    icons: { favicon: `${dir}/favicon-32.png`, icon: `${dir}/icon.png`, apple: `${dir}/apple-icon.png` },
+  };
+}
 
 export interface SiteConfig {
   key: SiteKey;
@@ -18,11 +37,10 @@ export interface SiteConfig {
   name: string;
   /** The company behind both storefronts (Organization JSON-LD, store names). */
   owner: string;
-  /** Logo files tried in order under public/ (the first that exists wins), else the wordmark. */
-  logoFiles: string[];
-  logoAlt: string;
-  /** Text wordmark shown when no logo file exists. */
-  wordmark: { text: string; tagline: string | null; label: string };
+  /** Logos under public/brand/<key>/ (from the owner's files in design/logos/, see design/README.md). */
+  logo: SiteLogo;
+  /** Favicon (32 px), app icon (512 px) and Apple touch icon (180 px). */
+  icons: { favicon: string; icon: string; apple: string };
   /** Home page and default <title>. */
   defaultTitle: string;
   /** Default meta description, and the base of the fallback for pages without their own text. */
@@ -41,9 +59,7 @@ const SITES: Record<SiteKey, SiteConfig> = {
     key: "cm",
     name: "Climatisation Maroc",
     owner: "Ariha Froid",
-    logoFiles: ["/logo-cm.svg", "/logo-arfro.svg"],
-    logoAlt: "Arfro by Ariha Froid · Climatisation Maroc",
-    wordmark: { text: "Ariha Froid", tagline: "Climatisation Maroc", label: "Ariha Froid · Climatisation Maroc" },
+    ...brand("cm", "Ariha Froid · Climatisation Maroc", 621),
     defaultTitle: "Climatisation Maroc · Climatiseurs, chauffe-eau · Ariha Froid",
     description: SHOP_DESCRIPTION,
     orderPrefix: "CM",
@@ -53,9 +69,7 @@ const SITES: Record<SiteKey, SiteConfig> = {
     key: "arfro",
     name: "Arfro",
     owner: "Ariha Froid",
-    logoFiles: ["/logo-arfro.svg"],
-    logoAlt: "Arfro by Ariha Froid",
-    wordmark: { text: "Arfro", tagline: null, label: "Arfro by Ariha Froid" },
+    ...brand("arfro", "Arfro by Ariha Froid", 632),
     // À réécrire: the cm title with the site name substituted.
     defaultTitle: "Arfro · Climatiseurs, chauffe-eau · Ariha Froid",
     // À réécrire: the shared neutral description.

@@ -126,22 +126,12 @@ The dev server compiles each page on its first visit: a first run can be slow, a
 while the tests run trigger Fast Refresh. For a stable run, use a production stack
 (`docs/deployment.md`) with `E2E_BASE_URL`.
 
-### Visual comparison with the design
-
-```sh
-python -m http.server 5500 -d design            # serves the design files
-cd frontend && node scripts/visual-compare.mjs phase-4a
-```
-
-Pairs are listed in `frontend/scripts/visual/<phase>.mjs`; screenshots at 1440 and 390 px go to
-`frontend/test-results/visual/<phase>/`.
-
 ## Design assets
 
 `design/uploads/` holds the owner's photos (masters). The site serves WebP renditions of them from
 `frontend/public/design/` (with `manifest.json`), which are **committed**: dev and production
-builds never read `design/`. The logo is `frontend/public/logo-arfro.svg` (master:
-`design/logo_arfro.svg`). An image uploaded in the back office wins over these photos.
+builds never read `design/`. Logos and icons are in `frontend/public/brand/<site>/` (masters
+in `design/logos/`, see `design/README.md`). An image uploaded in the back office wins over these photos.
 
 After adding or replacing a photo in `design/uploads/` (keep the same file name, or add the new
 name to the list in `frontend/scripts/sync-design-assets.mjs`), run by hand:

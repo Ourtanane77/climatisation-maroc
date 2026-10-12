@@ -1,16 +1,15 @@
 # Deliberate deviations from the design files
 
-Each phase is compared with the design at 1440 and 390 px. The capture script
-is `frontend/scripts/visual-compare.mjs` and its output goes to
-`frontend/test-results/visual/<phase>/`. Anything that differs on purpose is
-listed here.
+Each phase was compared with the design pages at 1440 and 390 px (the pages and
+the capture script were removed on 2026-10-12, once the site was built).
+Anything that differs on purpose is listed here.
 
 ## Phase 2: layout and shared components
 
 | Area | Design | Built | Why |
 |---|---|---|---|
 | Brand icons (WhatsApp, Facebook…) | Loaded from the `cdn.simpleicons.org` CDN | Inline SVG | No third-party request, faster LCP, works offline. |
-| Logo | `uploads/pasted-1791221833312-0.png` | Text wordmark until the file is added to `design/uploads/` | Image missing from the design export (see `design/README.md`). It is picked up automatically when present. |
+| Logo | `uploads/pasted-1791221833312-0.png` | Owner's logo files per site (`design/logos/`, served from `frontend/public/brand/`) | Image missing from the design export; replaced by the owner's files on 2026-10-12. |
 | Mega-menu featured product | Photo cut-out | The featured product's own catalogue photo | The featured product is set in the back office (Page d'accueil), so its photo follows it. |
 | Focus states | None | 3 px brand-blue `:focus-visible` ring | Accessibility requirement (keyboard navigation). |
 | Mega menu, footer | Accueil's own versions differ from the Structure board's richer variants | Accueil's versions | The page files win over the boards. |
@@ -143,7 +142,8 @@ the colours with dark `#1A1A1A` text. Left as drawn until decided.
 
 | Area | Design | Built | Why |
 |---|---|---|---|
-| Arfro storefront (arfro.com) | No design file | Same design and the same logo as Climatisation Maroc; texts can differ per site | Owner's decision: one look for both sites until Arfro has its own identity. |
+| Arfro storefront (arfro.com) | No design file | Same design as Climatisation Maroc with its own logo and icons; texts can differ per site | Owner's decision: one look for both sites. |
+| Logos (2026-10-12) | Colour logo in a white pill on the blue footer | Each site's own logo (« Ariha Froid » for Climatisation Maroc, « Arfro » for arfro.com); the footer shows the owner's white version directly on the blue; favicons from the owner's icons | Owner's logo files (`design/logos/`). |
 
 ## Owner requests after phase 8
 

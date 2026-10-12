@@ -1,70 +1,31 @@
-# Design reference
+# Design sources
 
-Imported on 2026-10-06 from the Claude Design project
-`f6d854ce-f153-478b-8536-49a9a7a3de88` ("Homepage concepts under review").
+Source files the site is built from. Nothing here is served as is: the site uses copies
+generated from them under `frontend/public/`.
 
-These files are the **visual source of truth** for the front office. They are a
-reference, not code to ship: `support.js` is the design tool's runtime and
-`art.js` draws placeholder product illustrations. Neither is used by the app.
+The original HTML design pages (Claude Design export of 2026-10-06, 30 pages and 2 boards)
+were removed on 2026-10-12 once the site was built. Their layout values, states and data are
+recorded in `docs/design-inventory/`, and code comments still name the page each screen comes
+from (e.g. `design/Accueil.dc.html`). Git history keeps the files.
 
-`Toutes les pages.dc.html` is the index. It lists the pages below and their
-extra states. The index itself is not a page of the site.
+## `logos/`
 
-## Pages and states
+The owner's logo files, one folder per storefront (file names do not matter):
 
-| Group | Page file | States (query string) |
+| Folder | Files | Used as |
 |---|---|---|
-| Accueil | `Accueil.dc.html` | `?menu=clim`, `?drawer=1` (open mega menu / drawer) |
-| Structure | `Structure et navigation.dc.html` | design board: silo plan, mega menus, mobile menu, breadcrumb + footer |
-| Structure | `Plan du site.dc.html` | design board: site map |
-| Climatisation | `Climatisation.dc.html` | |
-| Climatisation | `Categorie Climatiseurs muraux.dc.html` | `?comparer=1` |
-| Climatisation | `Produit LG Dual Inverter.dc.html` | |
-| Achat | `Panier.dc.html` | `?vide=1` |
-| Achat | `Commande.dc.html` | |
-| Achat | `Confirmation.dc.html` | |
-| Achat | `Suivi commande.dc.html` | |
-| Achat | `Recherche.dc.html` | `?q=cuivre`, `?q=climatiseur%20portable` (no result) |
-| Achat | `Promotions.dc.html` | |
-| Devis, contact, services | `Demander un devis.dc.html` | `?envoye=1` |
-| Devis, contact, services | `Contact.dc.html` | |
-| Devis, contact, services | `Service.dc.html` | default = Installation, `?s=visite`, `?s=sav` |
-| Professionnels | `Espace professionnel.dc.html` | |
-| Professionnels | `Devenir revendeur.dc.html` | `?envoye=1` |
-| Professionnels | `Connexion.dc.html` | `?oubli=1` |
-| Professionnels | `Commande rapide.dc.html` | |
-| Solutions | `Solutions professionnelles.dc.html` | |
-| Solutions | `Restaurants.dc.html` | |
-| Blog | `Blog.dc.html` | |
-| Blog | `Blog categorie.dc.html` | `?c=guides` |
-| Blog | `Article puissance climatiseur.dc.html` | |
-| Marques et outils | `Marque LG.dc.html` | |
-| Marques et outils | `Cuivre et gaz.dc.html` | |
-| Marques et outils | `Comparer.dc.html` | |
-| Marques et outils | `Calculateur puissance.dc.html` | |
-| Entreprise | `A propos.dc.html` | |
-| Entreprise | `Livraison et paiement.dc.html` | |
-| Entreprise | `CGV.dc.html` | |
-| Entreprise | `Page introuvable.dc.html` | |
+| `arfro/` | colour, white and black logos; colour, white and black icons | arfro.com |
+| `climatisation-maroc/` | « Ariha Froid » logo in colour, white and black (no icon) | climatisationmaroc.com |
 
-32 unique files: 30 site pages and 2 design boards (`Structure et navigation`,
-`Plan du site`). Pages link to many `.dc.html` names that were never drawn
-(`Chauffe-eau`, `Marque Carrier`, `CGU`, …). Those are the templates the site
-must still provide, built from the same components.
+The site serves trimmed, resized copies from `frontend/public/brand/<site>/`: `logo.png`
+(header), `logo-white.png` (footer, on the brand blue), `icon.png` (512 px), `apple-icon.png`
+(180 px) and `favicon-32.png`. Climatisation Maroc's icons are the round « AF » mark cut from its
+logo. They are wired in `frontend/src/lib/site.ts`. After replacing a logo, regenerate the copies
+at the same sizes (logos 180 px high, transparent margins trimmed).
 
-## Images
+## `uploads/`
 
-Present in `uploads/`: `New_DZ2.png` and the nine brand logos `logo-*-t.png`.
-
-**Missing.** The design tool can only export files up to 256 KiB, so these
-could not be imported. They must be supplied separately and placed in
-`uploads/` under the same names:
-
-- `pasted-1791221833312-0.png`: Ariha Froid logo (header, footer, drawer)
-- `cover-ariha.png`: home hero background
-- `pasted-1791236697258-0.png`: hotel-hall photo (home "Solutions professionnelles" tile)
-- `clima-cut2.png`, `chauffe-eau-b0352fa9.png`, `ventilateur-cut.png`,
-  `gaines-cut.png`, `cuivre-cut2.png`, `telecommande-cut2.png`: range cut-outs
-- `cuivre-56818f19.png`: "Tout pour l'installation" tile photo
-
-Some product images point to the live site, `https://climatisationmaroc.com/prodimg/…`.
+The owner's photos (home hero, range and category tiles, brand cut-outs). `npm run sync-assets`
+(in `frontend/`) turns them into the WebP renditions and `public/design/manifest.json` that the
+site serves; the output is committed, so production never needs this folder. Run it after adding
+or replacing a photo here.

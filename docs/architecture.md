@@ -12,7 +12,7 @@ differences from the design files are in `docs/deviations.md`.
 | `backend/` | Laravel 13: REST API under `/api/v1`, Filament 5 back office at `/admin` (French), Sanctum, queues, mail |
 | `frontend/` | Next.js 16 App Router (TypeScript, Tailwind 4): every page server-rendered |
 | `docker/` | Dockerfiles (php-fpm, nginx, next), nginx config, MySQL init script, entrypoint |
-| `design/` | Claude Design export: the UI source of truth (not shipped) |
+| `design/` | source files: the owner's logos and photos (not shipped; see `design/README.md`) |
 | `data/catalog.json` | catalogue snapshot of the old site: seed and price authority |
 | `docs/` | plan, design inventory, deviations, these guides |
 
@@ -81,8 +81,9 @@ Laravel ──(after back-office changes)──► /api/revalidate of each Next.
   (`/comparer?p=SKU,SKU,SKU`).
 - **Design assets.** The owner's photos are committed as WebP renditions in `public/design/`
   (`manifest.json`), built by hand from `design/uploads/` with `npm run sync-assets`;
-  `src/lib/design-assets.ts` uses a photo only when it is in the manifest. Logo:
-  `public/logo-arfro.svg`.
+  `src/lib/design-assets.ts` uses a photo only when it is in the manifest. Logos and icons per
+  storefront: `public/brand/<site>/` (colour logo in the header, white logo in the footer,
+  favicon and app icons), declared in `src/lib/site.ts`; masters in `design/logos/`.
 
 ## Multi-site
 
@@ -161,7 +162,6 @@ forces one by hand.
 | Pure front-end logic, components | Vitest + Testing Library | `frontend/src/**/*.test.ts(x)` |
 | User journeys through nginx | Playwright | `frontend/e2e/` |
 | Routing through nginx | smoke script | `scripts/smoke.mjs` |
-| Visual comparison with the design | Playwright screenshots | `frontend/scripts/visual-compare.mjs` |
 
 CI (`.github/workflows/ci.yml`) runs the backend and frontend checks on every push and pull
 request; the Docker stack, smoke and end-to-end job runs on manual dispatch.

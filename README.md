@@ -33,5 +33,5 @@ http://localhost:8080/admin · Mailpit http://localhost:8025
 | [docs/deviations.md](docs/deviations.md) | deliberate differences from the design |
 | [CLAUDE.md](CLAUDE.md) | standing rules for contributors and coding agents |
 
-The UI source of truth is the Claude Design export in `design/`; `data/catalog.json` is the
+The UI source of truth is the design inventory in `docs/design-inventory/`; `data/catalog.json` is the
 catalogue and price authority.
