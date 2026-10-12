@@ -3,8 +3,9 @@
 return [
 
     /*
-    | Front office (Next.js) URLs: public base for links in e-mails, internal base for
-    | on-demand revalidation calls.
+    | Front office (Next.js) URLs of the default storefront (Climatisation Maroc). Per-site URLs,
+    | used for e-mail links and revalidation of every storefront, are in config/sites.php, which
+    | falls back to these two variables for the default site.
     */
     'frontend_url' => env('FRONTEND_URL', env('APP_URL')),
     'frontend_internal_url' => env('FRONTEND_INTERNAL_URL', 'http://next:3000'),

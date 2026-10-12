@@ -9,6 +9,7 @@
 <x-mail::table>
 | | |
 |:--|:--|
+| Site | {{ $siteName }} |
 @if ($lead->customer_kind)
 | Vous êtes | {{ $lead->customer_kind === 'professionnel' ? 'Professionnel' : 'Particulier' }} |
 @endif

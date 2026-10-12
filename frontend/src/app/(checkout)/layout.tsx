@@ -1,7 +1,7 @@
 import { CheckoutHeader } from "@/components/layout/CheckoutHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ToastHost } from "@/components/ui/Toast";
-import { logoSrc } from "@/lib/chrome";
+import { siteLogo } from "@/lib/chrome";
 import { getNavigation } from "@/lib/navigation";
 
 /**
@@ -10,17 +10,17 @@ import { getNavigation } from "@/lib/navigation";
  */
 export default async function CheckoutLayout({ children }: LayoutProps<"/">) {
   const nav = await getNavigation();
-  const logo = logoSrc();
+  const logo = siteLogo();
   return (
     <>
       <a href="#contenu" className="sr-only-focusable rounded-12 bg-ink fixed top-2 left-2 z-70 px-4 py-3 font-bold text-white">
         Aller au contenu
       </a>
-      <CheckoutHeader logoSrc={logo} phone={nav.salesPhone} />
+      <CheckoutHeader logo={logo} phone={nav.salesPhone} />
       <main id="contenu" className="site-container pb-10 md:pb-14">
         {children}
       </main>
-      <SiteFooter footer={nav.footer} logoSrc={logo} />
+      <SiteFooter footer={nav.footer} logo={logo} />
       <ToastHost />
     </>
   );

@@ -13,6 +13,7 @@ use App\Models\SectorPage;
 use App\Models\ServicePage;
 use App\Models\User;
 use App\Support\Frontend\Revalidator;
+use App\Support\Sites\SiteSettings;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -50,6 +51,14 @@ class AppServiceProvider extends ServiceProvider
             'city_page' => CityPage::class,
             'page' => Page::class,
         ]);
+
+        // GeneralSettings and HomeSettings hold the current site's values (App\Support\Sites\SiteSettings).
+        // Bound once every provider has booted, over spatie/laravel-settings' own bindings.
+        $this->app->booted(function () {
+            foreach (array_keys(SiteSettings::BINDINGS) as $base) {
+                $this->app->scoped($base, fn () => SiteSettings::for($base));
+            }
+        });
 
         // Back-office changes expire the front office's cached API data.
         Revalidator::register();

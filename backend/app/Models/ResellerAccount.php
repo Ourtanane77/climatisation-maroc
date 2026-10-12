@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\ResellerStatus;
+use App\Support\Sites\Sites;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property ResellerStatus $status
+ * @property string $site
  * @property-read User $user
  */
 class ResellerAccount extends Model
@@ -22,6 +24,14 @@ class ResellerAccount extends Model
     ];
 
     protected $guarded = ['id'];
+
+    /** The storefront the application was sent from: the current site unless set (its e-mails use it). */
+    protected static function booted(): void
+    {
+        static::creating(function (ResellerAccount $account) {
+            $account->site ??= Sites::currentKey();
+        });
+    }
 
     protected function casts(): array
     {

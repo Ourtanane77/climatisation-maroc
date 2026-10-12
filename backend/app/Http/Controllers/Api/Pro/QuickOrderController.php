@@ -8,6 +8,7 @@ use App\Models\OrderLine;
 use App\Models\ProductVariant;
 use App\Models\User;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -138,7 +139,7 @@ class QuickOrderController extends Controller
     private static function orderable(): Builder
     {
         return ProductVariant::query()
-            ->whereHas('product', fn (Builder $p) => $p->where('is_published', true))
+            ->whereHas('product', SiteCatalog::products(...))
             ->with(['product' => fn ($p) => $p->withCount('variants')->with('images')]);
     }
 

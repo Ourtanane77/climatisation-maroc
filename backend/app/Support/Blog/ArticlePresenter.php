@@ -8,6 +8,7 @@ use App\Models\ArticleCategory;
 use App\Models\ProductVariant;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Support\Collection;
 
 /**
@@ -24,7 +25,8 @@ class ArticlePresenter
             'slug' => $article->slug,
             'href' => $article->url(),
             'excerpt' => $article->excerpt,
-            'category' => $article->category ? self::category($article->category) : null,
+            // A blog category hidden on this site is not linked (its page answers 404 there).
+            'category' => $article->category?->isVisibleOn() ? self::category($article->category) : null,
             'readingTime' => $article->reading_time,
             'cover' => ImageUrl::path($article->cover),
             'art' => $article->art_key,
@@ -39,7 +41,7 @@ class ArticlePresenter
             'name' => $category->name,
             'slug' => $category->slug,
             'href' => $category->url(),
-            'description' => $category->description,
+            'description' => $category->siteText('description'),
         ];
     }
 
@@ -137,7 +139,7 @@ class ArticlePresenter
     private static function variants(array $skus): Collection
     {
         $found = ProductVariant::query()->whereIn('sku', $skus)
-            ->whereHas('product', fn ($q) => $q->published())
+            ->whereHas('product', SiteCatalog::products(...))
             ->with(['product.images', 'product.variants'])
             ->get()->keyBy('sku');
 

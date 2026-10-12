@@ -3,12 +3,15 @@
 namespace App\Filament\Resources\Categories;
 
 use App\Enums\CategoryTemplate;
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
 use App\Models\Category;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
@@ -31,6 +34,15 @@ use UnitEnum;
 
 class CategoryResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
+    /** Per-site texts (Category::SITE_TEXT_FIELDS), with the main field's component. */
+    public const SITE_TEXTS = [
+        'name' => ['Nom', 'text'],
+        'intro' => ['Introduction', 'textarea'],
+        'body' => ['Texte SEO (sous la liste)', 'rich'],
+    ];
+
     protected static ?string $model = Category::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
@@ -51,7 +63,7 @@ class CategoryResource extends Resource
             Tabs::make()->columnSpanFull()->tabs([
                 Tab::make('Général')->schema([
                     Grid::make(2)->schema([
-                        Fields::name(),
+                        Fields::name()->hint(SiteFields::mainHint()),
                         TextInput::make('short_name')->label('Nom court')->helperText('Puces, tuiles et menus (ex. « Mural »).'),
                         Fields::slug(),
                         Select::make('parent_id')->label('Gamme parente')
@@ -60,8 +72,8 @@ class CategoryResource extends Resource
                             ->searchable(),
                         Select::make('template')->label('Gabarit')->options(CategoryTemplate::class)->required()->default(CategoryTemplate::Listing),
                         TextInput::make('path')->label('Adresse')->prefix('/')->disabled()->dehydrated(false),
-                        Textarea::make('intro')->label('Introduction')->rows(3)->columnSpanFull(),
-                        RichEditor::make('body')->label('Texte SEO (sous la liste)')->columnSpanFull(),
+                        Textarea::make('intro')->label('Introduction')->hint(SiteFields::mainHint())->rows(3)->columnSpanFull(),
+                        RichEditor::make('body')->label('Texte SEO (sous la liste)')->hint(SiteFields::mainHint())->columnSpanFull(),
                     ]),
                     Section::make('Tuile et illustration')->columns(3)->collapsible()->schema([
                         TextInput::make('tile_text')->label('Texte de la tuile'),
@@ -75,8 +87,10 @@ class CategoryResource extends Resource
                         Toggle::make('is_quote_only')->label('Sur devis uniquement'),
                         TextInput::make('position')->label('Ordre')->numeric()->default(0),
                         TextInput::make('legacy_id')->label('ID ancien site')->numeric()->helperText('Sert aux redirections des anciennes adresses.'),
+                        SiteFields::visibility(Category::class)->columnSpanFull(),
                     ]),
                 ]),
+                ...SiteFields::textTabs(self::SITE_TEXTS),
                 Tab::make('Guides associés')->schema([
                     Select::make('articles')->label('Articles liés (« Guides associés »)')
                         ->relationship('articles', 'title')->multiple()->searchable()->preload()
@@ -102,9 +116,16 @@ class CategoryResource extends Resource
                 TextColumn::make('products_count')->label('Produits')->counts('products')->alignCenter(),
                 TextColumn::make('children_count')->label('Sous-catégories')->counts('children')->alignCenter(),
                 IconColumn::make('is_active')->label('Active')->boolean(),
+                SiteFields::sitesColumn(),
+                ...SiteFields::textColumns('intro'),
                 TextColumn::make('legacy_id')->label('ID ancien site')->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->recordActions([EditAction::make()]);
+            ->filters([
+                SiteFields::sitesFilter(),
+                ...SiteFields::textFilters('intro'),
+            ])
+            ->recordActions([EditAction::make()])
+            ->toolbarActions([BulkActionGroup::make(SiteFields::visibilityBulkActions(Category::class))]);
     }
 
     public static function getPages(): array

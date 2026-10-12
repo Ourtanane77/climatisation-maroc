@@ -3,13 +3,16 @@
 namespace App\Filament\Resources\Pages;
 
 use App\Enums\PageKind;
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Forms\ContentBlocks;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Pages\Pages\CreatePage;
 use App\Filament\Resources\Pages\Pages\EditPage;
 use App\Filament\Resources\Pages\Pages\ListPages;
 use App\Models\Page;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -29,6 +32,8 @@ use UnitEnum;
 
 class PageResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
     protected static ?string $model = Page::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
@@ -52,12 +57,13 @@ class PageResource extends Resource
                 Tab::make('Page')->schema([
                     Grid::make(2)->schema([
                         Fields::name('title', 'Titre'),
-                        Fields::slug('/'),
+                        Fields::slug('/')->rule(SiteFields::uniqueSlugPerSite(Page::class)),
                         Select::make('kind')->label('Type')->options(PageKind::class)->required()->default(PageKind::Other),
                         TextInput::make('updated_label')->label('Mention « Dernière mise à jour »')->placeholder('6 octobre 2026'),
                         Textarea::make('intro')->label('Introduction')->rows(3)->columnSpanFull(),
                         Toggle::make('is_published')->label('Publiée')
                             ->helperText('Les pages légales restent dépubliées tant que le texte juridique n’est pas saisi.'),
+                        SiteFields::visibility(Page::class),
                     ]),
                     ContentBlocks::page(),
                 ]),
@@ -76,10 +82,12 @@ class PageResource extends Resource
                 TextColumn::make('slug')->label('Adresse')->prefix('/'),
                 TextColumn::make('kind')->label('Type')->badge(),
                 IconColumn::make('is_published')->label('Publiée')->boolean(),
+                SiteFields::sitesColumn(),
                 TextColumn::make('updated_at')->label('Modifiée le')->date('d/m/Y'),
             ])
-            ->filters([SelectFilter::make('kind')->label('Type')->options(PageKind::class)])
-            ->recordActions([EditAction::make()]);
+            ->filters([SelectFilter::make('kind')->label('Type')->options(PageKind::class), SiteFields::sitesFilter()])
+            ->recordActions([EditAction::make(), ...SiteFields::duplicateActions(self::class)])
+            ->toolbarActions([BulkActionGroup::make(SiteFields::visibilityBulkActions(Page::class))]);
     }
 
     public static function getPages(): array

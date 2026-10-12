@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\ForSite;
 use App\Models\ResellerAccount;
 use App\Settings\GeneralSettings;
 use Illuminate\Bus\Queueable;
@@ -14,16 +15,21 @@ use Illuminate\Queue\SerializesModels;
 /** Sent when the back office refuses a reseller application (with the reason, when given). */
 class ResellerRefused extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use ForSite, Queueable, SerializesModels;
 
     public function __construct(public ResellerAccount $account)
     {
         $this->afterCommit();
     }
 
+    protected function siteKey(): ?string
+    {
+        return $this->account->site;
+    }
+
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Votre demande de compte revendeur');
+        return new Envelope(from: $this->siteFrom(), subject: 'Votre demande de compte revendeur');
     }
 
     public function content(): Content
@@ -31,6 +37,7 @@ class ResellerRefused extends Mailable implements ShouldQueue
         return new Content(markdown: 'mail.resellers.refused', with: [
             'account' => $this->account,
             'phone' => '0666-602599',
+            // Rendered inside ForSite::asSite(): the site the reseller applied on.
             'hours' => app(GeneralSettings::class)->hours,
         ]);
     }

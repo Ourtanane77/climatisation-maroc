@@ -139,6 +139,12 @@ Open (owner's decision): white text on the brand orange `#F4731F` (2.9:1) and on
 green `#25D366` (2.0:1) is below AA. Options: darken them (about `#BE5918`, `#178741`) or keep
 the colours with dark `#1A1A1A` text. Left as drawn until decided.
 
+## Multi-site (2026-10-12)
+
+| Area | Design | Built | Why |
+|---|---|---|---|
+| Arfro storefront (arfro.com) | No design file | Same design and the same logo as Climatisation Maroc; texts can differ per site | Owner's decision: one look for both sites until Arfro has its own identity. |
+
 ## Owner requests after phase 8
 
 | Area | Design | Built | Why |

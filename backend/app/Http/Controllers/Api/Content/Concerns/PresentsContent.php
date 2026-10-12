@@ -7,9 +7,10 @@ use App\Models\Category;
 use App\Models\FaqItem;
 use App\Models\Product;
 use App\Models\SectorPage;
-use App\Models\SeoMeta;
 use App\Settings\GeneralSettings;
 use App\Support\Api\ImageUrl;
+use App\Support\Api\SeoData;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
@@ -39,17 +40,18 @@ trait PresentsContent
         return collect($items)->map(fn (FaqItem $f) => ['question' => $f->question, 'answer' => $f->answer])->values()->all();
     }
 
-    /** @return array{title: ?string, description: ?string, h1: ?string, noindex: bool} */
+    /**
+     * SEO fields for the current site (per-site overrides first, then the shared SEO row).
+     *
+     * @return array{title: ?string, description: ?string, h1: ?string, noindex: bool}
+     */
     protected function seo(Model $model, ?string $fallbackTitle = null): array
     {
-        /** @var SeoMeta|null $seo */
-        $seo = $model->seo; // @phpstan-ignore property.notFound
-
         return [
-            'title' => $seo?->title ?: $fallbackTitle,
-            'description' => $seo?->description,
-            'h1' => $seo?->h1 ?: $fallbackTitle,
-            'noindex' => (bool) $seo?->noindex,
+            'title' => SeoData::title($model) ?: $fallbackTitle,
+            'description' => SeoData::description($model),
+            'h1' => SeoData::h1($model) ?: $fallbackTitle,
+            'noindex' => SeoData::noindex($model),
         ];
     }
 
@@ -61,7 +63,7 @@ trait PresentsContent
      */
     protected function productCards(BelongsToMany $relation, Request $request): array
     {
-        $products = $relation->where('products.is_published', true)->with(['variants', 'images', 'brand'])->get();
+        $products = $relation->where(SiteCatalog::products(...))->with(['variants', 'images', 'brand'])->get();
 
         return ProductCardResource::collection($products)->resolve($request);
     }
@@ -72,7 +74,7 @@ trait PresentsContent
         if (! $path) {
             return null;
         }
-        $this->activePaths ??= Category::query()->public()->pluck('path')->flip()->all();
+        $this->activePaths ??= Category::query()->where(SiteCatalog::publicCategories(...))->pluck('path')->flip()->all();
 
         return isset($this->activePaths[$path]) ? '/'.$path : null;
     }

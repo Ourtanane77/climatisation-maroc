@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\SectorPages;
 
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\SectorPages\Pages\CreateSectorPage;
 use App\Filament\Resources\SectorPages\Pages\EditSectorPage;
 use App\Filament\Resources\SectorPages\Pages\ListSectorPages;
 use App\Models\SectorPage;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
@@ -29,6 +32,8 @@ use UnitEnum;
 
 class SectorPageResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
     protected static ?string $model = SectorPage::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
@@ -58,7 +63,7 @@ class SectorPageResource extends Resource
                 Tab::make('Général')->schema([
                     Grid::make(2)->schema([
                         Fields::name(),
-                        Fields::slug('/solutions/'),
+                        Fields::slug('/solutions/')->rule(SiteFields::uniqueSlugPerSite(SectorPage::class)),
                         TextInput::make('tagline')->label('Accroche (carte secteur)'),
                         Select::make('scene_key')->label('Illustration')->options(self::SCENES),
                         ColorPicker::make('tile_bg')->label('Fond de la carte'),
@@ -68,6 +73,7 @@ class SectorPageResource extends Resource
                         TextInput::make('quote_title')->label('Titre du formulaire de devis'),
                         Textarea::make('whatsapp_text')->label('Message WhatsApp prérempli')->rows(1),
                         Toggle::make('is_published')->label('Publiée'),
+                        SiteFields::visibility(SectorPage::class),
                     ]),
                 ]),
                 Tab::make('Contraintes')->schema([
@@ -125,8 +131,11 @@ class SectorPageResource extends Resource
                 TextColumn::make('name')->label('Secteur')->weight('bold')->description(fn (SectorPage $r) => $r->tagline),
                 TextColumn::make('slug')->label('Adresse')->prefix('/solutions/'),
                 IconColumn::make('is_published')->label('Publiée')->boolean(),
+                SiteFields::sitesColumn(),
             ])
-            ->recordActions([EditAction::make()]);
+            ->filters([SiteFields::sitesFilter()])
+            ->recordActions([EditAction::make(), ...SiteFields::duplicateActions(self::class)])
+            ->toolbarActions([BulkActionGroup::make(SiteFields::visibilityBulkActions(SectorPage::class))]);
     }
 
     public static function getPages(): array

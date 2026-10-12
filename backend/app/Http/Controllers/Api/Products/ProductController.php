@@ -11,6 +11,7 @@ use App\Models\ProductVariant;
 use App\Settings\GeneralSettings;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,9 +23,9 @@ class ProductController extends Controller
 {
     public function show(Request $request, string $slug, GeneralSettings $settings): JsonResponse
     {
-        $product = Product::query()->published()->where('slug', $slug)
+        $product = Product::query()->where(SiteCatalog::products(...))->where('slug', $slug)
             ->with(['variants.specs', 'images', 'specs', 'brand', 'category.parent.parent', 'faqItems', 'seo',
-                'accessories' => fn ($q) => $q->where('is_published', true)->with(['variants', 'images'])])
+                'accessories' => fn ($q) => $q->where(SiteCatalog::products(...))->with(['variants', 'images'])])
             ->firstOrFail();
         abort_if($product->variants->isEmpty(), 404);
 
@@ -42,17 +43,17 @@ class ProductController extends Controller
             ->get();
 
         return response()->json([
-            'name' => $product->name,
+            'name' => $product->siteText('name'),
             'slug' => $product->slug,
             'href' => $product->url(),
-            'shortDescription' => $product->short_description,
-            'description' => $product->description,
+            'shortDescription' => $product->siteText('short_description'),
+            'description' => $product->siteText('description'),
             'highlights' => collect($product->highlights ?? [])->filter(fn (array $h) => ($h['title'] ?? '') !== '')->values(),
             'art' => $product->art_key,
             'datasheet' => ImageUrl::path($product->datasheet_path),
             'brand' => $product->brand ? Present::brand($product->brand) : null,
             'category' => Present::category($product->category),
-            'breadcrumb' => [...Present::categoryTrail($product->category), ['label' => $product->name]],
+            'breadcrumb' => [...Present::categoryTrail($product->category), ['label' => (string) $product->siteText('name')]],
             'defaultSku' => $default->sku,
             'selectorLabel' => $this->selectorLabel($product),
             'variants' => $product->variants->map(fn (ProductVariant $v) => [
@@ -74,7 +75,7 @@ class ProductController extends Controller
                 'src' => ImageUrl::for($i, 1200),
                 'thumb' => ImageUrl::for($i, 320),
                 'srcSet' => ImageUrl::srcSet($i),
-                'alt' => $i->alt ?: $product->name,
+                'alt' => $i->alt ?: $product->siteText('name'),
             ])->values(),
             'specs' => $product->specs->map(fn (ProductSpec $s) => ['label' => $s->label, 'value' => $s->value])->values(),
             'accessories' => $product->accessories
@@ -83,7 +84,7 @@ class ProductController extends Controller
                     $v = $a->variants->firstWhere('is_default', true) ?? $a->variants->first();
 
                     return [
-                        'name' => $a->name,
+                        'name' => $a->siteText('name'),
                         'sku' => $v->sku,
                         'href' => $a->url(),
                         'price' => $v->priceFor($reseller),
@@ -96,7 +97,7 @@ class ProductController extends Controller
             'technicalVisitPrice' => $settings->technical_visit_price,
             'sameRange' => ProductCardResource::collection($sameRange)->resolve($request),
             'faq' => $product->faqItems->map(fn ($f) => ['question' => $f->question, 'answer' => $f->answer])->values(),
-            'seo' => Present::seo($product->seo),
+            'seo' => Present::seo($product),
             'isReseller' => $reseller,
         ]);
     }

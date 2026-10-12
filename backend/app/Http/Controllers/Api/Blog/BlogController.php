@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Support\Blog\ArticlePresenter;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,9 +23,9 @@ class BlogController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $slug = $request->query('category');
-        $categories = ArticleCategory::query()
-            ->whereHas('articles', fn (Builder $q) => $q->where('is_published', true))
-            ->withCount(['articles' => fn (Builder $q) => $q->where('is_published', true)])
+        $categories = ArticleCategory::query()->visibleOn()
+            ->whereHas('articles', SiteCatalog::published(...))
+            ->withCount(['articles' => SiteCatalog::published(...)])
             ->orderBy('position')->get();
 
         $category = null;
@@ -35,7 +36,7 @@ class BlogController extends Controller
             }
         }
 
-        $query = Article::query()->published()->with('category')
+        $query = Article::query()->where(SiteCatalog::published(...))->with('category')
             ->when($category, fn (Builder $q) => $q->where('article_category_id', $category?->id))
             ->orderBy('position')->orderByDesc('published_at');
 

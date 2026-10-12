@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Products;
 
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Tables\ProductsTable;
+use App\Filament\Support\SiteScope;
 use App\Models\Product;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -17,6 +19,8 @@ use UnitEnum;
 
 class ProductResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
@@ -34,7 +38,7 @@ class ProductResource extends Resource
     /** Badge: products waiting for verification. */
     public static function getNavigationBadge(): ?string
     {
-        $count = Product::query()->needsVerification()->count();
+        $count = SiteScope::content(Product::query())->needsVerification()->count();
 
         return $count ? (string) $count : null;
     }

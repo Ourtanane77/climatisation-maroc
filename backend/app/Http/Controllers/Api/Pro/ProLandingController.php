@@ -8,6 +8,7 @@ use App\Models\FaqItem;
 use App\Models\Page;
 use App\Models\ProductVariant;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -21,7 +22,7 @@ class ProLandingController extends Controller
 
     public function __invoke(): JsonResponse
     {
-        $brands = Brand::query()->active()->whereNotNull('logo')->orderBy('position')->get()
+        $brands = Brand::query()->where(SiteCatalog::brands(...))->whereNotNull('logo')->orderBy('position')->get()
             ->map(fn (Brand $b) => [
                 'name' => $b->name,
                 'href' => $b->url(),
@@ -29,13 +30,13 @@ class ProLandingController extends Controller
                 'aspect' => (float) ($b->logo_aspect ?: 2),
             ])->values();
 
-        $page = Page::query()->where('slug', 'espace-professionnel')->first();
+        $page = Page::query()->visibleOn()->where('slug', 'espace-professionnel')->first();
         $faq = $page ? $page->faqItems()->get()->map(fn (FaqItem $f) => [
             'question' => $f->question,
             'answer' => $f->answer,
         ])->values() : collect();
 
-        $variants = ProductVariant::query()->with('product')
+        $variants = ProductVariant::query()->with('product')->whereHas('product', SiteCatalog::products(...))
             ->whereIn('sku', array_column(self::PREVIEW, 0))->get()->keyBy('sku');
         $preview = collect(self::PREVIEW)
             ->filter(fn (array $row) => isset($variants[$row[0]]))

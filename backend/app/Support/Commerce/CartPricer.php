@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Settings\GeneralSettings;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Support\Collection;
 
 /**
@@ -80,7 +81,7 @@ class CartPricer
         $accessoryIds = Product::query()->whereIn('id', $productIds)->with('accessories:id')->get()
             ->flatMap(fn (Product $p) => $p->accessories->pluck('id'))->unique();
 
-        $candidates = Product::query()->published()->whereIn('id', $accessoryIds)
+        $candidates = Product::query()->where(SiteCatalog::products(...))->whereIn('id', $accessoryIds)
             ->with(['variants', 'images'])->get()
             ->map(fn (Product $p) => $p->variants->first()?->setRelation('product', $p))
             ->filter();
@@ -128,7 +129,7 @@ class CartPricer
     }
 
     /**
-     * Published variants by SKU, with what a line needs.
+     * Variants by SKU of products visible on the current site, with what a line needs.
      *
      * @param  list<string>  $skus
      * @return Collection<string, ProductVariant>
@@ -137,7 +138,7 @@ class CartPricer
     {
         return ProductVariant::query()
             ->whereIn('sku', $skus)
-            ->whereHas('product', fn ($q) => $q->where('is_published', true))
+            ->whereHas('product', SiteCatalog::products(...))
             ->with(['product.images', 'product.variants'])
             ->get()
             ->keyBy('sku');
@@ -153,7 +154,7 @@ class CartPricer
             'variantId' => $variant->id,
             'sku' => $variant->sku,
             'name' => $variant->displayName(),
-            'productName' => $product->name,
+            'productName' => $product->siteText('name'),
             'variantLabel' => $variant->label,
             'option' => self::optionText($variant),
             'href' => $product->url().($product->variants->count() > 1 ? '?v='.rawurlencode($variant->sku) : ''),

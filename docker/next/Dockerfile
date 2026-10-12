@@ -16,7 +16,9 @@ RUN npm ci
 # ---- build ----
 FROM base AS build
 ARG API_INTERNAL_URL=http://nginx
-ARG NEXT_PUBLIC_SITE_URL=https://app.arfro.com
+# Build-time fallback only: each container gets its site and public URL at run time (SITE_KEY,
+# SITE_URL), so one image serves both storefronts (next, next-arfro).
+ARG NEXT_PUBLIC_SITE_URL=https://climatisationmaroc.com
 ENV API_INTERNAL_URL=$API_INTERNAL_URL NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 COPY --from=deps /app/node_modules ./node_modules
 # frontend/public is self-contained (logo, design photos and their WebP renditions): design/ is

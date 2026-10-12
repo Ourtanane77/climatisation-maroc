@@ -5,7 +5,9 @@ namespace App\Filament\Pages;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\User;
 use App\Settings\HomeSettings;
+use App\Support\Sites\Sites;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -17,7 +19,11 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
 
-/** "Page d'accueil": hero, product rails, brand order, mega-menu featured products. */
+/**
+ * "Page d'accueil" of one site (default site here; ManageArfroHomeSettings for arfro.com): hero,
+ * product rails, brand order, mega-menu featured products. The pickers list what the site shows.
+ * Open to the users managing that site.
+ */
 class ManageHomeSettings extends SettingsPage
 {
     protected static string $settings = HomeSettings::class;
@@ -28,13 +34,42 @@ class ManageHomeSettings extends SettingsPage
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'Page d’accueil';
+    /** Site whose home page the page edits. */
+    public static function siteKey(): string
+    {
+        return Sites::defaultKey();
+    }
 
-    protected static ?string $title = 'Page d’accueil';
+    public static function getNavigationLabel(): string
+    {
+        return 'Page d’accueil — '.Sites::get(static::siteKey())->name;
+    }
+
+    public function getTitle(): string
+    {
+        return static::getNavigationLabel();
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->managesSite(static::siteKey());
+    }
 
     public function form(Schema $schema): Schema
     {
-        $products = fn () => Product::query()->orderBy('name')->pluck('name', 'id')->all();
+        $site = static::siteKey();
+        // Products shown on the site, plus those already chosen (so a product hidden since stays valid).
+        $products = function () use ($site) {
+            /** @var HomeSettings $settings */
+            $settings = app(static::getSettings());
+            $chosen = collect([$settings->new_product_ids, $settings->promo_product_ids, $settings->ducts_product_ids,
+                $settings->supplies_product_ids, array_values($settings->mega_featured)])->flatten()->filter()->all();
+
+            return Product::query()->where(fn ($q) => $q->visibleOn($site)->orWhereIn('id', $chosen))
+                ->orderBy('name')->pluck('name', 'id')->all();
+        };
         $productSelect = fn (string $field, string $label) => Select::make($field)->label($label)->options($products)->multiple()->searchable()
             ->helperText('L’ordre de sélection est l’ordre d’affichage.');
 
@@ -55,11 +90,11 @@ class ManageHomeSettings extends SettingsPage
             ]),
             Section::make('Marques')->schema([
                 Select::make('brand_ids')->label('Marques du bandeau, dans l’ordre')
-                    ->options(fn () => Brand::query()->orderBy('position')->pluck('name', 'id')->all())->multiple(),
+                    ->options(fn () => Brand::query()->visibleOn($site)->orderBy('position')->pluck('name', 'id')->all())->multiple(),
             ]),
             Section::make('Produit vedette du menu')->description('Produit affiché dans le menu déroulant de chaque gamme.')->schema([
                 Grid::make(3)->schema(
-                    Category::query()->whereNull('parent_id')->orderBy('position')->get()
+                    Category::query()->visibleOn($site)->whereNull('parent_id')->orderBy('position')->get()
                         ->map(fn (Category $c) => Select::make("mega_featured.{$c->path}")->label($c->name)->options($products)->searchable())
                         ->all()
                 ),

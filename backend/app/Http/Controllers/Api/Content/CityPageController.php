@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\CityPage;
 use App\Models\Product;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,16 +24,16 @@ class CityPageController extends Controller
 
     public function show(Request $request, string $slug): JsonResponse
     {
-        $page = CityPage::query()->published()->where('slug', $slug)->with(['city', 'seo', 'faqItems'])->firstOrFail();
+        $page = CityPage::query()->where(SiteCatalog::published(...))->where('slug', $slug)->with(['city', 'seo', 'faqItems'])->firstOrFail();
         $cityName = $page->city->name;
 
-        $range = Category::query()->active()->whereNull('parent_id')->where('slug', 'climatisation')->first();
+        $range = Category::query()->where(SiteCatalog::publicCategories(...))->whereNull('parent_id')->where('slug', 'climatisation')->first();
         $types = $range
-            ? $range->children()->public()->orderBy('position')->get()
+            ? $range->children()->where(SiteCatalog::publicCategories(...))->orderBy('position')->get()
             : collect();
 
         $products = $range
-            ? Product::query()->published()->whereIn('category_id', $range->descendantIds())
+            ? Product::query()->where(SiteCatalog::products(...))->whereIn('category_id', $range->descendantIds())
                 ->orderByDesc('is_featured')->orderBy('position')->limit(8)
                 ->with(['variants', 'images', 'brand'])->get()
             : collect();
@@ -44,7 +45,7 @@ class CityPageController extends Controller
             'intro' => $page->intro,
             'body' => $page->body,
             'types' => $types->map(fn (Category $c) => [
-                'name' => $c->short_name ?: $c->name,
+                'name' => $c->short_name ?: $c->siteText('name'),
                 'text' => $c->tile_text,
                 'art' => $c->art_key,
                 'bg' => $c->tile_bg,

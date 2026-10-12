@@ -9,6 +9,7 @@
 Note pour le livreur : {{ $order->note }}
 @endif
 
+Site : {{ $siteName }}<br>
 Tarif : {{ $order->pricing === 'pro' ? 'Revendeur' : 'Public' }}
 
 <x-mail::table>

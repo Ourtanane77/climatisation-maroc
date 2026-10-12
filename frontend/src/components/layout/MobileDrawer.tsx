@@ -6,10 +6,10 @@ import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
 import type { SiteNavigation } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
-import { Logo } from "./Logo";
+import { Logo, type SiteLogo } from "./Logo";
 
 /** Full-screen mobile menu: range accordions, extra links, call and WhatsApp buttons (design drawer). */
-export function MobileDrawer({ open, onClose, nav, logoSrc }: { open: boolean; onClose: () => void; nav: SiteNavigation; logoSrc: string | null }) {
+export function MobileDrawer({ open, onClose, nav, logo }: { open: boolean; onClose: () => void; nav: SiteNavigation; logo: SiteLogo }) {
   const [section, setSection] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -39,7 +39,7 @@ export function MobileDrawer({ open, onClose, nav, logoSrc }: { open: boolean; o
       onClick={(e) => (e.target as HTMLElement).closest("a") && onClose()}
     >
       <div className="border-divider sticky top-0 z-2 -mx-4 mb-2 flex h-[72px] items-center justify-between border-b bg-white px-4">
-        <Logo src={logoSrc} height={36} />
+        <Logo logo={logo} height={36} />
         <button
           ref={closeRef}
           type="button"

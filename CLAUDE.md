@@ -24,6 +24,9 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
     in menus, the sitemap or internal link blocks.
 - **Prices are always computed on the server.** A reseller sees the pro price
   where set; the public never does.
+- **Multi-site.** One back office serves two storefronts: Climatisation Maroc (`cm`, default)
+  and Arfro (`arfro`), see `docs/architecture.md`. Every public query is scoped with
+  `visibleOn()`; new content models use `HasSites`. Never hardcode one site's URL or name.
 - The plan lives in `docs/plan.md`. Update it when a decision changes.
 - **Never commit, push or create branches.** The owner commits. Leave changes
   in the working tree, run the tests and linters, and report what changed so
@@ -35,7 +38,7 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
 |---|---|
 | `backend/` | Laravel, REST API under `/api/v1`, Sanctum, Filament back office at `/admin` (French) |
 | `frontend/` | Next.js App Router, TypeScript, Tailwind; server-rendered |
-| `docker/` | nginx, php-fpm, queue worker, scheduler, mysql 8, redis, next, mailpit |
+| `docker/` | nginx, php-fpm, queue worker, scheduler, mysql 8, redis, next + next-arfro, mailpit |
 | `design/` | design reference (do not ship its scripts) |
 | `docs/` | plan, inventory, deviations, guides |
 | `data/` | `catalog.json` (real catalogue snapshot) |
@@ -57,12 +60,14 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
 | `make logs` | follow the stack logs |
 | `make sh-php` | shell in the php container |
 | `make sh-next` | shell in the next container |
+| `make sh-next-arfro` | shell in the next-arfro container |
 
 Without `make` (Windows shell), run the same `docker compose …` commands
 listed in the `Makefile`.
 
 Local URLs:
-- site: http://localhost:8080
+- site: http://localhost:8080 (Climatisation Maroc)
+- Arfro: http://arfro.localhost:8080
 - back office: http://localhost:8080/admin
 - Mailpit: http://localhost:8025
 

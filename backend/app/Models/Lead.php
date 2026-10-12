@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\LeadStatus;
 use App\Enums\LeadType;
+use App\Support\Sites\Sites;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -13,10 +14,19 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  *
  * @property LeadType $type
  * @property LeadStatus $status
+ * @property string $site
  */
 class Lead extends Model
 {
     protected $guarded = ['id'];
+
+    /** The storefront the form was sent from: the current site unless set. */
+    protected static function booted(): void
+    {
+        static::creating(function (Lead $lead) {
+            $lead->site ??= Sites::currentKey();
+        });
+    }
 
     protected function casts(): array
     {

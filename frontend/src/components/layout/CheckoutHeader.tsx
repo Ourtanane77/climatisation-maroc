@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { ChevronLeftIcon, MAT, MatIcon } from "@/components/ui/icons";
 import type { Phone } from "@/lib/types";
-import { Logo } from "./Logo";
+import { Logo, type SiteLogo } from "./Logo";
 
 /** Reduced checkout header (design/Commande.dc.html): logo, sales phone, "Retour au panier". */
-export function CheckoutHeader({ logoSrc, phone }: { logoSrc: string | null; phone: Phone }) {
+export function CheckoutHeader({ logo, phone }: { logo: SiteLogo; phone: Phone }) {
   return (
     <header className="shadow-hairline bg-white">
       <div className="site-gutter flex h-[76px] items-center gap-3">
         <Link href="/" className="flex shrink-0">
-          <Logo src={logoSrc} height={36} className="md:hidden" />
-          <Logo src={logoSrc} height={50} className="hidden md:flex" />
+          <Logo logo={logo} height={36} className="md:hidden" />
+          <Logo logo={logo} height={50} className="hidden md:flex" />
         </Link>
         <a
           href={phone.href}

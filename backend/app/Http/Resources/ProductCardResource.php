@@ -35,7 +35,7 @@ class ProductCardResource extends JsonResource
         $maxDiscount = $variants->map(fn (ProductVariant $v) => self::discount($v, $reseller))->max() ?? 0;
 
         return [
-            'name' => $product->name,
+            'name' => $product->siteText('name'),
             'href' => $product->url(),
             'brand' => $product->brand?->name,
             'sku' => $single?->sku,
@@ -46,7 +46,7 @@ class ProductCardResource extends JsonResource
             'onRequest' => $priced->isEmpty(),
             'image' => ImageUrl::for(self::imageFor($product, $first)),
             'imageSrcSet' => ImageUrl::srcSet(self::imageFor($product, $first)),
-            'imageAlt' => $product->name,
+            'imageAlt' => $product->siteText('name'),
             'art' => $product->art_key,
             'dark' => $first?->colour === 'Noir',
             'badge' => $maxDiscount > 0 ? ['text' => "\u{2212}{$maxDiscount}\u{00A0}%", 'tone' => 'promo'] : null,

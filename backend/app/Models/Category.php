@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CategoryTemplate;
 use App\Models\Concerns\HasFaq;
 use App\Models\Concerns\HasSeo;
+use App\Models\Concerns\HasSites;
 use App\Models\Contracts\HasPublicUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +28,10 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  */
 class Category extends Model implements HasPublicUrl
 {
-    use HasFaq, HasSeo;
+    use HasFaq, HasSeo, HasSites;
+
+    /** Fields with an optional per-site text (HasSites::siteText), besides the SEO fields. */
+    public const SITE_TEXT_FIELDS = ['name', 'intro', 'body'];
 
     protected $guarded = ['id'];
 

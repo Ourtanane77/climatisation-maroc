@@ -19,6 +19,8 @@ use App\Models\SectorPage;
 use App\Models\SeoMeta;
 use App\Models\ServicePage;
 use App\Support\Api\ApiCache;
+use App\Support\Sites\Site;
+use App\Support\Sites\Sites;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -26,10 +28,13 @@ use Spatie\LaravelSettings\Events\SettingsSaved;
 use Throwable;
 
 /**
- * Tells the Next.js front office to drop its cached API data (POST /api/revalidate, tag "api") after
- * the catalogue, content or settings change. Without it, a page that becomes unpublished stays
- * served: Next only caches 200 responses, so the API's 404 never replaces the cached page.
- * One call per request or command, sent after the response; failures are logged, never fatal.
+ * Tells the Next.js front offices to drop their cached API data (POST /api/revalidate, tag "api")
+ * after the catalogue, content or settings change. Without it, a page that becomes unpublished
+ * stays served: Next only caches 200 responses, so the API's 404 never replaces the cached page.
+ * Every storefront (config/sites.php) has its own Next.js instance and cache, and they share the
+ * catalogue: each one is called, whichever site the change concerns.
+ * One round of calls per request or command, sent after the response; failures are logged per
+ * site, never fatal.
  */
 class Revalidator
 {
@@ -71,17 +76,36 @@ class Revalidator
         });
     }
 
-    /** @param list<string> $tags */
+    /**
+     * Revalidates every storefront. True only when all of them answered successfully.
+     *
+     * @param  list<string>  $tags
+     */
     public static function send(array $tags = ['api']): bool
     {
-        $url = rtrim((string) config('shop.frontend_internal_url'), '/').'/api/revalidate';
+        $ok = true;
+        foreach (Sites::all() as $site) {
+            $ok = self::sendTo($site, $tags) && $ok;
+        }
+
+        return $ok;
+    }
+
+    /** @param list<string> $tags */
+    public static function sendTo(Site $site, array $tags = ['api']): bool
+    {
+        $url = $site->frontendInternalUrl.'/api/revalidate';
         try {
-            return Http::timeout(30)
+            $response = Http::timeout(30)
                 ->withHeaders(['X-Revalidate-Secret' => (string) config('shop.revalidate_secret')])
-                ->post($url, ['tags' => $tags])
-                ->successful();
+                ->post($url, ['tags' => $tags]);
+            if (! $response->successful()) {
+                Log::warning('Front-office revalidation failed', ['site' => $site->key, 'url' => $url, 'status' => $response->status()]);
+            }
+
+            return $response->successful();
         } catch (Throwable $e) {
-            Log::warning('Front-office revalidation failed', ['url' => $url, 'error' => $e->getMessage()]);
+            Log::warning('Front-office revalidation failed', ['site' => $site->key, 'url' => $url, 'error' => $e->getMessage()]);
 
             return false;
         }

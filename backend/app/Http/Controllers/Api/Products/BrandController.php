@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Settings\GeneralSettings;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,8 +21,8 @@ class BrandController extends Controller
 {
     public function index(): JsonResponse
     {
-        $brands = Brand::query()->active()->orderBy('position')->orderBy('name')
-            ->withCount(['products' => fn ($q) => $q->published()])
+        $brands = Brand::query()->where(SiteCatalog::brands(...))->orderBy('position')->orderBy('name')
+            ->withCount(['products' => SiteCatalog::products(...)])
             ->get();
 
         return response()->json(['data' => $brands->map(fn (Brand $b) => [...Present::brand($b), 'productCount' => $b->products_count])->values()]);
@@ -29,7 +30,7 @@ class BrandController extends Controller
 
     public function show(Request $request, string $slug, GeneralSettings $settings): JsonResponse
     {
-        $brand = Brand::query()->active()->where('slug', $slug)->with('seo')->firstOrFail();
+        $brand = Brand::query()->where(SiteCatalog::brands(...))->where('slug', $slug)->with('seo')->firstOrFail();
 
         $products = Present::cardQuery()->where('brand_id', $brand->id)
             ->with('category.parent')
@@ -43,8 +44,8 @@ class BrandController extends Controller
 
                 return [
                     'key' => $category->slug,
-                    'label' => $category->short_name ?: $category->name,
-                    'title' => $category->name,
+                    'label' => $category->short_name ?: $category->siteText('name'),
+                    'title' => $category->siteText('name'),
                     'href' => $category->url(),
                     'position' => [$category->parent->position ?? $category->position, $category->parent ? $category->position : -1],
                     'count' => $items->count(),
@@ -55,8 +56,8 @@ class BrandController extends Controller
             ->map(fn (array $g) => array_diff_key($g, ['position' => true]))
             ->values();
 
-        $others = Brand::query()->active()->whereKeyNot($brand->id)
-            ->whereHas('products', fn ($q) => $q->published())
+        $others = Brand::query()->where(SiteCatalog::brands(...))->whereKeyNot($brand->id)
+            ->whereHas('products', SiteCatalog::products(...))
             ->orderBy('position')->orderBy('name')
             ->limit(4)
             ->get();
@@ -66,7 +67,7 @@ class BrandController extends Controller
         return response()->json([
             'brand' => [
                 ...Present::brand($brand),
-                'intro' => $brand->intro,
+                'intro' => $brand->siteText('intro'),
                 'features' => $brand->features ?? [],
             ],
             'heroImage' => $this->heroImage($products->all()),
@@ -74,7 +75,7 @@ class BrandController extends Controller
             'others' => $others->map(fn (Brand $b) => Present::brand($b))->values(),
             'advicePhone' => $advice ? ['display' => $advice['display'], 'href' => self::tel($advice['display'])] : null,
             'whatsapp' => $settings->whatsapp_number,
-            'seo' => Present::seo($brand->seo),
+            'seo' => Present::seo($brand),
         ]);
     }
 

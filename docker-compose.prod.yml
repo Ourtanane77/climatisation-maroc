@@ -3,7 +3,10 @@
 # Every setting comes from ${…} variables, so the same file works with:
 #   - make prod-build && make prod-up   (values from .env.prod, port from docker-compose.ports.yml)
 #   - Coolify (Docker Compose build pack): paste the variables in the resource's Environment
-#     Variables and set the domain on the nginx service (port 80); Coolify's proxy handles TLS.
+#     Variables and set both storefront domains on the nginx service (port 80); Coolify's proxy
+#     handles TLS.
+# Two storefronts (docs/architecture.md, Multi-site): nginx sends arfro.com to `next-arfro` and every
+# other host to `next`; both run the same Next.js image. Laravel answers on both domains.
 # See docs/deployment.md.
 name: climatisation-maroc-prod
 
@@ -23,7 +26,7 @@ x-php: &php
     APP_ENV: production
     APP_DEBUG: "false"
     APP_KEY: ${APP_KEY:?APP_KEY is required (php artisan key:generate --show)}
-    APP_URL: ${APP_URL:?APP_URL is required, e.g. https://app.arfro.com}
+    APP_URL: ${APP_URL:?APP_URL is required, e.g. https://climatisationmaroc.com}
     APP_LOCALE: ${APP_LOCALE:-fr}
     APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-fr}
     APP_TIMEZONE: ${APP_TIMEZONE:-Africa/Casablanca}
@@ -32,6 +35,13 @@ x-php: &php
     FRONTEND_URL: ${FRONTEND_URL:-${APP_URL}}
     FRONTEND_INTERNAL_URL: ${FRONTEND_INTERNAL_URL:-http://next:3000}
     REVALIDATE_SECRET: ${REVALIDATE_SECRET:?REVALIDATE_SECRET is required}
+    # Storefronts (config/sites.php): public URL for e-mail links, internal URL for revalidation.
+    SITE_CM_URL: ${NEXT_PUBLIC_SITE_URL:-https://climatisationmaroc.com}
+    SITE_CM_INTERNAL_URL: http://next:3000
+    SITE_CM_MAIL_FROM_NAME: ${SITE_CM_MAIL_FROM_NAME:-Climatisation Maroc}
+    SITE_ARFRO_URL: ${SITE_ARFRO_URL:-https://arfro.com}
+    SITE_ARFRO_INTERNAL_URL: http://next-arfro:3000
+    SITE_ARFRO_MAIL_FROM_NAME: ${SITE_ARFRO_MAIL_FROM_NAME:-Arfro}
     LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
     LOG_LEVEL: ${LOG_LEVEL:-warning}
     LOG_DEPRECATIONS_CHANNEL: ${LOG_DEPRECATIONS_CHANNEL:-null}
@@ -158,9 +168,12 @@ services:
     expose: ["80"]
     volumes:
       - storage_public:/var/www/storage:ro
+    # next-arfro only has to be started: nginx resolves it per request, so if it fails, arfro.com
+    # answers 502 while climatisationmaroc.com, the API and the back office keep working.
     depends_on:
       php: { condition: service_healthy }
       next: { condition: service_healthy }
+      next-arfro: { condition: service_started }
     restart: always
     logging: *logging
     healthcheck:
@@ -172,6 +185,9 @@ services:
       resources:
         limits: { memory: "${NGINX_MEMORY:-256m}" }
 
+  # Climatisation Maroc storefront. Builds the Next.js image used by both storefronts.
+  # NEXT_PUBLIC_SITE_URL is also a build argument (inlined at build time); the site key and the
+  # public URL each instance serves are read at run time (SITE_KEY, SITE_URL).
   next:
     build:
       context: .
@@ -179,15 +195,17 @@ services:
       target: prod
       args:
         API_INTERNAL_URL: http://nginx
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://app.arfro.com}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://climatisationmaroc.com}
     image: climatisation-maroc/next:prod
     environment:
       API_INTERNAL_URL: http://nginx
-      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://app.arfro.com}
+      SITE_KEY: cm
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://climatisationmaroc.com}
+      SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://climatisationmaroc.com}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     restart: always
     logging: *logging
-    healthcheck:
+    healthcheck: &next-health
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 30s
       timeout: 5s
@@ -195,6 +213,24 @@ services:
     deploy:
       resources:
         limits: { memory: "${NEXT_MEMORY:-1g}" }
+
+  # Arfro storefront: same image as `next` (no second build), another site key and URL.
+  next-arfro:
+    image: climatisation-maroc/next:prod
+    pull_policy: never
+    environment:
+      API_INTERNAL_URL: http://nginx
+      SITE_KEY: arfro
+      NEXT_PUBLIC_SITE_URL: ${SITE_ARFRO_URL:-https://arfro.com}
+      SITE_URL: ${SITE_ARFRO_URL:-https://arfro.com}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+    depends_on: [next]
+    restart: always
+    logging: *logging
+    healthcheck: *next-health
+    deploy:
+      resources:
+        limits: { memory: "${NEXT_ARFRO_MEMORY:-768m}" }
 
   mysql:
     image: mysql:8.4

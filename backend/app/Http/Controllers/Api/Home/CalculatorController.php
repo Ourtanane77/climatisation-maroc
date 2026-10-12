@@ -9,6 +9,7 @@ use App\Models\ProductVariant;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
 use App\Support\Calculator\PowerCalculator;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -84,7 +85,7 @@ class CalculatorController extends Controller
 
         $categoryOrder = Category::query()->whereIn('id', $climatisation->descendantIds())->pluck('position', 'id');
         $variants = ProductVariant::query()
-            ->whereHas('product', fn ($q) => $q->published()->whereIn('category_id', $categoryOrder->keys()))
+            ->whereHas('product', fn ($q) => $q->where(SiteCatalog::products(...))->whereIn('category_id', $categoryOrder->keys()))
             ->when($tierIndex < 4, fn ($q) => $q->where('power_btu', $btu), fn ($q) => $q->where('power_btu', '>=', $btu))
             ->with(['product.images', 'product.brand'])
             ->get()

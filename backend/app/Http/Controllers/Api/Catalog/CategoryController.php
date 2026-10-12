@@ -13,7 +13,9 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
+use App\Support\Api\SeoData;
 use App\Support\Catalog\Listing;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -33,29 +35,29 @@ class CategoryController extends Controller
         $root = $parent ?? $category;
 
         return response()->json([
-            'name' => $category->name,
-            'h1' => $category->seo->h1 ?? $category->seo->title ?? $category->name,
+            'name' => $category->siteText('name'),
+            'h1' => SeoData::h1($category) ?? SeoData::title($category) ?? $category->siteText('name'),
             'shortName' => $category->short_name,
             'path' => $category->path,
             'href' => $category->url(),
             'template' => $category->template->value,
             'isQuoteOnly' => (bool) $category->is_quote_only,
-            'intro' => $category->intro,
-            'body' => $category->body,
+            'intro' => $category->siteText('intro'),
+            'body' => $category->siteText('body'),
             'breadcrumb' => $this->breadcrumb($category),
-            'parent' => $parent ? ['label' => $parent->name, 'href' => $parent->url()] : null,
-            'children' => $category->children()->public()->get()
+            'parent' => $parent ? ['label' => $parent->siteText('name'), 'href' => $parent->url()] : null,
+            'children' => $category->children()->where(SiteCatalog::publicCategories(...))->get()
                 ->map(fn (Category $c) => $this->tile($c))->values(),
             // Sister type chips: the parent's children (or this range's children on a range page).
-            'siblings' => $root->children()->public()->get()->map(fn (Category $c) => [
-                'label' => $c->short_name ?? $c->name,
+            'siblings' => $root->children()->where(SiteCatalog::publicCategories(...))->get()->map(fn (Category $c) => [
+                'label' => $c->short_name ?? $c->siteText('name'),
                 'href' => $c->url(),
                 'active' => $c->id === $category->id,
             ])->values(),
             'powers' => $this->powers($category, $families),
             'popular' => ProductCardResource::collection($this->popular($families))->resolve(),
             'brands' => $this->brands($families),
-            'guides' => $category->articles()->published()->get()->map(fn (Article $a) => [
+            'guides' => $category->articles()->where(SiteCatalog::published(...))->get()->map(fn (Article $a) => [
                 'title' => $a->title,
                 'href' => $a->url(),
             ])->values(),
@@ -64,9 +66,9 @@ class CategoryController extends Controller
                 'answer' => $f->answer,
             ])->values(),
             'seo' => [
-                'title' => $category->seo?->title,
-                'description' => $category->seo?->description,
-                'noindex' => (bool) $category->seo?->noindex,
+                'title' => SeoData::title($category),
+                'description' => SeoData::description($category),
+                'noindex' => SeoData::noindex($category),
             ],
             'productCount' => $families->count(),
         ]);
@@ -109,7 +111,7 @@ class CategoryController extends Controller
 
     private function find(string $path): Category
     {
-        return Category::query()->public()->where('path', trim($path, '/'))->firstOrFail();
+        return Category::query()->where(SiteCatalog::publicCategories(...))->where('path', trim($path, '/'))->firstOrFail();
     }
 
     /** @return list<array{label: string, href?: string}> */
@@ -121,7 +123,7 @@ class CategoryController extends Controller
         }
         $items = [['label' => 'Accueil', 'href' => '/']];
         foreach ($chain as $i => $c) {
-            $items[] = $i === count($chain) - 1 ? ['label' => $c->name] : ['label' => $c->name, 'href' => $c->url()];
+            $items[] = $i === count($chain) - 1 ? ['label' => $c->siteText('name')] : ['label' => $c->siteText('name'), 'href' => $c->url()];
         }
 
         return $items;
@@ -131,14 +133,14 @@ class CategoryController extends Controller
     private function tile(Category $c): array
     {
         return [
-            'name' => $c->name,
+            'name' => $c->siteText('name'),
             'shortName' => $c->short_name,
             'href' => $c->url(),
             'text' => $c->tile_text,
             'bg' => $c->tile_bg,
             'art' => $c->art_key,
             'image' => ImageUrl::path($c->image),
-            'productCount' => Product::query()->published()->whereIn('category_id', $c->descendantIds())->count(),
+            'productCount' => Product::query()->where(SiteCatalog::products(...))->whereIn('category_id', $c->descendantIds())->count(),
         ];
     }
 
@@ -237,7 +239,7 @@ class CategoryController extends Controller
             'image' => ImageUrl::for(ProductCardResource::imageFor($p, $v), 320),
             'art' => $p->art_key,
             'inStock' => $v->stock_status->isOrderable(),
-            'sub' => $p->category->short_name ?? $p->category->name,
+            'sub' => $p->category->short_name ?? $p->category->siteText('name'),
             'subPath' => $p->category->path,
         ]))->values()->all();
     }

@@ -61,7 +61,8 @@ class OrderController extends Controller
     /** GET /orders/{reference}?t= : confirmation page, readable with the order's access token. */
     public function show(Request $request, string $reference): JsonResponse
     {
-        $order = Order::query()->where('reference', strtoupper($reference))->first();
+        // Only the orders of this storefront: an Arfro order is not shown through Climatisation Maroc.
+        $order = Order::query()->onSite()->where('reference', strtoupper($reference))->first();
         $token = (string) $request->query('t', '');
         if (! $order || $token === '' || ! hash_equals($order->access_token, $token)) {
             return response()->json(['message' => 'Commande introuvable.'], 404);
@@ -82,7 +83,7 @@ class OrderController extends Controller
         ]);
 
         $reference = strtoupper(trim($data['reference']));
-        $order = Order::query()
+        $order = Order::query()->onSite()
             ->where('reference', $reference)
             ->where('phone', MoroccanPhone::normalize($data['phone']))
             ->first();

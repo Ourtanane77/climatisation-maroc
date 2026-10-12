@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasFaq;
 use App\Models\Concerns\HasSeo;
+use App\Models\Concerns\HasSites;
 use App\Models\Contracts\HasPublicUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,10 @@ use Illuminate\Support\Carbon;
  */
 class Article extends Model implements HasPublicUrl
 {
-    use HasFaq, HasSeo;
+    use HasFaq, HasSeo, HasSites;
+
+    /** Sites given to a row created without a choice (editorial content: one site, no copied text). */
+    public const DEFAULT_SITES = ['cm'];
 
     protected $guarded = ['id'];
 

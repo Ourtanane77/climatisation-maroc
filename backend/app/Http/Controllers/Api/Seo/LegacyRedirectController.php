@@ -9,6 +9,7 @@ use App\Models\Page;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Redirect;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -20,8 +21,9 @@ use Illuminate\Support\Str;
  * - A back-office redirect row for the exact path wins.
  * - Products by variant legacy id (family page, `?v=<sku>` when it has several variants);
  *   categories by legacy id, else by the range name in the URL; brands by name.
- * - A target that exists but is not online yet (unpublished page, inactive category) answers a
- *   302 to the closest live page, so browsers do not cache it; real moves answer 301.
+ * - A target that exists but is not online on the current site (unpublished or hidden there,
+ *   inactive category) answers a 302 to the closest live page, so browsers do not cache it; real
+ *   moves answer 301.
  */
 class LegacyRedirectController extends Controller
 {
@@ -63,8 +65,10 @@ class LegacyRedirectController extends Controller
         if (! $variant || ! $product) {
             return null;
         }
-        if (! $product->is_published || ! $product->category?->is_active) {
-            return $product->category?->is_active ? [$product->category->url(), 302] : ['/', 302];
+        $category = $product->category;
+        $categoryLive = $category !== null && $category->is_active && $category->isVisibleOn();
+        if (! $categoryLive || ! SiteCatalog::isProductVisible($product)) {
+            return $categoryLive ? [$category->url(), 302] : ['/', 302];
         }
         $several = $product->variants()->count() > 1;
 
@@ -75,7 +79,7 @@ class LegacyRedirectController extends Controller
     private function category(int $legacyId, ?string $rangeName): ?array
     {
         $category = $legacyId > 0 ? Category::query()->where('legacy_id', $legacyId)->first() : null;
-        if ($category?->is_active) {
+        if ($category?->is_active && $category->isVisibleOn()) {
             // An empty category (no published product yet) would be a soft 404: send the old URL to
             // the nearest ancestor that has products, temporarily, until the category is stocked.
             $target = $this->nearestStocked($category);
@@ -84,7 +88,7 @@ class LegacyRedirectController extends Controller
         }
         // Unknown old id: the range named in the URL ("Chauffe eau", "Piece de rechange").
         $slug = Str::slug((string) $rangeName);
-        $range = $slug === '' ? null : Category::query()->active()->roots()
+        $range = $slug === '' ? null : Category::query()->active()->where(SiteCatalog::categories(...))->roots()
             ->whereIn('slug', [$slug, Str::plural($slug), preg_replace('/^piece-/', 'pieces-', $slug)])->first();
 
         return $range ? [$range->url(), 301] : ($category ? ['/', 302] : null);
@@ -98,7 +102,7 @@ class LegacyRedirectController extends Controller
             return null;
         }
 
-        return $brand->is_active ? [$brand->url(), 301] : ['/marques', 302];
+        return $brand->is_active && $brand->isVisibleOn() ? [$brand->url(), 301] : ['/marques', 302];
     }
 
     /** @return array{0: string, 1: int}|null */
@@ -118,8 +122,8 @@ class LegacyRedirectController extends Controller
         }
         // Static pages managed in the back office: only a published one is a permanent target.
         $slug = ltrim($to, '/');
-        $managed = Page::query()->where('slug', $slug)->first();
-        if ($managed && ! $managed->is_published) {
+        $managed = Page::query()->where('slug', $slug)->get();
+        if ($managed->isNotEmpty() && ! $managed->contains(fn (Page $p) => $p->is_published && $p->isVisibleOn())) {
             return ['/', 302];
         }
 
@@ -136,7 +140,7 @@ class LegacyRedirectController extends Controller
     {
         $current = $category;
         while ($current) {
-            $hasProducts = $current->is_quote_only || Product::query()->published()
+            $hasProducts = $current->is_quote_only || Product::query()->where(SiteCatalog::products(...))
                 ->whereIn('category_id', $current->descendantIds())->exists();
             if ($hasProducts || $current->parent_id === null) {
                 return $current;

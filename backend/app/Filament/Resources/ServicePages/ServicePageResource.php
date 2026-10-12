@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\ServicePages;
 
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\ServicePages\Pages\CreateServicePage;
 use App\Filament\Resources\ServicePages\Pages\EditServicePage;
 use App\Filament\Resources\ServicePages\Pages\ListServicePages;
 use App\Models\ServicePage;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -28,6 +31,8 @@ use UnitEnum;
 
 class ServicePageResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
     protected static ?string $model = ServicePage::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
@@ -51,13 +56,14 @@ class ServicePageResource extends Resource
                 Tab::make('Général')->schema([
                     Grid::make(2)->schema([
                         Fields::name(label: 'Nom court'),
-                        Fields::slug('/services/'),
+                        Fields::slug('/services/')->rule(SiteFields::uniqueSlugPerSite(ServicePage::class)),
                         Textarea::make('hero_text')->label('Texte d’introduction')->rows(2)->columnSpanFull(),
                         FileUpload::make('image')->label('Photo de l’en-tête (remplace la photo par défaut)')->image()->disk('public')->directory('services')->columnSpanFull(),
                         Textarea::make('whatsapp_text')->label('Message WhatsApp prérempli')->rows(1),
                         TextInput::make('legacy_id')->label('ID ancien site')->numeric()->helperText('Redirection de /produit/service/{id}.'),
                         Toggle::make('show_supplies')->label('Afficher « Matériel d’installation »'),
                         Toggle::make('is_published')->label('Publiée'),
+                        SiteFields::visibility(ServicePage::class)->columnSpanFull(),
                     ]),
                 ]),
                 Tab::make('Inclus et étapes')->schema([
@@ -92,8 +98,11 @@ class ServicePageResource extends Resource
                 TextColumn::make('name')->label('Service')->weight('bold'),
                 TextColumn::make('slug')->label('Adresse')->prefix('/services/'),
                 IconColumn::make('is_published')->label('Publiée')->boolean(),
+                SiteFields::sitesColumn(),
             ])
-            ->recordActions([EditAction::make()]);
+            ->filters([SiteFields::sitesFilter()])
+            ->recordActions([EditAction::make(), ...SiteFields::duplicateActions(self::class)])
+            ->toolbarActions([BulkActionGroup::make(SiteFields::visibilityBulkActions(ServicePage::class))]);
     }
 
     public static function getPages(): array

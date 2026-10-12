@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Tables;
 
 use App\Filament\Exports\ProductVariantExporter;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Imports\ProductVariantImporter;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -61,6 +62,8 @@ class ProductsTable
                 IconColumn::make('on_promo')->label('Promo')->boolean()->state(fn (Product $record) => $record->isOnPromotion())
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_published')->label('Publié')->boolean(),
+                SiteFields::sitesColumn(),
+                ...SiteFields::textColumns('description'),
                 IconColumn::make('flagged')->label('À vérifier')
                     ->state(fn (Product $record) => $record->needs_verification || $record->variants->contains('needs_verification', true))
                     ->icon(fn (bool $state) => $state ? 'heroicon-o-exclamation-triangle' : null)
@@ -75,6 +78,8 @@ class ProductsTable
                 SelectFilter::make('category_id')->label('Catégorie')->options(Fields::categoryOptions())->searchable(),
                 SelectFilter::make('brand_id')->label('Marque')->relationship('brand', 'name')->preload(),
                 TernaryFilter::make('is_published')->label('Publié'),
+                SiteFields::sitesFilter(),
+                ...SiteFields::textFilters('description'),
                 Filter::make('promo')
                     ->label('En promotion')
                     ->toggle()
@@ -93,6 +98,7 @@ class ProductsTable
                     BulkAction::make('unpublish')->label('Dépublier')->icon('heroicon-o-eye-slash')
                         ->action(fn (Collection $records) => self::bulkUpdate($records, ['is_published' => false]))
                         ->deselectRecordsAfterCompletion(),
+                    ...SiteFields::visibilityBulkActions(Product::class),
                     BulkAction::make('promo')->label('Appliquer une remise (%)')->icon('heroicon-o-receipt-percent')
                         ->schema([TextInput::make('percent')->label('Remise en %')->helperText('0 pour retirer la promotion.')->numeric()->minValue(0)->maxValue(90)->required()])
                         ->action(function (Collection $records, array $data) {

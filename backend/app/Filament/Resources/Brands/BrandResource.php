@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Brands;
 
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Brands\Pages\ManageBrands;
 use App\Models\Brand;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
@@ -26,6 +29,14 @@ use UnitEnum;
 
 class BrandResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
+    /** Per-site texts (Brand::SITE_TEXT_FIELDS), with the main field's component. */
+    public const SITE_TEXTS = [
+        'intro' => ['Présentation', 'textarea'],
+        'caption' => ['Légende sous le logo', 'text'],
+    ];
+
     protected static ?string $model = Brand::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
@@ -50,12 +61,14 @@ class BrandResource extends Resource
                 Grid::make(1)->schema([
                     TextInput::make('logo_aspect')->label('Rapport largeur / hauteur du logo')->numeric()->step(0.01)
                         ->helperText('Sert à donner la même surface visuelle à tous les logos (ex. LG : 2,05).'),
-                    TextInput::make('caption')->label('Légende sous le logo')->placeholder('Climatisation'),
+                    TextInput::make('caption')->label('Légende sous le logo')->hint(SiteFields::mainHint())->placeholder('Climatisation'),
                 ]),
-                Textarea::make('intro')->label('Présentation')->rows(3)->columnSpanFull(),
+                Textarea::make('intro')->label('Présentation')->hint(SiteFields::mainHint())->rows(3)->columnSpanFull(),
                 Toggle::make('is_official_distributor')->label('Distributeur officiel'),
                 Toggle::make('is_active')->label('Active')->default(true),
+                SiteFields::visibility(Brand::class)->columnSpanFull(),
             ]),
+            ...SiteFields::textSections(self::SITE_TEXTS),
             Repeater::make('features')->label('Technologies (page marque)')->columnSpanFull()->columns(2)
                 ->schema([
                     TextInput::make('title')->label('Titre')->required(),
@@ -79,8 +92,15 @@ class BrandResource extends Resource
                 TextColumn::make('products_count')->label('Produits')->counts('products')->alignCenter(),
                 IconColumn::make('is_official_distributor')->label('Distributeur officiel')->boolean(),
                 IconColumn::make('is_active')->label('Active')->boolean(),
+                SiteFields::sitesColumn(),
+                ...SiteFields::textColumns('intro'),
             ])
-            ->recordActions([EditAction::make()->slideOver(), DeleteAction::make()]);
+            ->filters([
+                SiteFields::sitesFilter(),
+                ...SiteFields::textFilters('intro'),
+            ])
+            ->recordActions([EditAction::make()->slideOver(), DeleteAction::make()])
+            ->toolbarActions([BulkActionGroup::make(SiteFields::visibilityBulkActions(Brand::class))]);
     }
 
     public static function getPages(): array

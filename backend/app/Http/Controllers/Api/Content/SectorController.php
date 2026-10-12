@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Content\Concerns\PresentsContent;
 use App\Http\Controllers\Controller;
 use App\Models\SectorPage;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,7 @@ class SectorController extends Controller
 
     public function index(): JsonResponse
     {
-        $sectors = SectorPage::query()->published()->orderBy('position')->get();
+        $sectors = SectorPage::query()->where(SiteCatalog::published(...))->orderBy('position')->get();
 
         return response()->json([
             'data' => $sectors->map(fn (SectorPage $s) => $this->sectorCard($s))->values(),
@@ -26,8 +27,8 @@ class SectorController extends Controller
 
     public function show(Request $request, string $slug): JsonResponse
     {
-        $sector = SectorPage::query()->published()->where('slug', $slug)->with(['seo', 'faqItems'])->firstOrFail();
-        $others = SectorPage::query()->published()->whereKeyNot($sector->id)->orderBy('position')->limit(4)->get();
+        $sector = SectorPage::query()->where(SiteCatalog::published(...))->where('slug', $slug)->with(['seo', 'faqItems'])->firstOrFail();
+        $others = SectorPage::query()->where(SiteCatalog::published(...))->whereKeyNot($sector->id)->orderBy('position')->limit(4)->get();
 
         return response()->json([
             ...$this->sectorCard($sector),

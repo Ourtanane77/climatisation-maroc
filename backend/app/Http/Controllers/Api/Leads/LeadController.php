@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
 use App\Models\SectorPage;
 use App\Rules\MoroccanPhone;
+use App\Support\Catalog\SiteCatalog;
 use App\Support\Leads\FormGuard;
 use App\Support\Leads\LeadOptions;
 use App\Support\Leads\LeadRecorder;
@@ -107,7 +108,7 @@ class LeadController extends Controller
             'message' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        $sector = SectorPage::query()->published()->where('slug', $data['sector_slug'])->first();
+        $sector = SectorPage::query()->where(SiteCatalog::published(...))->where('slug', $data['sector_slug'])->first();
         if (! $sector) {
             return response()->json([
                 'message' => 'Ce secteur est introuvable.',
@@ -144,11 +145,19 @@ class LeadController extends Controller
             'sku.exists' => 'Ce produit est introuvable.',
         ]);
 
+        // A product hidden on this storefront is unknown here, like an unpublished one.
+        $variant = ProductVariant::query()->with('product')->where('sku', $data['sku'])
+            ->whereHas('product', SiteCatalog::products(...))->first();
+        if (! $variant) {
+            return response()->json([
+                'message' => 'Ce produit est introuvable.',
+                'errors' => ['sku' => ['Ce produit est introuvable.']],
+            ], 422);
+        }
+
         if (FormGuard::isSpam($request)) {
             return self::ok();
         }
-
-        $variant = ProductVariant::query()->with('product')->where('sku', $data['sku'])->firstOrFail();
 
         $this->recorder->record(LeadType::AlerteStock, [
             'phone' => $data['phone'],

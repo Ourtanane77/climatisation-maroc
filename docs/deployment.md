@@ -7,13 +7,20 @@ an empty database was replayed on 2026-10-07 (seeding twice is idempotent, no de
 
 | Service | Image | Role |
 |---|---|---|
-| `nginx` | `climatisation-maroc/nginx:prod` | entry point on `APP_PORT`; Laravel's `public/`, `/storage` files, proxy to Next.js |
+| `nginx` | `climatisation-maroc/nginx:prod` | entry point on `APP_PORT` for both domains; Laravel's `public/`, `/storage` files, proxy to the Next.js instance of the host |
 | `php` | `climatisation-maroc/php:prod` | php-fpm; on start: migrations, seeding of an empty database, caches |
 | `queue` | same image | `queue:work redis` (e-mails) |
 | `scheduler` | same image | `schedule:work` (daily backup when `BACKUP_ENABLED=true`) |
-| `next` | `climatisation-maroc/next:prod` | Next.js standalone server (port 3000, internal) |
+| `next` | `climatisation-maroc/next:prod` | Climatisation Maroc storefront (`SITE_KEY=cm`), Next.js standalone server (port 3000, internal); builds the image |
+| `next-arfro` | same image | Arfro storefront (`SITE_KEY=arfro`), same server, no second build |
 | `mysql` | `mysql:8.4` | database (volume `mysql_data`) |
 | `redis` | `redis:7-alpine` | cache, queue, sessions (volume `redis_data`, append-only) |
+
+Two storefronts share the stack (`docs/architecture.md`, « Multi-site »): nginx sends `arfro.com`
+(and `www.arfro.com`, any `arfro.*` host) to `next-arfro` and every other host to `next`.
+`/api/v1`, `/admin` and `/storage` answer on both domains. Each Next.js container reads its site
+from `SITE_KEY` and its public URL from `SITE_URL` at run time, so one image serves both
+(`NEXT_PUBLIC_SITE_URL` is also passed but only as a fallback).
 
 Volumes: `mysql_data`, `redis_data`, `storage_public` (product photos and their WebP versions,
 brand logos, uploaded images; read-only in `nginx`) and `storage_private` (quote attachments and
@@ -34,11 +41,13 @@ Coolify (a VPS with Coolify's own proxy and TLS).
    ports 80/443).
 2. **Environment Variables**: paste the content of `.env.prod` (KEY=value lines). Required:
    `APP_KEY`, `APP_URL`, `REVALIDATE_SECRET`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` — the deployment
-   stops with a clear message if one is missing. Also set `NEXT_PUBLIC_SITE_URL` (it is baked into
-   the Next.js build), the `MAIL_*` SMTP values and the `SEED_*` staff accounts.
-3. **Domains**: on the `nginx` service only, `https://app.arfro.com` (nginx listens on port 80
-   inside the network). Leave the other services without a domain. DNS: an `A` record for
-   `app.arfro.com` to the VPS.
+   stops with a clear message if one is missing. Also set `NEXT_PUBLIC_SITE_URL` (Climatisation
+   Maroc's public URL), `SITE_ARFRO_URL` (Arfro's), the `MAIL_*` SMTP values and the `SEED_*`
+   staff accounts.
+3. **Domains**: on the `nginx` service only, both storefronts, comma-separated:
+   `https://climatisationmaroc.com,https://www.climatisationmaroc.com,https://arfro.com,https://www.arfro.com`
+   (nginx listens on port 80 inside the network). Leave the other services, `next-arfro`
+   included, without a domain. Coolify's proxy gets a certificate for each name. DNS: see below.
 4. Deploy. The first start initialises MySQL (up to ~2 min), migrates, seeds and downloads the
    catalogue photos; follow it in the `php` service logs.
 5. If a previous deployment failed while MySQL was initialising (for example with an empty
@@ -55,16 +64,24 @@ URLs and the browser blocked the back-office login (mixed content). The app ther
 https URLs whenever `APP_ENV=production` and `APP_URL` starts with `https://`
 (`AppServiceProvider`), so `APP_URL` must be the `https://` address. Prefer Cloudflare SSL mode
 **Full (strict)** anyway, so the whole path is encrypted. Check after a deploy:
-`curl -s https://app.arfro.com/admin/login | grep -c 'http://app.arfro.com'` must print `0`.
+`curl -s https://climatisationmaroc.com/admin/login | grep -c 'http://climatisationmaroc.com'` must
+print `0`.
 
 ## Server, DNS and TLS
 
 - Docker Engine with the Compose plugin; 2 vCPU, 4 GB RAM and 20 GB disk are comfortable.
-- DNS: an `A` (and `AAAA` if IPv6) record for `app.arfro.com` pointing to the server. It is a
-  subdomain: no `www` variant to redirect.
+- DNS: `A` (and `AAAA` if IPv6) records pointing to the server for `climatisationmaroc.com`,
+  `www.climatisationmaroc.com`, `arfro.com` and `www.arfro.com` (or `CNAME www` to the apex). Both
+  `www` names reach the right storefront; redirect them to the apex in the proxy or Cloudflare for
+  a single host (the canonical links already use `SITE_URL`). Moving climatisationmaroc.com from
+  the old site: lower the record's TTL a day before, switch it once the new stack is verified.
+- The staging domain `app.arfro.com` is not an Arfro host for nginx (only `arfro.*` and
+  `www.arfro.*` are): it serves Climatisation Maroc.
 - A TLS terminator in front of `APP_PORT` (host nginx, Caddy, or a load balancer) that forwards
   `Host`, `X-Forwarded-Proto` and `X-Forwarded-For`, and redirects HTTP to HTTPS. Laravel trusts
-  the proxy headers. Caddy example: `app.arfro.com { reverse_proxy 127.0.0.1:8080 }`.
+  the proxy headers. It must pass the original `Host`: nginx chooses the storefront from it.
+  Caddy example: `climatisationmaroc.com, www.climatisationmaroc.com, arfro.com, www.arfro.com {
+  reverse_proxy 127.0.0.1:8080 }`.
 - Outbound internet on the first start only if the product photos are downloaded from the old site
   (see « Photos » below).
 
@@ -75,10 +92,13 @@ Copy `.env.prod.example` to `.env.prod` (never commit it) and fill every value:
 | Variable | Value |
 |---|---|
 | `APP_KEY` | generate after the first build: `docker run --rm -e APP_ROLE=worker climatisation-maroc/php:prod php artisan key:generate --show` |
-| `APP_URL`, `FRONTEND_URL`, `NEXT_PUBLIC_SITE_URL` | public URL, `https://app.arfro.com` (also used at Next.js build time: rebuild after changing it) |
+| `APP_URL`, `FRONTEND_URL`, `NEXT_PUBLIC_SITE_URL` | Climatisation Maroc's public URL, `https://climatisationmaroc.com`. `APP_URL` is also the back office's address (`/admin` answers on both domains). `NEXT_PUBLIC_SITE_URL` becomes `SITE_URL` of `next` and `SITE_CM_URL` of Laravel |
+| `SITE_ARFRO_URL` | Arfro's public URL, default `https://arfro.com`; becomes `SITE_URL` of `next-arfro` and Laravel's `SITE_ARFRO_URL` (e-mail links) |
+| `SITE_CM_MAIL_FROM_NAME`, `SITE_ARFRO_MAIL_FROM_NAME` | sender name of each site's e-mails (defaults `Climatisation Maroc`, `Arfro`); both use `MAIL_FROM_ADDRESS` |
 | `APP_PORT` | port nginx listens on (behind the TLS terminator) |
 | `REVALIDATE_SECRET` | long random string (`openssl rand -hex 32`); compose passes it to both Laravel and Next.js |
-| `FRONTEND_INTERNAL_URL` | `http://next:3000` (keep) |
+| `FRONTEND_INTERNAL_URL` | `http://next:3000` (keep). The compose file sets `SITE_CM_INTERNAL_URL=http://next:3000` and `SITE_ARFRO_INTERNAL_URL=http://next-arfro:3000` for revalidation |
+| `NEXT_MEMORY`, `NEXT_ARFRO_MEMORY` | memory limits of the two Next.js containers (`1g`, `768m`) |
 | `DB_PASSWORD`, `DB_ROOT_PASSWORD` | strong random values (the MySQL container is created with them) |
 | `SESSION_SECURE_COOKIE` | `true` behind HTTPS (back-office login fails over plain HTTP when true) |
 | `MAIL_*`, `MAIL_FROM_ADDRESS` | SMTP of the shop's mail provider |
@@ -97,7 +117,7 @@ make prod-build                                    # or: $PROD build
 docker run --rm -e APP_ROLE=worker climatisation-maroc/php:prod php artisan key:generate --show   # put it in APP_KEY
 make prod-up                                       # or: $PROD up -d
 make prod-logs SERVICE=php                         # migrations, seeding, photos
-node scripts/smoke.mjs https://app.arfro.com     # from any machine with Node 22
+node scripts/smoke.mjs https://climatisationmaroc.com https://arfro.com   # from any machine with Node 22
 ```
 
 The first start of `php` migrates, seeds the empty database (`APP_SEED=auto`: staff accounts,
@@ -135,7 +155,8 @@ The catalogue photos come from the old site. Two ways to get them on the server:
 - The logo is in place (`frontend/public/logo-arfro.svg`, favicon `frontend/src/app/icon.svg`).
 - Change the staff passwords; set `SHOP_NOTIFICATION_EMAIL`; send a test order and a test quote
   request and check the e-mails arrive.
-- Search Console: add the property and submit `https://app.arfro.com/sitemap.xml`.
+- Search Console: add both properties and submit `https://climatisationmaroc.com/sitemap.xml` and
+  `https://arfro.com/sitemap.xml`.
 
 ## Updating
 
@@ -145,11 +166,16 @@ git pull
 make prod-build
 make prod-up        # recreates the changed containers; php runs pending migrations on start
 make prod-cache     # optimize + filament:optimize + queue:restart (also after editing .env.prod)
-node scripts/smoke.mjs https://app.arfro.com
+node scripts/smoke.mjs https://climatisationmaroc.com https://arfro.com
 ```
 
 The pages refresh by themselves after a back-office change (revalidation). After a code update the
 new Next.js image starts with an empty cache, so nothing else is needed.
+
+**First update to the two-storefront version.** Add `SITE_ARFRO_URL` (and the optional
+`SITE_*_MAIL_FROM_NAME`) to the environment, add the DNS records and the Coolify domains above,
+then deploy: `next-arfro` is created from the image `next` builds, and the migration puts the
+existing catalogue on both sites and the editorial content on Climatisation Maroc only.
 
 ### Rollback
 
@@ -162,13 +188,15 @@ Tag each production release (`git tag v1.0.0`) so the previous version is easy t
 
 ## Revalidation
 
-After a back-office change, Laravel calls `http://next:3000/api/revalidate` with
-`REVALIDATE_SECRET` so pages show the change at once (`docs/architecture.md`, Caching). The route
-answers 403 without the secret. If pages keep showing old content, check that both services
-received the same secret:
+After a back-office change, Laravel calls `/api/revalidate` on both storefronts
+(`http://next:3000`, `http://next-arfro:3000`) with `REVALIDATE_SECRET` so pages show the change at
+once (`docs/architecture.md`, Caching). The route answers 403 without the secret. A failure is
+logged per site (`Front-office revalidation failed`, with `site` in the context). If pages keep
+showing old content, check that every service received the same secret:
 
 ```sh
 $PROD exec next printenv REVALIDATE_SECRET
+$PROD exec next-arfro printenv REVALIDATE_SECRET SITE_KEY SITE_URL
 $PROD exec php php artisan tinker --execute='var_dump(App\Support\Frontend\Revalidator::send());'
 ```
 
@@ -206,7 +234,15 @@ restarts the queue workers and refreshes the front office. Take a fresh backup f
 
 ## Health checks
 
-`nginx` checks Laravel's `/up`, `next` its `/api/health`, `php` the fpm config; MySQL and Redis
-have their own. `make prod-ps` shows the state. `node scripts/smoke.mjs <url>` checks the front
-office, the API, the back-office login, the Livewire script, a `/storage` photo, the revalidation
-guard, the 404 of unpublished pages, `sitemap.xml` and `robots.txt`.
+`nginx` checks Laravel's `/up`, `next` and `next-arfro` their `/api/health`, `php` the fpm
+config; MySQL and Redis have their own. `make prod-ps` shows the state.
+
+nginx waits for `next` to be healthy but only for `next-arfro` to be started, and resolves the
+Next.js containers per request (Docker DNS): if `next-arfro` fails, arfro.com answers 502 while
+climatisationmaroc.com, the API and the back office keep working, and nginx follows a recreated
+container without a restart.
+
+`node scripts/smoke.mjs <url> <arfro url>` checks the front office, the API, the back-office
+login, the Livewire script, a `/storage` photo, the revalidation guard, the 404 of unpublished
+pages, `sitemap.xml` and `robots.txt`, then Arfro's home and API, and that its `robots.txt` and
+`sitemap.xml` list arfro.com URLs.

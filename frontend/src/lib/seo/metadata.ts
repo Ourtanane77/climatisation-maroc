@@ -1,11 +1,10 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
-import { SITE_NAME, siteUrl } from "@/lib/site";
+import { SITE, SITE_NAME, siteUrl } from "@/lib/site";
 
 /** Site description: the default, and the base of the fallback for pages without their own text. */
-export const SITE_DESCRIPTION =
-  "Boutique d'Ariha Froid à Marrakech depuis 2008 : climatiseurs LG, Carrier, CIAT, Fitco, chauffe-eau et pièces. Livraison gratuite, paiement à la livraison.";
+export const SITE_DESCRIPTION = SITE.description;
 
 const TITLE_MAX = 60;
 const DESCRIPTION_MAX = 160;
@@ -25,7 +24,7 @@ function defaultOgImage(): string | null {
 }
 
 interface SeoInput {
-  /** Page title without the site name (the template adds « · Climatisation Maroc »). */
+  /** Page title without the site name (the template adds « · {site name} »). */
   title: string;
   /** Use the title as is (it already names the site or the brand). */
   absolute?: boolean;

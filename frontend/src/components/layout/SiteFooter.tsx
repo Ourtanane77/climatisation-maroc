@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/icons";
+import { SITE_NAME } from "@/lib/site";
 import type { SiteNavigation, Social } from "@/lib/types";
 import { FooterColumns } from "./FooterColumns";
-import { Logo } from "./Logo";
+import { Logo, type SiteLogo } from "./Logo";
 
 const socialIcon: Record<Social["name"], React.ReactNode> = {
   Facebook: <FacebookIcon size={20} />,
@@ -12,16 +13,16 @@ const socialIcon: Record<Social["name"], React.ReactNode> = {
 };
 
 /** Blue footer (design: Accueil): about + socials, link columns, phones by role, stores, legal links. */
-export function SiteFooter({ footer, logoSrc, bottomPadding = 0 }: { footer: SiteNavigation["footer"]; logoSrc: string | null; bottomPadding?: number }) {
+export function SiteFooter({ footer, logo, bottomPadding = 0 }: { footer: SiteNavigation["footer"]; logo: SiteLogo; bottomPadding?: number }) {
   return (
     <footer className="bg-brand text-white" style={{ paddingBottom: bottomPadding }}>
       {/* Parent of the column headings (h3), so every page keeps a valid heading order. */}
-      <h2 className="sr-only">Informations sur Climatisation Maroc</h2>
+      <h2 className="sr-only">Informations sur {SITE_NAME}</h2>
       <div className="site-gutter flex flex-col gap-8 pt-10 md:gap-12 md:pt-16">
         <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <div className="flex max-w-[420px] flex-col gap-5">
             <span className="rounded-14 flex self-start bg-white px-3.5 py-2">
-              <Logo src={logoSrc} height={48} />
+              <Logo logo={logo} height={48} />
             </span>
             <p className="text-footer-text-2 m-0 text-[15px] leading-6 text-pretty">{footer.about}</p>
             <div className="flex gap-2">

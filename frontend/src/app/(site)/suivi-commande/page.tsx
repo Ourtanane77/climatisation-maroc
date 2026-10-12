@@ -3,6 +3,7 @@ import { PageTitle } from "@/components/commerce/parts";
 import { TrackOrder } from "@/components/commerce/TrackOrder";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = seoMetadata({ title: "Suivre ma commande", noindex: true });
 
@@ -16,7 +17,7 @@ export default async function TrackPage({ searchParams }: PageProps<"/suivi-comm
       <div className="pt-6">
         <PageTitle>Suivre ma commande</PageTitle>
       </div>
-      <TrackOrder initialRef={ref} />
+      <TrackOrder initialRef={ref} placeholder={`${SITE.orderPrefix}-2026-01042`} />
     </>
   );
 }

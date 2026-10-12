@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Content\Concerns\PresentsContent;
 use App\Http\Controllers\Controller;
 use App\Models\ServicePage;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,7 @@ class ServiceController extends Controller
 
     public function index(): JsonResponse
     {
-        $services = ServicePage::query()->published()->with('seo')->orderBy('position')->get();
+        $services = ServicePage::query()->where(SiteCatalog::published(...))->with('seo')->orderBy('position')->get();
 
         return response()->json([
             'data' => $services->map(fn (ServicePage $s) => [
@@ -32,7 +33,7 @@ class ServiceController extends Controller
 
     public function show(Request $request, string $slug): JsonResponse
     {
-        $service = ServicePage::query()->published()->where('slug', $slug)->with(['seo', 'faqItems'])->firstOrFail();
+        $service = ServicePage::query()->where(SiteCatalog::published(...))->where('slug', $slug)->with(['seo', 'faqItems'])->firstOrFail();
 
         return response()->json([
             'slug' => $service->slug,

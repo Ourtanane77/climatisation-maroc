@@ -10,6 +10,7 @@ use App\Models\ProductVariant;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
 use App\Support\Catalog\Listing;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -36,7 +37,7 @@ class SearchController extends Controller
         $tabs = $results->groupBy(fn (Product $p) => $p->category->path)
             ->map(fn (Collection $group) => [
                 'value' => $group->first()->category->path,
-                'label' => $group->first()->category->short_name ?? $group->first()->category->name,
+                'label' => $group->first()->category->short_name ?? $group->first()->category->siteText('name'),
                 'count' => $group->count(),
                 'position' => [$group->first()->category->parent_id ?? 0, $group->first()->category->position],
             ])
@@ -58,9 +59,9 @@ class SearchController extends Controller
             'tabs' => $tabs,
             'tab' => $tab,
             'popular' => self::POPULAR,
-            'ranges' => Category::query()->active()->roots()->orderBy('position')->get()
-                ->filter(fn (Category $c) => Product::query()->published()->whereIn('category_id', $c->descendantIds())->exists())
-                ->map(fn (Category $c) => ['label' => $c->name, 'href' => $c->url()])
+            'ranges' => Category::query()->where(SiteCatalog::publicCategories(...))->roots()->orderBy('position')->get()
+                ->filter(fn (Category $c) => Product::query()->where(SiteCatalog::products(...))->whereIn('category_id', $c->descendantIds())->exists())
+                ->map(fn (Category $c) => ['label' => $c->siteText('name'), 'href' => $c->url()])
                 ->values(),
             'meta' => ['total' => $shown->count(), 'page' => $page, 'perPage' => self::PER_PAGE, 'lastPage' => $lastPage],
         ]);
@@ -76,7 +77,7 @@ class SearchController extends Controller
             $variant = $p->variants->firstWhere('is_default', true) ?? $p->variants->first();
 
             return [
-                'name' => $p->name,
+                'name' => $p->siteText('name'),
                 'href' => $p->url(),
                 'sku' => $p->variants->count() === 1 ? $variant?->sku : null,
                 // Lowest real price (« sur demande » variants at 0 only when nothing else is priced).
@@ -96,7 +97,7 @@ class SearchController extends Controller
             return collect();
         }
 
-        $root = $range !== '' ? Category::query()->roots()
+        $root = $range !== '' ? Category::query()->where(SiteCatalog::categories(...))->roots()
             ->where(fn ($q) => $q->where('slug', $range)->orWhere('name', $range)->orWhere('short_name', $range))
             ->first() : null;
 
@@ -104,9 +105,10 @@ class SearchController extends Controller
             ->filter(function (Product $p) use ($words) {
                 $haystack = self::normalize(implode(' ', [
                     $p->name,
+                    $p->siteOverride('name'),
                     $p->keywords,
                     $p->brand?->name,
-                    $p->category->name,
+                    $p->category->siteText('name'),
                     $p->variants->pluck('sku')->implode(' '),
                     $p->variants->pluck('label')->implode(' '),
                 ]));

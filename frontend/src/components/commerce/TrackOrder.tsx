@@ -12,7 +12,7 @@ import { AddressBlock, CardTitle, CompactLines, Divider, TotalRow } from "./part
 import { StatusTimeline } from "./StatusTimeline";
 
 /** Lookup form and result (design/Suivi commande.dc.html). */
-export function TrackOrder({ initialRef }: { initialRef: string }) {
+export function TrackOrder({ initialRef, placeholder }: { initialRef: string; /** Example reference of this storefront (CM-…, AR-…). */ placeholder: string }) {
   const [ref, setRef] = useState(initialRef);
   const [tel, setTel] = useState("");
   const [errors, setErrors] = useState<{ reference?: string; phone?: string }>({});
@@ -71,7 +71,7 @@ export function TrackOrder({ initialRef }: { initialRef: string }) {
             <TextInput
               id="tr-ref"
               value={ref}
-              placeholder="CM-2026-01042"
+              placeholder={placeholder}
               autoCapitalize="characters"
               invalid={!!errors.reference}
               onChange={(e) => setRef(e.target.value)}

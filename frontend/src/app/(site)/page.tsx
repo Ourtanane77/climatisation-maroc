@@ -11,17 +11,13 @@ import { RailSection } from "@/components/home/Rail";
 import { SLOT } from "@/components/home/slot";
 import { cn } from "@/lib/cn";
 import { getHome } from "@/lib/home/api";
-import { SITE_NAME } from "@/lib/site";
-import { SITE_DESCRIPTION, seoMetadata } from "@/lib/seo/metadata";
+import { SITE } from "@/lib/site";
+import { seoMetadata } from "@/lib/seo/metadata";
 import { designImage } from "@/lib/design-assets";
 
-export const metadata: Metadata = seoMetadata({
-  title: `${SITE_NAME} · Climatiseurs, chauffe-eau · Ariha Froid`,
-  absolute: true,
-  description: SITE_DESCRIPTION,
-  path: "/",
-  image: designImage("cover-ariha.png"),
-});
+export function generateMetadata(): Metadata {
+  return seoMetadata({ title: SITE.defaultTitle, absolute: true, description: SITE.description, path: "/", image: designImage("cover-ariha.png") });
+}
 
 /** Home page (design/Accueil.dc.html). Sections without data are left out. */
 export default async function HomePage() {

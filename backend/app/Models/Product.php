@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasFaq;
 use App\Models\Concerns\HasSeo;
+use App\Models\Concerns\HasSites;
 use App\Models\Contracts\HasPublicUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -31,7 +32,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class Product extends Model implements HasPublicUrl
 {
-    use HasFaq, HasSeo;
+    use HasFaq, HasSeo, HasSites;
+
+    /** Fields with an optional per-site text (HasSites::siteText), besides the SEO fields. */
+    public const SITE_TEXT_FIELDS = ['name', 'short_description', 'description'];
 
     protected $guarded = ['id'];
 

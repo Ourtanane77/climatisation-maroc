@@ -9,6 +9,7 @@ use App\Models\OrderLine;
 use App\Models\OrderStatusHistory;
 use App\Rules\MoroccanPhone;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Support\Carbon;
 
 /**
@@ -60,7 +61,7 @@ class OrderPresenter
         return [
             'sku' => $line->sku,
             'name' => trim($line->name.' '.($line->variant_label ?? '')),
-            'href' => $product?->is_published ? $product->url() : null,
+            'href' => $product && SiteCatalog::isProductVisible($product) ? $product->url() : null,
             'image' => $product ? ImageUrl::for(ProductCardResource::imageFor($product, $variant), 320) : null,
             'art' => $product?->art_key,
             'dark' => $variant?->colour === 'Noir',

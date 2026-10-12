@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Page;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -20,7 +21,7 @@ class PageController extends Controller
 
     public function show(string $slug): JsonResponse
     {
-        $page = Page::query()->published()->where('slug', $slug)->with(['seo', 'faqItems'])->firstOrFail();
+        $page = Page::query()->where(SiteCatalog::published(...))->where('slug', $slug)->with(['seo', 'faqItems'])->firstOrFail();
 
         $data = [
             'slug' => $page->slug,
@@ -40,7 +41,7 @@ class PageController extends Controller
         }
 
         if ($page->kind === PageKind::About) {
-            $data['brands'] = Brand::query()->active()->whereNotNull('logo')->orderBy('position')->get()
+            $data['brands'] = Brand::query()->where(SiteCatalog::brands(...))->whereNotNull('logo')->orderBy('position')->get()
                 ->map(fn (Brand $b) => [
                     'name' => $b->name,
                     'href' => $b->url(),
@@ -61,7 +62,7 @@ class PageController extends Controller
      */
     private function otherLegalPages(Page $current): array
     {
-        return Page::query()->published()->where('kind', PageKind::Legal)->whereKeyNot($current->id)
+        return Page::query()->where(SiteCatalog::published(...))->where('kind', PageKind::Legal)->whereKeyNot($current->id)
             ->orderBy('position')->get()
             ->sortBy(fn (Page $p) => $p->slug === 'cgv' ? PHP_INT_MAX : $p->position)
             ->map(fn (Page $p) => ['title' => $p->title, 'href' => $p->url()])

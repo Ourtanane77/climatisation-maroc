@@ -2,11 +2,12 @@ import "server-only";
 import { headers } from "next/headers";
 import { getToken } from "@/lib/auth";
 import { clientIpFrom } from "@/lib/client-ip";
+import { siteHeaders } from "@/lib/site";
 
 /**
  * Backend-for-frontend for the forms (devis, contact, secteur, alerte stock, revendeur) and the
- * reseller session: forwards to the Laravel API with the visitor's IP (rate limits) and, when
- * logged in, the reseller token. Responses follow one contract for every form:
+ * reseller session: forwards to the Laravel API with the storefront (X-Site), the visitor's IP
+ * (rate limits) and, when logged in, the reseller token. Responses follow one contract for every form:
  *   200 {ok: true} · 422 {errors: {field: [message]}, message} · 429/500 {message}.
  */
 
@@ -35,6 +36,7 @@ export async function forward(path: string, body: Record<string, unknown> | Form
       method: "POST",
       headers: {
         Accept: "application/json",
+        ...siteHeaders(),
         ...(isForm ? {} : { "Content-Type": "application/json" }),
         ...(auth ? { Authorization: `Bearer ${auth}` } : {}),
         ...(ip ? { "X-Forwarded-For": ip } : {}),

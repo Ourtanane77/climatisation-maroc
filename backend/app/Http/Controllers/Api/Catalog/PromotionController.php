@@ -45,7 +45,7 @@ class PromotionController extends Controller
                 'brands' => $families->pluck('brand')->filter()->unique('id')->sortBy('position')
                     ->map(fn ($b) => ['value' => $b->slug, 'label' => $b->name, 'selected' => $b->slug === $brand])->values(),
                 'ranges' => $families->pluck('category')->unique('id')->sortBy(fn ($c) => [$c->parent_id, $c->position])
-                    ->map(fn ($c) => ['value' => $c->path, 'label' => $c->short_name ?? $c->name, 'selected' => $c->path === $range])->values(),
+                    ->map(fn ($c) => ['value' => $c->path, 'label' => $c->short_name ?? $c->siteText('name'), 'selected' => $c->path === $range])->values(),
             ],
             'meta' => [
                 'all' => $families->count(),

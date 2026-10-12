@@ -91,6 +91,27 @@ Sources:
   spatie/laravel-permission 8, spatie/laravel-settings 3, Pest 4, Larastan 3,
   Next.js 16.3, React 19.2, Tailwind 4, Vitest 5, Playwright 1.63.
 
+### Multi-site (2026-10-12)
+
+The same code now serves two storefronts: Climatisation Maroc (climatisationmaroc.com, key `cm`,
+default) and Arfro (arfro.com, key `arfro`). How it works: `docs/architecture.md`, « Multi-site ».
+Owner's choices:
+
+- **One back office, one database, one API.** The same Next.js image runs twice (`next`,
+  `next-arfro`); nginx picks one by host.
+- **No duplicate content.** Every content row says which sites show it, and can carry per-site
+  texts (`site_content`, including SEO title, description and H1) so the two sites do not publish
+  the same copy.
+- **Same logo on both sites for now** (no Arfro design file; `docs/deviations.md`).
+- **Same prices and shared reseller accounts.** A validated reseller sees pro prices on both.
+- **At migration:** the catalogue (categories, brands, products) is on both sites; editorial
+  content (articles, pages, sector, service and city pages) stays on Climatisation Maroc only.
+- **Per-site settings** (contact details, home page) and order references prefixed per site
+  (`CM-`, `AR-`).
+- **Team users per site.** A back-office user can be limited to one site's orders, leads,
+  resellers and content; administrators see both.
+- **Revalidation** reaches both Next.js instances after every change.
+
 ### Original proposals (phase 1)
 
 1. **Page count.** The index lists 32 unique files, not 31: 30 site pages plus

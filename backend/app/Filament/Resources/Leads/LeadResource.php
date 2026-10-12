@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Leads;
 
 use App\Enums\LeadStatus;
+use App\Filament\Concerns\ScopesRecordsToManagedSites;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Leads\Pages\ListLeads;
 use App\Filament\Resources\Leads\Pages\ViewLead;
 use App\Models\Lead;
@@ -26,6 +28,8 @@ use UnitEnum;
 
 class LeadResource extends Resource
 {
+    use ScopesRecordsToManagedSites;
+
     protected static ?string $model = Lead::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxArrowDown;
@@ -47,7 +51,7 @@ class LeadResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = Lead::query()->where('status', LeadStatus::Nouveau)->count();
+        $count = static::getEloquentQuery()->where('status', LeadStatus::Nouveau)->count();
 
         return $count ? (string) $count : null;
     }
@@ -62,6 +66,7 @@ class LeadResource extends Resource
         return $schema->components([
             Grid::make(3)->columnSpanFull()->schema([
                 Section::make('Demande')->schema([
+                    SiteFields::siteEntry(),
                     TextEntry::make('type')->label('Type')->badge(),
                     TextEntry::make('status')->label('Statut')->badge(),
                     TextEntry::make('created_at')->label('Reçue le')->dateTime('d/m/Y à H:i'),
@@ -103,6 +108,7 @@ class LeadResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('created_at')->label('Reçue le')->dateTime('d/m/Y H:i')->sortable(),
+                SiteFields::siteColumn(),
                 TextColumn::make('type')->label('Type')->badge(),
                 TextColumn::make('name')->label('Nom')->searchable()->description(fn (Lead $record) => $record->company),
                 TextColumn::make('phone')->label('Téléphone')->searchable(),
@@ -112,6 +118,7 @@ class LeadResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(LeadStatus::class),
+                SiteFields::siteFilter(),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -134,7 +141,7 @@ class LeadResource extends Resource
     /** @return array<string, int> new leads per type, for the tab badges */
     public static function newCounts(): array
     {
-        return Lead::query()->where('status', LeadStatus::Nouveau)
+        return static::getEloquentQuery()->where('status', LeadStatus::Nouveau)
             ->selectRaw('type, count(*) as n')->groupBy('type')->pluck('n', 'type')->all();
     }
 

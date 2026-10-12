@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Enums\LeadType;
+use App\Mail\Concerns\ForSite;
 use App\Models\Lead;
 use App\Settings\GeneralSettings;
 use Illuminate\Bus\Queueable;
@@ -15,16 +16,21 @@ use Illuminate\Queue\SerializesModels;
 /** Acknowledgement sent to the visitor, only when an e-mail was given in the form. */
 class LeadReceivedCustomer extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use ForSite, Queueable, SerializesModels;
 
     public function __construct(public Lead $lead)
     {
         $this->afterCommit();
     }
 
+    protected function siteKey(): ?string
+    {
+        return $this->lead->site;
+    }
+
     public function envelope(): Envelope
     {
-        return new Envelope(subject: match ($this->lead->type) {
+        return new Envelope(from: $this->siteFrom(), subject: match ($this->lead->type) {
             LeadType::Contact => 'Message envoyé',
             LeadType::Revendeur => 'Votre demande est enregistrée.',
             default => 'Demande envoyée',
@@ -33,6 +39,7 @@ class LeadReceivedCustomer extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
+        // Rendered inside ForSite::asSite(): the lead's site settings.
         $settings = app(GeneralSettings::class);
 
         return new Content(markdown: 'mail.leads.customer', with: [

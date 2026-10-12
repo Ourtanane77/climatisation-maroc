@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree } from "next/font/google";
 import { connection } from "next/server";
-import { SITE_DESCRIPTION } from "@/lib/seo/metadata";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const figtree = Figtree({
@@ -13,21 +12,20 @@ const figtree = Figtree({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: `${SITE_NAME} · Climatiseurs, chauffe-eau · Ariha Froid`,
-    template: `%s · ${SITE_NAME}`,
-  },
-  description: SITE_DESCRIPTION,
-  openGraph: { type: "website", locale: "fr_MA", siteName: SITE_NAME },
-};
+/** Per storefront (SITE_KEY, SITE_URL), read at runtime: one build serves both sites. */
+export function generateMetadata(): Metadata {
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: SITE.defaultTitle, template: `%s · ${SITE_NAME}` },
+    description: SITE.description,
+    applicationName: SITE_NAME,
+    openGraph: { type: "website", locale: "fr_MA", siteName: SITE_NAME },
+  };
+}
 
-export const viewport: Viewport = {
-  themeColor: "#0B5CAD",
-  width: "device-width",
-  initialScale: 1,
-};
+export function generateViewport(): Viewport {
+  return { themeColor: SITE.themeColor, width: "device-width", initialScale: 1 };
+}
 
 /**
  * Every page is rendered per request: it reads the cart cookie, a reseller's prices and API data

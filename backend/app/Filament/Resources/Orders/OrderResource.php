@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Orders;
 
 use App\Enums\OrderStatus;
+use App\Filament\Concerns\ScopesRecordsToManagedSites;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Models\Order;
@@ -27,6 +29,8 @@ use UnitEnum;
 
 class OrderResource extends Resource
 {
+    use ScopesRecordsToManagedSites;
+
     protected static ?string $model = Order::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
@@ -49,7 +53,7 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = Order::query()->where('status', OrderStatus::Nouvelle)->count();
+        $count = static::getEloquentQuery()->where('status', OrderStatus::Nouvelle)->count();
 
         return $count ? (string) $count : null;
     }
@@ -76,6 +80,7 @@ class OrderResource extends Resource
             Grid::make(3)->columnSpanFull()->schema([
                 Section::make('Commande')->columnSpan(1)->schema([
                     TextEntry::make('reference')->label('Référence')->weight('bold')->copyable(),
+                    SiteFields::siteEntry(),
                     TextEntry::make('status')->label('Statut')->badge(),
                     TextEntry::make('created_at')->label('Passée le')->dateTime('d/m/Y à H:i'),
                     TextEntry::make('pricing')->label('Tarif')->formatStateUsing(fn (string $state) => $state === 'pro' ? 'Revendeur' : 'Public'),
@@ -129,6 +134,7 @@ class OrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('reference')->label('Référence')->searchable()->weight('bold'),
+                SiteFields::siteColumn(),
                 TextColumn::make('created_at')->label('Date')->dateTime('d/m/Y H:i')->sortable(),
                 TextColumn::make('customer_name')->label('Client')->searchable(),
                 TextColumn::make('phone')->label('Téléphone')->searchable(),
@@ -139,6 +145,7 @@ class OrderResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(OrderStatus::class)->multiple(),
+                SiteFields::siteFilter(),
                 Filter::make('dates')->schema([
                     DatePicker::make('from')->label('Du'),
                     DatePicker::make('until')->label('Au'),

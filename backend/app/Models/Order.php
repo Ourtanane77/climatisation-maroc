@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Support\Sites\Sites;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +14,7 @@ use Illuminate\Support\Facades\DB;
  * Cash-on-delivery order. Lines are snapshots (name, SKU, unit price at order time).
  *
  * @property int $id
+ * @property string $site
  * @property string $reference
  * @property OrderStatus $status
  * @property int $subtotal
@@ -57,14 +60,33 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    /** The storefront the order was placed on: the current site unless set. */
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            $order->site ??= Sites::currentKey();
+        });
+    }
+
     /**
-     * Next reference for the current year: CM-2026-00001, CM-2026-00002…
+     * Orders placed on a site (default: the current one).
+     *
+     * @param  Builder<Order>  $query
+     */
+    public function scopeOnSite(Builder $query, ?string $site = null): void
+    {
+        $query->where($query->qualifyColumn('site'), $site ?? Sites::currentKey());
+    }
+
+    /**
+     * Next reference for the current year on a site (default: the current one), numbered per
+     * prefix: CM-2026-00001, CM-2026-00002… on Climatisation Maroc, AR-2026-00001… on Arfro.
      * Call inside a transaction; the row lock serialises concurrent checkouts.
      */
-    public static function nextReference(?int $year = null): string
+    public static function nextReference(?int $year = null, ?string $site = null): string
     {
         $year ??= (int) now()->format('Y');
-        $prefix = "CM-{$year}-";
+        $prefix = Sites::get($site ?? Sites::currentKey())->orderPrefix."-{$year}-";
         $last = static::query()->where('reference', 'like', $prefix.'%')->lockForUpdate()->max('reference');
         $number = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
 

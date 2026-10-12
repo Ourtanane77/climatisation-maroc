@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use App\Enums\StockStatus;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Models\Product;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -20,6 +21,13 @@ use Filament\Schemas\Schema;
 
 class ProductForm
 {
+    /** Per-site texts (Product::SITE_TEXT_FIELDS), with the main field's component. */
+    public const SITE_TEXTS = [
+        'name' => ['Nom de la famille', 'text'],
+        'short_description' => ['Description courte', 'textarea'],
+        'description' => ['Description', 'rich'],
+    ];
+
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
@@ -39,12 +47,12 @@ class ProductForm
                             Textarea::make('verification_note')->label('Note')->rows(2),
                         ]),
                     Grid::make(2)->schema([
-                        Fields::name(label: 'Nom de la famille'),
+                        Fields::name(label: 'Nom de la famille')->hint(SiteFields::mainHint()),
                         Fields::slug('/produit/'),
                         Select::make('category_id')->label('Catégorie')->options(Fields::categoryOptions())->required()->searchable(),
                         Select::make('brand_id')->label('Marque')->relationship('brand', 'name')->searchable()->preload(),
-                        Textarea::make('short_description')->label('Description courte')->rows(2)->columnSpanFull(),
-                        RichEditor::make('description')->label('Description')->columnSpanFull(),
+                        Textarea::make('short_description')->label('Description courte')->hint(SiteFields::mainHint())->rows(2)->columnSpanFull(),
+                        RichEditor::make('description')->label('Description')->hint(SiteFields::mainHint())->columnSpanFull(),
                     ]),
                     Section::make('Caractéristiques de la famille')->columns(3)->schema([
                         Select::make('technology')->label('Technologie')->options(['Inverter' => 'Inverter', 'On/Off' => 'On/Off']),
@@ -59,8 +67,11 @@ class ProductForm
                         Toggle::make('is_new')->label('Nouveauté'),
                         Toggle::make('is_featured')->label('Mis en avant'),
                         TextInput::make('position')->label('Ordre')->numeric()->default(0),
+                        SiteFields::visibility(Product::class)->columnSpanFull(),
                     ]),
                 ]),
+
+                ...SiteFields::textTabs(self::SITE_TEXTS),
 
                 Tab::make('Variantes')->badge(fn (?Product $record) => $record?->variants()->count())->schema([
                     Repeater::make('variants')

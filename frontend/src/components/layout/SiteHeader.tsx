@@ -11,7 +11,7 @@ import { dh } from "@/lib/format";
 import type { SiteNavigation } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
-import { Logo } from "./Logo";
+import { Logo, type SiteLogo } from "./Logo";
 import { MobileDrawer } from "./MobileDrawer";
 
 /** aria-current for a navigation link: "page" on its own URL, "true" anywhere inside its section. */
@@ -30,12 +30,12 @@ export function currentFor(pathname: string, href: string): "page" | "true" | un
  */
 export function SiteHeader({
   nav,
-  logoSrc,
+  logo,
   initialCartCount = 0,
   account,
 }: {
   nav: SiteNavigation;
-  logoSrc: string | null;
+  logo: SiteLogo;
   initialCartCount?: number;
   /** Logged-in reseller pill (Commande rapide design). */
   account?: React.ReactNode;
@@ -157,8 +157,8 @@ export function SiteHeader({
             </button>
 
             <Link href="/" className="flex shrink-0">
-              <Logo src={logoSrc} height={36} className="md:hidden" />
-              <Logo src={logoSrc} height={logoHeight} className="hidden md:flex" />
+              <Logo logo={logo} height={36} className="md:hidden" />
+              <Logo logo={logo} height={logoHeight} className="hidden md:flex" />
             </Link>
 
             <form
@@ -460,7 +460,7 @@ export function SiteHeader({
         )}
       </header>
 
-      <MobileDrawer open={drawer} onClose={() => setDrawer(false)} nav={nav} logoSrc={logoSrc} />
+      <MobileDrawer open={drawer} onClose={() => setDrawer(false)} nav={nav} logo={logo} />
     </>
   );
 }

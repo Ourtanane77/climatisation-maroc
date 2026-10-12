@@ -12,6 +12,7 @@ import { cn } from "@/lib/cn";
 import { plural } from "@/lib/format";
 import type { SearchParams } from "@/lib/types";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_NAME } from "@/lib/site";
 
 export async function generateMetadata({ searchParams }: PageProps<"/promotions">): Promise<Metadata> {
   const params = await searchParams;
@@ -20,7 +21,7 @@ export async function generateMetadata({ searchParams }: PageProps<"/promotions"
   const filtered = !!(first(params.marque) || first(params.gamme));
   return seoMetadata({
     title: page > 1 ? `Promotions · page ${page}` : "Promotions",
-    description: "Climatiseurs en promotion chez Climatisation Maroc : livraison gratuite partout au Maroc, paiement à la livraison.",
+    description: `Climatiseurs en promotion chez ${SITE_NAME} : livraison gratuite partout au Maroc, paiement à la livraison.`,
     path: page > 1 ? `/promotions?page=${page}` : "/promotions",
     noindex: filtered,
   });

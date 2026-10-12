@@ -2,6 +2,7 @@
 
 namespace App\Support\Api;
 
+use App\Support\Sites\Sites;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
@@ -44,13 +45,13 @@ class ApiCache
             && mb_strlen(is_string($query['q'] ?? null) ? $query['q'] : '') <= self::MAX_Q;
     }
 
-    /** Path plus sorted query string: `?a=1&b=2` and `?b=2&a=1` share an entry. */
+    /** Site, path and sorted query string: `?a=1&b=2` and `?b=2&a=1` share an entry. */
     public static function key(Request $request): string
     {
         $query = $request->query();
         ksort($query);
 
-        return 'api:'.sha1($request->path().'?'.http_build_query($query));
+        return 'api:'.Sites::currentKey().':'.sha1($request->path().'?'.http_build_query($query));
     }
 
     /** @return array{status: int, body: string}|null */

@@ -6,14 +6,14 @@ PHP     = $(DC) exec php
 NEXT    = $(DC) exec next
 ARTISAN = $(PHP) php artisan
 
-.PHONY: up down build migrate seed fresh cache test test-back test-front lint lint-back lint-front logs sh-php sh-next images e2e smoke \
+.PHONY: up down build migrate seed fresh cache test test-back test-front lint lint-back lint-front logs sh-php sh-next sh-next-arfro images e2e smoke \
 	prod-build prod-up prod-down prod-logs prod-migrate prod-cache prod-ps backup prod-backup
 
 ## Build and start the stack. Migrations run on start; an empty database is seeded.
 up:
 	@test -f backend/.env || cp backend/.env.example backend/.env
 	$(DC) up -d --build
-	@echo "Site: http://localhost:8080  ·  Admin: http://localhost:8080/admin  ·  Mailpit: http://localhost:8025"
+	@echo "Climatisation Maroc: http://localhost:8080  ·  Arfro: http://arfro.localhost:8080  ·  Admin: http://localhost:8080/admin  ·  Mailpit: http://localhost:8025"
 
 down:
 	$(DC) down
@@ -63,6 +63,9 @@ sh-php:
 sh-next:
 	$(NEXT) sh
 
+sh-next-arfro:
+	$(DC) exec next-arfro sh
+
 ## Download catalogue images from the old site into local storage (phase 3).
 images:
 	$(ARTISAN) catalog:download-images
@@ -73,15 +76,16 @@ E2E_RESELLER_PASSWORD ?= change-me-reseller
 e2e:
 	cd frontend && E2E_RESELLER_PASSWORD=$(E2E_RESELLER_PASSWORD) npx playwright test
 
-## Smoke test through nginx: front office, API, back office, Livewire script, /storage, revalidation.
+## Smoke test through nginx: both storefronts, API, back office, Livewire script, /storage, revalidation.
+## Production: make smoke BASE_URL=https://climatisationmaroc.com ARFRO_URL=https://arfro.com
 smoke:
-	node scripts/smoke.mjs $(or $(BASE_URL),http://localhost:8080)
+	node scripts/smoke.mjs $(or $(BASE_URL),http://localhost:8080) $(ARFRO_URL)
 
 ## ---- Production (docker-compose.prod.yml + .env.prod, see docs/deployment.md) ----
 PROD_ENV_FILE ?= .env.prod
 PROD = $(DC) -f docker-compose.prod.yml -f docker-compose.ports.yml --env-file $(PROD_ENV_FILE)
 
-## Build the production images (php, nginx, next).
+## Build the production images (php, nginx, next; next-arfro reuses the next image).
 prod-build:
 	$(PROD) build
 
@@ -93,7 +97,7 @@ prod-up:
 prod-down:
 	$(PROD) down
 
-## Follow the production logs (all containers, or SERVICE=php|queue|next|nginx…).
+## Follow the production logs (all containers, or SERVICE=php|queue|next|next-arfro|nginx…).
 prod-logs:
 	$(PROD) logs -f --tail=200 $(SERVICE)
 

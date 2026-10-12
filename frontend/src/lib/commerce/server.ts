@@ -3,12 +3,13 @@ import { cookies, headers } from "next/headers";
 import { apiGet } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 import { clientIpFrom } from "@/lib/client-ip";
+import { siteHeaders, SITE } from "@/lib/site";
 import { CART_COOKIE, VISIT_COOKIE, parseCart, type CartLine } from "@/lib/cart/cookie";
 import type { City, OrderView, Quote } from "./types";
 
 /**
  * Server-side calls to the commerce API (backend-for-frontend): they forward the reseller token
- * (pro prices) and the visitor's IP (rate limits). Never cached: prices depend on the visitor.
+ * (pro prices), the storefront (X-Site) and the visitor's IP (rate limits). Never cached: prices depend on the visitor.
  */
 
 const API_BASE = `${(process.env.API_INTERNAL_URL ?? "http://localhost:8080").replace(/\/$/, "")}/api/v1`;
@@ -26,6 +27,7 @@ export async function apiForward<T>(method: "GET" | "POST", path: string, body?:
     method,
     headers: {
       Accept: "application/json",
+      ...siteHeaders(),
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(ip ? { "X-Forwarded-For": ip } : {}),
@@ -60,7 +62,7 @@ export async function quoteCart(lines: CartLine[], technicalVisit = false): Prom
 }
 
 export async function getOrder(reference: string, token: string): Promise<OrderView | null> {
-  if (!/^CM-\d{4}-\d{5}$/i.test(reference) || !token) return null;
+  if (!new RegExp(`^${SITE.orderPrefix}-\\d{4}-\\d{5}$`, "i").test(reference) || !token) return null;
   const { status, body } = await apiForward<OrderView>("GET", `/orders/${encodeURIComponent(reference.toUpperCase())}?t=${encodeURIComponent(token)}`);
   return status === 200 ? body : null;
 }

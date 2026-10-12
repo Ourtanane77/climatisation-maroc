@@ -13,6 +13,7 @@ use App\Settings\GeneralSettings;
 use App\Settings\HomeSettings;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -30,7 +31,7 @@ class HomeController extends Controller
         // in « Page d'accueil » that is no longer on promotion is left out; no promotion, no block.
         $chosen = $this->families($home->promo_product_ids)->filter(fn (Product $p) => $p->isOnPromotion());
         // Completed with the catalogue's other discounted families (same rule as /promotions).
-        $others = Product::query()->published()->whereNotIn('id', $chosen->pluck('id'))
+        $others = Product::query()->where(SiteCatalog::products(...))->whereNotIn('id', $chosen->pluck('id'))
             ->whereHas('variants', fn ($v) => $v->whereNotNull('promo_price')->whereColumn('promo_price', '<', 'price'))
             ->with(['variants', 'images', 'brand'])->orderBy('position')->limit(8)->get();
         $promotions = $chosen->concat($others)->take(8)
@@ -88,7 +89,7 @@ class HomeController extends Controller
             return collect();
         }
 
-        $products = Product::query()->published()->whereIn('id', $ids)
+        $products = Product::query()->where(SiteCatalog::products(...))->whereIn('id', $ids)
             ->whereHas('variants')
             ->with(['variants', 'images', 'brand'])
             ->get()->keyBy('id');
@@ -108,11 +109,11 @@ class HomeController extends Controller
     private function ducts(array $featuredIds): array
     {
         $reseller = Audience::isReseller();
-        $range = Category::query()->active()->where('path', 'gaines')->first();
+        $range = Category::query()->where(SiteCatalog::publicCategories(...))->where('path', 'gaines')->first();
         if (! $range) {
             return [];
         }
-        $categories = Category::query()->active()->whereIn('id', $range->descendantIds())->get()->keyBy('id');
+        $categories = Category::query()->active()->where(SiteCatalog::categories(...))->whereIn('id', $range->descendantIds())->get()->keyBy('id');
         $rank = function (Product $p) use ($featuredIds, $categories): array {
             $featured = array_search($p->id, $featuredIds, true);
             $category = $categories->get($p->category_id);
@@ -126,7 +127,7 @@ class HomeController extends Controller
             ];
         };
 
-        $products = Product::query()->published()->whereIn('category_id', $categories->keys())
+        $products = Product::query()->where(SiteCatalog::products(...))->whereIn('category_id', $categories->keys())
             ->whereHas('variants')->with(['variants', 'images'])->get()
             ->sort(fn (Product $a, Product $b) => $rank($a) <=> $rank($b))->values();
 
@@ -160,9 +161,9 @@ class HomeController extends Controller
      */
     private function bento(): array
     {
-        $ranges = Category::query()->public()->roots()
+        $ranges = Category::query()->where(SiteCatalog::publicCategories(...))->roots()
             ->where('slug', '!=', 'froid')
-            ->with(['children' => fn ($q) => $q->whereIn('id', Category::query()->public()->select('id'))->orderBy('position')])
+            ->with(['children' => fn ($q) => $q->where(SiteCatalog::publicCategories(...))->orderBy('position')])
             ->orderBy('position')->limit(6)->get();
 
         $tiles = $ranges->values()->map(function (Category $c, int $i) {
@@ -170,14 +171,14 @@ class HomeController extends Controller
             // Chauffe-eau: three); the others show their short line.
             $types = $i < 2
                 ? $c->children->take($i === 0 ? 4 : 3)->map(fn (Category $child) => [
-                    'label' => $child->short_name ?: $child->name,
+                    'label' => $child->short_name ?: $child->siteText('name'),
                     'href' => $child->url(),
                 ])->values()->all()
                 : null;
 
             return [
                 'key' => $c->slug,
-                'title' => $c->short_name ?: $c->name,
+                'title' => $c->short_name ?: $c->siteText('name'),
                 'href' => $c->url(),
                 'icon' => $c->icon,
                 'bg' => $c->tile_bg,
@@ -188,9 +189,9 @@ class HomeController extends Controller
             ];
         })->all();
 
-        // Sector names as drawn ("Hôtels, Restaurants, Bureaux, Écoles, …"): a published sector
-        // links to its page, the others to the solutions hub.
-        $sectors = SectorPage::query()->orderBy('position')->get(['name', 'slug', 'is_published'])
+        // Sector names as drawn ("Hôtels, Restaurants, Bureaux, Écoles, …"), among the sectors of the
+        // current site: a published sector links to its page, the others to the solutions hub.
+        $sectors = SectorPage::query()->visibleOn()->orderBy('position')->get(['name', 'slug', 'is_published', 'sites'])
             ->filter(fn (SectorPage $s) => in_array($s->slug, ['hotels-riads', 'restaurants', 'bureaux', 'ecoles'], true))
             ->map(fn (SectorPage $s) => [
                 'label' => trim((string) preg_split('/\s+(et|&)\s+/u', $s->name)[0]),
@@ -218,7 +219,7 @@ class HomeController extends Controller
      */
     private function brands(array $ids): array
     {
-        $brands = Brand::query()->active()->whereIn('id', $ids)->get()->keyBy('id');
+        $brands = Brand::query()->where(SiteCatalog::brands(...))->whereIn('id', $ids)->get()->keyBy('id');
 
         return collect($ids)->map(fn (int $id) => $brands->get($id))->filter()
             ->map(fn (Brand $b) => [

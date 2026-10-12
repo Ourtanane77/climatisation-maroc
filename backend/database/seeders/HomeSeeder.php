@@ -5,15 +5,26 @@ namespace Database\Seeders;
 use App\Models\Brand;
 use App\Models\ProductVariant;
 use App\Settings\HomeSettings;
+use App\Support\Sites\Sites;
+use App\Support\Sites\SiteSettings;
 use Illuminate\Database\Seeder;
 
-/** Home page sections, with the products the design shows (design/Accueil.dc.html). */
+/**
+ * Home page sections, with the products the design shows (design/Accueil.dc.html). Every site gets
+ * the same product lists (home, home_arfro…), so a fresh install's arfro.com home is not empty; the
+ * owner then edits each site's home in the back office.
+ */
 class HomeSeeder extends Seeder
 {
     public function run(): void
     {
-        $settings = app(HomeSettings::class);
+        foreach (Sites::keys() as $site) {
+            $this->fill(SiteSettings::for(HomeSettings::class, $site));
+        }
+    }
 
+    private function fill(HomeSettings $settings): void
+    {
         // "Nouveaux produits": LG Gainable 36000/48000, chauffe-eau solaire Simsek 300/500 L.
         $settings->new_product_ids = $this->families(['ABNW36GM2S1.ENWBME', 'CHAUFF0061']);
         // "Promotions" rail: LG Dual, Fitco Mural Inverter, Carrier Mural Inverter R32, CIAT, Carrier Miroir, LG Artcool.

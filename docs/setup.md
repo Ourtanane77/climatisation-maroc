@@ -26,7 +26,8 @@ make cache                                          # the config is cached at st
 
 | URL | What |
 |---|---|
-| http://localhost:8080 | site (nginx → Next.js) |
+| http://localhost:8080 | Climatisation Maroc storefront (nginx → `next`) |
+| http://arfro.localhost:8080 | Arfro storefront (nginx → `next-arfro`; browsers resolve `*.localhost` to 127.0.0.1) |
 | http://localhost:8080/admin | back office (Filament) |
 | http://localhost:8080/api/v1/health | API health |
 | http://localhost:8025 | Mailpit (every e-mail sent in development) |
@@ -46,9 +47,9 @@ Development accounts come from the `SEED_*` values in `backend/.env`:
 | `make test` | backend Pest and frontend Vitest |
 | `make lint` | Pint, Larastan, ESLint, tsc |
 | `make e2e` | Playwright end-to-end tests against the running stack (from the host) |
-| `make smoke` | smoke test through nginx (`BASE_URL=…` for another stack) |
+| `make smoke` | smoke test through nginx, both storefronts (`BASE_URL=…`, `ARFRO_URL=…` for another stack) |
 | `make images` | download missing catalogue images |
-| `make logs`, `make sh-php`, `make sh-next` | logs, shells |
+| `make logs`, `make sh-php`, `make sh-next`, `make sh-next-arfro` | logs, shells |
 
 Without `make` (plain Windows shell), run the `docker compose …` lines from the `Makefile`.
 
@@ -59,6 +60,13 @@ Without `make` (plain Windows shell), run the `docker compose …` lines from th
 - The Next.js dev server runs `next dev --webpack` with polling (`WATCHPACK_POLLING`), because
   file events do not cross the bind mount. Turbopack cannot poll; host development
   (`cd frontend && npm run dev`) keeps it.
+- Two Next.js dev servers run (`next` for Climatisation Maroc, `next-arfro` for Arfro), about
+  1 GB of RAM each. `next-arfro` shares the sources and `node_modules` but builds into its own
+  volume (`next_arfro_build`). When you do not work on Arfro, `docker compose stop next-arfro`:
+  arfro.localhost then answers 502, the rest of the stack is unaffected. Each instance gets
+  `SITE_KEY` and `SITE_URL` from `docker-compose.yml`.
+- Command-line tools (curl, Node) may not resolve `arfro.localhost`: send the host header instead,
+  e.g. `curl -H 'Host: arfro.localhost:8080' http://localhost:8080/`.
 - Line endings are LF (`.gitattributes`).
 - Port 33306 exposes MySQL to the host (`DB_FORWARD_PORT` in `.env`).
 

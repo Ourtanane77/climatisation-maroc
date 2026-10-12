@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
 use Filament\Actions\ViewAction;
@@ -20,10 +21,11 @@ class LatestOrders extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(Order::query()->latest()->limit(8))
+            ->query(OrderResource::getEloquentQuery()->latest()->limit(8))
             ->paginated(false)
             ->columns([
                 TextColumn::make('reference')->label('Référence')->weight('bold'),
+                SiteFields::siteColumn()->sortable(false),
                 TextColumn::make('created_at')->label('Date')->since(),
                 TextColumn::make('customer_name')->label('Client'),
                 TextColumn::make('city_name')->label('Ville'),

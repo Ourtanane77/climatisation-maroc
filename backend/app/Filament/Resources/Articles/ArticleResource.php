@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\Articles;
 
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Forms\ContentBlocks;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Articles\Pages\CreateArticle;
 use App\Filament\Resources\Articles\Pages\EditArticle;
 use App\Filament\Resources\Articles\Pages\ListArticles;
 use App\Models\Article;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -33,6 +36,8 @@ use UnitEnum;
 
 class ArticleResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
     protected static ?string $model = Article::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNewspaper;
@@ -56,7 +61,7 @@ class ArticleResource extends Resource
                 Tab::make('Article')->schema([
                     Grid::make(2)->schema([
                         Fields::name('title', 'Titre'),
-                        Fields::slug('/blog/'),
+                        Fields::slug('/blog/')->rule(SiteFields::uniqueSlugPerSite(Article::class)),
                         Select::make('article_category_id')->label('Catégorie')->relationship('category', 'name')->required()->preload(),
                         TextInput::make('reading_time')->label('Temps de lecture')->numeric()->suffix('min'),
                         Textarea::make('excerpt')->label('Résumé')->rows(2)->columnSpanFull(),
@@ -71,6 +76,7 @@ class ArticleResource extends Resource
                         TextInput::make('author')->label('Auteur'),
                         DateTimePicker::make('published_at')->label('Date de publication'),
                         Toggle::make('is_published')->label('Publié')->inline(false),
+                        SiteFields::visibility(Article::class)->columnSpanFull(),
                     ]),
                 ]),
                 Tab::make('Liens')->schema([
@@ -97,12 +103,15 @@ class ArticleResource extends Resource
                 TextColumn::make('reading_time')->label('Lecture')->suffix(' min'),
                 TextColumn::make('published_at')->label('Publié le')->date('d/m/Y')->placeholder('—'),
                 IconColumn::make('is_published')->label('Publié')->boolean(),
+                SiteFields::sitesColumn(),
             ])
             ->filters([
                 SelectFilter::make('article_category_id')->label('Catégorie')->relationship('category', 'name'),
                 TernaryFilter::make('is_published')->label('Publié'),
+                SiteFields::sitesFilter(),
             ])
-            ->recordActions([EditAction::make()]);
+            ->recordActions([EditAction::make(), ...SiteFields::duplicateActions(self::class)])
+            ->toolbarActions([BulkActionGroup::make(SiteFields::visibilityBulkActions(Article::class))]);
     }
 
     public static function getPages(): array

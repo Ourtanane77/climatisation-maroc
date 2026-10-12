@@ -1,7 +1,9 @@
 # Guide du back-office
 
-Ce guide s'adresse à l'équipe d'Ariha Froid qui gère la boutique Climatisation Maroc au
-quotidien : produits, commandes, demandes, revendeurs et contenus.
+Ce guide s'adresse à l'équipe d'Ariha Froid qui gère au quotidien ses deux boutiques en ligne,
+**Climatisation Maroc** (climatisationmaroc.com) et **Arfro** (arfro.com) : produits, commandes,
+demandes, revendeurs et contenus. Un seul back-office (« Ariha Froid — Back office ») sert les
+deux sites : voir [Deux sites](#deux-sites).
 
 ## Connexion
 
@@ -15,6 +17,45 @@ quotidien : produits, commandes, demandes, revendeurs et contenus.
   vérifier, nouvelles demandes…).
 
 Les modifications enregistrées apparaissent sur le site en quelques secondes.
+
+## Deux sites
+
+Les deux sites partagent le catalogue, les prix, les stocks et les comptes revendeurs. Ce qui
+change d'un site à l'autre se règle dans le back-office :
+
+- **Visible sur** : sur chaque produit, catégorie, marque, article, page… cochez
+  « Climatisation Maroc », « Arfro » ou les deux. Aucune case cochée = l'élément n'apparaît sur
+  aucun site. Les produits, catégories et marques existants sont sur les deux sites ; les articles
+  et pages existants sont sur Climatisation Maroc uniquement.
+- Dans les listes, la colonne **Sites** montre où chaque élément est visible et le filtre
+  **Site** n'affiche que ceux d'un site. Actions groupées : cochez des lignes puis « Afficher sur
+  Arfro », « Masquer d’Arfro » (et de même pour Climatisation Maroc).
+- **Textes Arfro (anti-duplication)** : Google pénalise un texte identique publié sur deux sites.
+  Les produits, catégories, marques et catégories du blog ont un onglet ou une section « Textes
+  Arfro » : nom, descriptions et SEO (titre, méta-description, H1) propres à Arfro. Un champ vide
+  reprend le texte principal, qui est celui de Climatisation Maroc (mention « texte principal »).
+  Le filtre **Texte Arfro manquant** liste ce qui est visible sur Arfro sans texte réécrit ; la
+  colonne « Texte Arfro » l'indique d'une icône orange.
+- **Articles et pages** : une même adresse (par exemple « a-propos ») peut exister une fois par
+  site. Pour créer la version Arfro d'un article ou d'une page, utilisez l'action **Dupliquer
+  pour Arfro** de la liste : une copie non publiée, visible sur Arfro seulement, s'ouvre ; réécrivez
+  le texte puis publiez-la. (Pages ville : pas encore de copie par site, une ville n'a qu'une page.)
+- **Commandes, demandes, revendeurs** arrivent des deux sites dans les mêmes listes. La colonne
+  **Site** indique leur provenance (bleu : Climatisation Maroc, orange : Arfro) et le filtre
+  « Site » les sépare. Les références de commande commencent par CM- ou AR-.
+- **Réglages** et **Page d’accueil** existent pour chaque site : « Réglages — Arfro »,
+  « Page d’accueil — Arfro »… Les produits proposés dans la page d'accueil d'Arfro sont ceux
+  visibles sur Arfro.
+- **Voir sur le site** : la fiche d'un produit ou d'une page propose « Voir sur Climatisation
+  Maroc » et/ou « Voir sur Arfro » selon où elle est visible.
+
+### Équipe par site
+
+Un gestionnaire peut être limité à un site (Configuration › Utilisateurs › « Sites gérés »).
+Il ne voit alors que les commandes, demandes et revendeurs de ce site, les contenus visibles sur
+ce site (ou masqués partout), et la page d'accueil de ce site. Dans « Visible sur », il ne peut
+cocher ou décocher que son site : les autres cases restent telles quelles ; les textes de l'autre
+site sont en lecture seule. Les administrateurs gèrent toujours les deux sites.
 
 ## Produits et variantes
 
@@ -151,6 +192,8 @@ Chaque contenu a un onglet ou une section SEO (titre, description, titre H1).
 
 ## Réglages et page d'accueil
 
+Chaque site a ses réglages et sa page d'accueil (« — Climatisation Maroc », « — Arfro »).
+
 **Configuration › Réglages** (administrateurs) :
 
 - Bandeau promotionnel (texte et lien en haut de page) ;
@@ -160,7 +203,7 @@ Chaque contenu a un onglet ou une section SEO (titre, description, titre H1).
 - Commande : prix de la visite technique ;
 - Pied de page : texte de présentation.
 
-**Configuration › Page d’accueil** : bandeau principal (titre, sous-titre, image), produits mis en
+**Configuration › Page d’accueil** (gestionnaires du site) : bandeau principal (titre, sous-titre, image), produits mis en
 avant, marques affichées, produit vedette du menu déroulant de chaque gamme.
 
 ## Redirections
@@ -172,5 +215,6 @@ redirection est compté. Les adresses de l'ancien site sont redirigées automati
 ## Utilisateurs
 
 **Configuration › Utilisateurs** (administrateurs) : créez les comptes de l'équipe, choisissez
-le profil (Administrateur ou Gestionnaire), changez un mot de passe. Les comptes revendeurs se
-gèrent dans **Ventes › Revendeurs**.
+le profil (Administrateur ou Gestionnaire), les **sites gérés** (aucune case = tous les sites),
+changez un mot de passe. Les comptes revendeurs se gèrent dans **Ventes › Revendeurs** ; un
+compte revendeur validé vaut sur les deux sites.

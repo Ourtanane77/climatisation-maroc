@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Sites\Sites;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -14,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'phone', 'password'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'sites'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -36,6 +37,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'sites' => 'array',
         ];
     }
 
@@ -49,6 +51,32 @@ class User extends Authenticatable implements FilamentUser
     public function isValidatedReseller(): bool
     {
         return $this->hasRole(self::ROLE_RESELLER) && (bool) $this->resellerAccount?->isValidated();
+    }
+
+    /**
+     * Sites this back-office user manages: their orders, leads, resellers and content. `sites`
+     * null or empty = every site (and admins always manage every site).
+     *
+     * @return list<string>
+     */
+    public function managedSites(): array
+    {
+        if ($this->hasRole(self::ROLE_ADMIN) || empty($this->sites)) {
+            return Sites::keys();
+        }
+
+        return array_values(array_intersect(Sites::keys(), (array) $this->sites));
+    }
+
+    public function managesSite(string $site): bool
+    {
+        return in_array($site, $this->managedSites(), true);
+    }
+
+    /** True when the user manages every site (no per-site restriction applies). */
+    public function managesAllSites(): bool
+    {
+        return count($this->managedSites()) === count(Sites::keys());
     }
 
     public function canAccessPanel(Panel $panel): bool

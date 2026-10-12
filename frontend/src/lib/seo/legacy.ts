@@ -1,14 +1,17 @@
 import "server-only";
 import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { ApiError, apiGet } from "@/lib/api";
+import { SITE_KEY } from "@/lib/site";
 
 /**
  * Old-site URLs (climatisationmaroc.com: /produit/details/{id}/{name}, /produit/service/{id}/…,
  * /produit/marque/{id}/{name}, /produit/cuivre/…, /home/{page}) → their new page, through
  * GET /api/v1/redirects/legacy. 301 answers become permanent redirects (308); 302 answers (target
- * not online yet) stay temporary. Unknown paths end on the 404 page.
+ * not online yet) stay temporary. Unknown paths end on the 404 page. Only climatisationmaroc.com
+ * (`cm`) had these URLs: on another storefront they are all 404, without asking the API.
  */
 export async function redirectLegacy(path: string): Promise<never> {
+  if (SITE_KEY !== "cm") notFound();
   let target: { type: "redirect"; to: string; status: number } | { type: "none" };
   try {
     target = await apiGet(`/redirects/legacy?path=${encodeURIComponent(path)}`, { tags: ["redirects"] });

@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Climatisation Maroc')
+            ->brandName('Ariha Froid — Back office') // one back office for both sites (config/sites.php)
             // Brand colours from the design. Filament picks button shades from 500/600 with a contrast
             // check, so those are pinned to the exact design colours (white text on #0B5CAD).
             ->colors([

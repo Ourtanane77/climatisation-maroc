@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Support\Sites\Sites;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -19,5 +20,12 @@ abstract class TestCase extends BaseTestCase
         }
 
         return parent::createApplication();
+    }
+
+    /** The current site is static (it survives between tests in one process): start on the default. */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Sites::setCurrent(null);
     }
 }

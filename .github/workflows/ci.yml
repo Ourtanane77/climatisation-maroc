@@ -131,11 +131,11 @@ jobs:
           docker compose up -d --build
           docker compose exec -T php php artisan key:generate --force
           for _ in $(seq 1 90); do
-            curl -fsS -o /dev/null http://localhost:8080/api/health && curl -fsS -o /dev/null http://localhost:8080/api/v1/health && break
+            curl -fsS -o /dev/null http://localhost:8080/api/health && curl -fsS -o /dev/null -H 'Host: arfro.localhost:8080' http://localhost:8080/api/health && curl -fsS -o /dev/null http://localhost:8080/api/v1/health && break
             sleep 10
           done
 
-      - name: Smoke test through nginx
+      - name: Smoke test through nginx (both storefronts)
         run: node scripts/smoke.mjs http://localhost:8080
 
       - uses: actions/setup-node@v4

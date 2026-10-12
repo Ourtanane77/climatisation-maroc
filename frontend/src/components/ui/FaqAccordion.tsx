@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
-import { JsonLd } from "@/lib/seo/jsonld";
+import { JsonLd } from "@/lib/seo/script";
 import type { FaqItem } from "@/lib/types";
 
 /**

@@ -8,6 +8,7 @@ use App\Models\ProductSpec;
 use App\Models\ProductVariant;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ class CompareController extends Controller
             ->map(fn ($s) => trim($s))->filter()->unique()->take(self::MAX)->values();
 
         $variants = ProductVariant::query()->whereIn('sku', $skus)
-            ->whereHas('product', fn ($q) => $q->published())
+            ->whereHas('product', SiteCatalog::products(...))
             ->with(['specs', 'product.brand', 'product.category', 'product.specs', 'product.images'])
             ->get()
             ->sortBy(fn (ProductVariant $v) => $skus->search($v->sku))

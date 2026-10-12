@@ -2,11 +2,13 @@
 
 Online store of Ariha Froid, HVAC distributor in Marrakech since 2008: air conditioners, water
 heaters, ventilation, ducts, copper and gas, spare parts. French only, prices in Dhs, cash on
-delivery, free delivery across Morocco, reseller prices for validated professionals.
+delivery, free delivery across Morocco, reseller prices for validated professionals. The same
+code serves a second storefront, Arfro (arfro.com), from the same back office.
 
 - **Front office:** Next.js 16 (App Router, TypeScript, Tailwind), server-rendered.
 - **API and back office:** Laravel 13, Filament 5 (`/admin`, in French), Sanctum.
-- **Infrastructure:** MySQL 8, Redis, Docker (nginx, php-fpm, queue, scheduler, next, mailpit).
+- **Infrastructure:** MySQL 8, Redis, Docker (nginx, php-fpm, queue, scheduler, next and
+  next-arfro, mailpit).
 
 ## Quick start
 
@@ -16,7 +18,8 @@ make up
 docker compose exec php php artisan key:generate && make cache
 ```
 
-Site http://localhost:8080 · back office http://localhost:8080/admin · Mailpit http://localhost:8025
+Climatisation Maroc http://localhost:8080 · Arfro http://arfro.localhost:8080 · back office
+http://localhost:8080/admin · Mailpit http://localhost:8025
 
 ## Documentation
 

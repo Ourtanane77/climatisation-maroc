@@ -1,7 +1,8 @@
 # Architecture
 
 Climatisation Maroc is the online store of Ariha Froid (Marrakech): French only (`fr-MA`), prices
-in Dhs, cash on delivery. The plan and the decisions behind it are in `docs/plan.md`; deliberate
+in Dhs, cash on delivery. The same code also serves a second storefront, Arfro (arfro.com): see
+« Multi-site » below. The plan and the decisions behind it are in `docs/plan.md`; deliberate
 differences from the design files are in `docs/deviations.md`.
 
 ## Monorepo
@@ -16,12 +17,14 @@ differences from the design files are in `docs/deviations.md`.
 | `docs/` | plan, design inventory, deviations, these guides |
 
 ```
-browser ──► nginx :80
-              ├─ /api/v1, /admin, /livewire*, /sanctum, /filament, /up ─► php-fpm (Laravel)
-              ├─ /storage/…  ─► files of storage/app/public (served by nginx)
-              └─ everything else ─► Next.js :3000 ──(server side)──► nginx /api/v1 ─► Laravel
+browser ──► nginx :80 (climatisationmaroc.com, arfro.com)
+              ├─ /api/v1, /admin, /livewire*, /sanctum, /filament, /up ─► php-fpm (Laravel), any host
+              ├─ /storage/…  ─► files of storage/app/public (served by nginx), any host
+              └─ everything else, by Host:
+                   arfro.com ─► next-arfro :3000 (SITE_KEY=arfro) ─┐
+                   any other ─► next :3000       (SITE_KEY=cm)    ─┴(server side, X-Site)─► nginx /api/v1 ─► Laravel
 Laravel ─► MySQL 8, Redis (cache, queue, sessions) ; queue worker and scheduler containers
-Laravel ──(after back-office changes)──► Next.js /api/revalidate
+Laravel ──(after back-office changes)──► /api/revalidate of each Next.js instance
 ```
 
 ## Backend
@@ -81,19 +84,63 @@ Laravel ──(after back-office changes)──► Next.js /api/revalidate
   `src/lib/design-assets.ts` uses a photo only when it is in the manifest. Logo:
   `public/logo-arfro.svg`.
 
+## Multi-site
+
+One database, one API, one back office and one queue serve two storefronts. Decisions:
+`docs/plan.md` §0, « Multi-site (2026-10-12) ».
+
+| Key | Site | Next.js service | Production URL | Dev URL | Order prefix |
+|---|---|---|---|---|---|
+| `cm` (default) | Climatisation Maroc | `next` | https://climatisationmaroc.com | http://localhost:8080 | `CM-` |
+| `arfro` | Arfro | `next-arfro` | https://arfro.com | http://arfro.localhost:8080 | `AR-` |
+
+- **Config.** `backend/config/sites.php` lists the sites (name, public URL, internal Next.js URL,
+  order prefix, e-mail sender name; env `SITE_CM_*`, `SITE_ARFRO_*`).
+  `App\Support\Sites\Sites` gives the list (`Sites::all()`) and the current site.
+- **Two Next.js instances, one image.** nginx picks the instance by `Host` (`map $host` in
+  `docker/nginx/default.conf`: `arfro.com`, `www.arfro.com`, `arfro.localhost` and any
+  `arfro.*` host go to `next-arfro`, every other host to `next`). Each instance knows its site from
+  `SITE_KEY` and its public URL from `SITE_URL` (canonical links, sitemap, robots), read at run
+  time, so one build serves both. Laravel routes (`/api/v1`, `/admin`…) answer on both domains.
+- **Site of a request.** The Next.js server sends `X-Site: <key>` on every API call;
+  `App\Http\Middleware\ResolveSite` sets the current site (missing or unknown header = `cm`).
+  Console commands and the back office use the default site; queued mails run as the site stored
+  on the order or lead (`Sites::runAs()`).
+- **Visibility.** Content models use `App\Models\Concerns\HasSites`: a `sites` JSON list (the
+  sites a row appears on; empty = nowhere) and `site_content` (per-site texts replacing a field,
+  plus `seo_title`, `seo_description`, `seo_h1`, so the two sites do not publish duplicate copy).
+  Every public query is scoped with `visibleOn()`. Editorial slugs are unique per site.
+- **Settings.** Each site has its own settings groups: `GeneralSettings` / `HomeSettings` for
+  Climatisation Maroc, `ArfroGeneralSettings` / `ArfroHomeSettings` (groups `general_arfro`,
+  `home_arfro`) for Arfro; injecting the base class gives the current site's values
+  (`App\Support\Sites\SiteSettings`).
+- **Orders, leads, resellers** record their `site`; order references are numbered per prefix
+  (`CM-2026-00001`, `AR-2026-00001`). Prices and reseller accounts are shared by both sites.
+- **Back office.** One panel for both sites. A user's `sites` limits the orders, leads, resellers
+  and content they manage (empty = all; administrators always manage all).
+- **Sessions and CORS.** The browser only talks to its own domain (Next.js BFF, Laravel behind the
+  same nginx), so no cross-site setting lists the domains: the back-office session cookie is
+  host-only (`SESSION_DOMAIN` empty, one login per domain), Sanctum uses bearer tokens (no
+  stateful SPA domains), and CORS is never needed.
+
 ## Caching and revalidation
 
 Two caches hold public data:
 
 1. **Laravel API response cache** (`App\Support\Api\ApiCache`, Redis, tag `api-responses`) for
-   public GET responses.
-2. **Next.js fetch cache** (tag `api`) for the API responses used to render pages.
+   public GET responses, keyed per site (`api:<site>:…`).
+2. **Next.js fetch cache** (tag `api`) for the API responses used to render pages, one per
+   Next.js instance.
 
 After any change to a model visible on the site (categories, brands, products and variants,
 images, specs, articles, sectors, services, pages, city pages, FAQ, SEO, redirects, cities) or to
-the settings, `App\Support\Frontend\Revalidator` flushes the API response cache at once and, after
-the response, calls `POST {FRONTEND_INTERNAL_URL}/api/revalidate` with the shared
-`REVALIDATE_SECRET`. The Next.js route expires the tag immediately (`revalidateTag(tag,
+the settings, `App\Support\Frontend\Revalidator` flushes the API response cache at once (all
+sites) and, after the response, calls `POST <frontend_internal_url>/api/revalidate` on **every**
+site of `config/sites.php` (`http://next:3000`, `http://next-arfro:3000`) with the shared
+`REVALIDATE_SECRET`, whichever site the change concerns (the catalogue is shared). Each call is
+independent: a storefront that is down is logged (`Front-office revalidation failed`, with the
+site key) and the other is still revalidated; `Revalidator::send()` returns true only when all
+succeeded. The Next.js route expires the tag immediately (`revalidateTag(tag,
 { expire: 0 })`).
 
 This matters for unpublished content: Next.js only caches 200 responses, so the API's 404 never

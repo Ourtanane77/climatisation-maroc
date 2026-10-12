@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\CityPages;
 
+use App\Filament\Concerns\ScopesContentToManagedSites;
 use App\Filament\Forms\Fields;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\CityPages\Pages\CreateCityPage;
 use App\Filament\Resources\CityPages\Pages\EditCityPage;
 use App\Filament\Resources\CityPages\Pages\ListCityPages;
 use App\Models\CityPage;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -24,6 +27,8 @@ use UnitEnum;
 
 class CityPageResource extends Resource
 {
+    use ScopesContentToManagedSites;
+
     protected static ?string $model = CityPage::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
@@ -43,11 +48,12 @@ class CityPageResource extends Resource
         return $schema->components([
             Grid::make(2)->columnSpanFull()->schema([
                 Select::make('city_id')->label('Ville')->relationship('city', 'name')->required()->unique(ignoreRecord: true),
-                Fields::slug('/climatisation-'),
+                Fields::slug('/climatisation-')->rule(SiteFields::uniqueSlugPerSite(CityPage::class)),
                 Textarea::make('intro')->label('Introduction')->rows(3)->columnSpanFull(),
                 RichEditor::make('body')->label('Contenu')->columnSpanFull(),
                 Toggle::make('is_published')->label('Publiée')
                     ->helperText('À publier une fois le texte rédigé : une page vide n’apparaît ni dans les menus ni dans le plan du site.'),
+                SiteFields::visibility(CityPage::class),
             ]),
             Fields::faq()->columnSpanFull(),
             Fields::seo()->columnSpanFull(),
@@ -61,8 +67,11 @@ class CityPageResource extends Resource
                 TextColumn::make('city.name')->label('Ville')->weight('bold'),
                 TextColumn::make('slug')->label('Adresse')->prefix('/climatisation-'),
                 IconColumn::make('is_published')->label('Publiée')->boolean(),
+                SiteFields::sitesColumn(),
             ])
-            ->recordActions([EditAction::make()]);
+            ->filters([SiteFields::sitesFilter()])
+            ->recordActions([EditAction::make()])
+            ->toolbarActions([BulkActionGroup::make(SiteFields::visibilityBulkActions(CityPage::class))]);
     }
 
     public static function getPages(): array

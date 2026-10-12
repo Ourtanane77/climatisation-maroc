@@ -88,6 +88,7 @@ class ProductVariant extends Model
 
     public function displayName(): string
     {
-        return trim($this->product->name.' '.($this->label ?? ''));
+        // The family name on the current site (per-site text, App\Models\Concerns\HasSites).
+        return trim($this->product->siteText('name').' '.($this->label ?? ''));
     }
 }

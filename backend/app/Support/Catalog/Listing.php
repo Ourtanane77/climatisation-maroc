@@ -46,7 +46,7 @@ class Listing
     public const SORTS = ['price_asc', 'price_desc', 'name', 'relevance'];
 
     /**
-     * Published families with what cards and filters need.
+     * Families visible on the current site with what cards and filters need.
      *
      * @param  list<int>|null  $categoryIds
      * @return Builder<Product>
@@ -54,7 +54,7 @@ class Listing
     public static function query(?array $categoryIds = null): Builder
     {
         return Product::query()
-            ->published()
+            ->where(SiteCatalog::products(...))
             ->when($categoryIds !== null, fn (Builder $q) => $q->whereIn('category_id', $categoryIds))
             ->whereHas('variants')
             ->with(['variants', 'images', 'brand', 'category'])
@@ -355,7 +355,7 @@ class Listing
         return match ($sort) {
             'price_asc' => $families->sortBy(fn (Product $p) => [$price($p) === null ? 1 : 0, $price($p) ?? 0])->values(),
             'price_desc' => $families->sortBy(fn (Product $p) => [$price($p) === null ? 1 : 0, -($price($p) ?? 0)])->values(),
-            'name' => $families->sortBy(fn (Product $p) => mb_strtolower($p->name))->values(),
+            'name' => $families->sortBy(fn (Product $p) => mb_strtolower((string) $p->siteText('name')))->values(),
             default => $families->values(),
         };
     }

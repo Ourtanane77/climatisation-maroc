@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Filament\Forms\Fields;
 use App\Models\User;
 use App\Settings\GeneralSettings;
+use App\Support\Sites\Sites;
 use BackedEnum;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -15,7 +16,10 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
 
-/** "Réglages": phones by role, stores, hours, socials, promo bar, technical visit price. Admins only. */
+/**
+ * "Réglages" of one site (default site here; ManageArfroGeneralSettings for arfro.com): phones by
+ * role, stores, hours, socials, promo bar, technical visit price. Admins only.
+ */
 class ManageGeneralSettings extends SettingsPage
 {
     protected static string $settings = GeneralSettings::class;
@@ -24,15 +28,29 @@ class ManageGeneralSettings extends SettingsPage
 
     protected static string|UnitEnum|null $navigationGroup = 'Configuration';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationLabel = 'Réglages';
+    /** Site whose settings the page edits. */
+    public static function siteKey(): string
+    {
+        return Sites::defaultKey();
+    }
 
-    protected static ?string $title = 'Réglages';
+    public static function getNavigationLabel(): string
+    {
+        return 'Réglages — '.Sites::get(static::siteKey())->name;
+    }
+
+    public function getTitle(): string
+    {
+        return static::getNavigationLabel();
+    }
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->hasRole(User::ROLE_ADMIN);
+        $user = auth()->user();
+
+        return $user instanceof User && $user->hasRole(User::ROLE_ADMIN) && $user->managesSite(static::siteKey());
     }
 
     public function form(Schema $schema): Schema

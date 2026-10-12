@@ -19,6 +19,9 @@ use Illuminate\Database\Seeder;
  */
 class ContentSeeder extends Seeder
 {
+    /** Editorial seed content belongs to Climatisation Maroc (the models' DEFAULT_SITES); slugs are unique per site. */
+    private const SITE = 'cm';
+
     public function run(): void
     {
         $this->services();
@@ -107,7 +110,7 @@ class ContentSeeder extends Seeder
         ];
 
         foreach ($services as $position => $s) {
-            $page = ServicePage::query()->updateOrCreate(['slug' => $s['slug']], [
+            $page = ServicePage::query()->visibleOn(self::SITE)->updateOrCreate(['slug' => $s['slug']], [
                 'name' => $s['name'],
                 'hero_text' => $s['hero_text'],
                 'included' => $s['included'],
@@ -140,7 +143,7 @@ class ContentSeeder extends Seeder
             'cliniques' => 'clinique', 'villas' => 'villa', 'chambres-froides' => 'froid'];
 
         foreach ($sectors as $position => [$slug, $name, $tagline, $bg]) {
-            SectorPage::query()->updateOrCreate(['slug' => $slug], [
+            SectorPage::query()->visibleOn(self::SITE)->updateOrCreate(['slug' => $slug], [
                 'name' => $name,
                 'tagline' => $tagline,
                 'scene_key' => $scenes[$slug],
@@ -151,7 +154,7 @@ class ContentSeeder extends Seeder
             ]);
         }
 
-        $resto = SectorPage::query()->where('slug', 'restaurants')->firstOrFail();
+        $resto = SectorPage::query()->visibleOn(self::SITE)->where('slug', 'restaurants')->firstOrFail();
         $resto->update([
             'hero_text' => 'Une salle agréable en plein été, une cuisine bien ventilée, une installation qui se fait oublier.',
             'intro' => 'Dans un restaurant, la climatisation travaille dur : la salle se remplit d\'un coup, la cuisine dégage de la chaleur et les portes s\'ouvrent sans arrêt. Nous choisissons avec vous les appareils, la ventilation et l\'emplacement des unités pour que la salle reste agréable sans gêner le service.',
@@ -218,7 +221,7 @@ class ContentSeeder extends Seeder
             ['climatiser-un-restaurant-erreurs', 'Climatiser un restaurant : les erreurs à éviter', 'pros', 6, '#DCE8F5', null],
         ];
         foreach ($articles as $position => [$slug, $title, $category, $minutes, $bg, $art]) {
-            Article::query()->updateOrCreate(['slug' => $slug], [
+            Article::query()->visibleOn(self::SITE)->updateOrCreate(['slug' => $slug], [
                 'article_category_id' => $ids[$category],
                 'title' => $title,
                 'reading_time' => $minutes,
@@ -229,7 +232,7 @@ class ContentSeeder extends Seeder
             ]);
         }
 
-        $puissance = Article::query()->where('slug', 'quelle-puissance-de-climatiseur-pour-ma-piece')->firstOrFail();
+        $puissance = Article::query()->visibleOn(self::SITE)->where('slug', 'quelle-puissance-de-climatiseur-pour-ma-piece')->firstOrFail();
         $puissance->update([
             'excerpt' => 'Surface, ensoleillement, étage : la méthode simple pour choisir entre 9 000, 12 000, 18 000 et 24 000 BTU, avec le tableau des puissances.',
             'body' => $this->puissanceBody(),
@@ -250,7 +253,7 @@ class ContentSeeder extends Seeder
             $category = Category::query()->where('path', $path)->firstOrFail();
             $this->linkArticles($category, $slugs);
         }
-        $this->linkArticles(SectorPage::query()->where('slug', 'restaurants')->firstOrFail(), ['climatiser-un-restaurant-erreurs']);
+        $this->linkArticles(SectorPage::query()->visibleOn(self::SITE)->where('slug', 'restaurants')->firstOrFail(), ['climatiser-un-restaurant-erreurs']);
     }
 
     /** @return list<array<string, mixed>> content blocks of the published article (design text, verbatim) */
@@ -291,7 +294,7 @@ class ContentSeeder extends Seeder
 
     private function pages(): void
     {
-        $about = Page::query()->updateOrCreate(['slug' => 'a-propos'], [
+        $about = Page::query()->visibleOn(self::SITE)->updateOrCreate(['slug' => 'a-propos'], [
             'title' => 'À propos',
             'kind' => PageKind::About,
             'intro' => 'Un fournisseur de climatisation et de froid, deux magasins à Marrakech et une boutique en ligne qui livre partout au Maroc.',
@@ -314,7 +317,7 @@ class ContentSeeder extends Seeder
         ]);
         $about->seo()->updateOrCreate([], ['title' => 'À propos · Ariha Froid', 'h1' => 'Ariha Froid, la climatisation à Marrakech depuis 2008']);
 
-        $delivery = Page::query()->updateOrCreate(['slug' => 'livraison-et-paiement'], [
+        $delivery = Page::query()->visibleOn(self::SITE)->updateOrCreate(['slug' => 'livraison-et-paiement'], [
             'title' => 'Livraison et paiement',
             'kind' => PageKind::Delivery,
             'intro' => 'Vous commandez en ligne ou par WhatsApp, nous livrons gratuitement partout au Maroc et vous payez à la réception.',
@@ -346,7 +349,7 @@ class ContentSeeder extends Seeder
         ]);
 
         // Holds the FAQ of /espace-professionnel (the page layout itself is in the front office).
-        $pro = Page::query()->updateOrCreate(['slug' => 'espace-professionnel'], [
+        $pro = Page::query()->visibleOn(self::SITE)->updateOrCreate(['slug' => 'espace-professionnel'], [
             'title' => 'Espace professionnel',
             'kind' => PageKind::Other,
             'intro' => 'Installateurs, revendeurs et projets : vos prix, votre stock et vos commandes au même endroit.',
@@ -368,7 +371,7 @@ class ContentSeeder extends Seeder
             ['confidentialite', 'Politique de confidentialité', ['Données collectées', 'Utilisation des données', 'Durée de conservation', 'Partage des données', 'Cookies', 'Vos droits', 'Contact']],
         ];
         foreach ($legal as $position => [$slug, $title, $articles]) {
-            $page = Page::query()->firstOrNew(['slug' => $slug]);
+            $page = Page::query()->visibleOn(self::SITE)->firstOrNew(['slug' => $slug]);
             $page->fill([
                 'title' => $title,
                 'kind' => PageKind::Legal,
@@ -412,7 +415,7 @@ class ContentSeeder extends Seeder
     /** @param list<string> $slugs */
     private function linkArticles(Model $model, array $slugs): void
     {
-        $ids = Article::query()->whereIn('slug', $slugs)->pluck('id', 'slug');
+        $ids = Article::query()->visibleOn(self::SITE)->whereIn('slug', $slugs)->pluck('id', 'slug');
         $sync = [];
         foreach ($slugs as $i => $slug) {
             $sync[$ids[$slug]] = ['position' => $i];

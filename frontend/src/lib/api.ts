@@ -1,8 +1,10 @@
 import "server-only";
+import { siteHeaders } from "./site";
 
 /**
  * Server-side client for the Laravel API (/api/v1). Runs inside the Next.js server only:
- * it talks to nginx over the internal network and forwards the reseller token when present.
+ * it talks to nginx over the internal network, names the storefront (X-Site, see ./site) and
+ * forwards the reseller token when present.
  */
 
 const API_BASE = `${(process.env.API_INTERNAL_URL ?? "http://localhost:8080").replace(/\/$/, "")}/api/v1`;
@@ -33,6 +35,7 @@ export async function apiGet<T>(path: string, { tags, revalidate = 300, token, i
     ...init,
     headers: {
       Accept: "application/json",
+      ...siteHeaders(),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init?.headers,
     },

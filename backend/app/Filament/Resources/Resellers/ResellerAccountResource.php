@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Resellers;
 
 use App\Enums\ResellerStatus;
+use App\Filament\Concerns\ScopesRecordsToManagedSites;
+use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Resellers\Pages\EditResellerAccount;
 use App\Filament\Resources\Resellers\Pages\ListResellerAccounts;
 use App\Mail\ResellerRefused;
@@ -27,6 +29,8 @@ use UnitEnum;
 
 class ResellerAccountResource extends Resource
 {
+    use ScopesRecordsToManagedSites;
+
     protected static ?string $model = ResellerAccount::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
@@ -50,7 +54,7 @@ class ResellerAccountResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = ResellerAccount::query()->where('status', ResellerStatus::EnAttente)->count();
+        $count = static::getEloquentQuery()->where('status', ResellerStatus::EnAttente)->count();
 
         return $count ? (string) $count : null;
     }
@@ -70,6 +74,7 @@ class ResellerAccountResource extends Resource
                 Select::make('activity')->label('Activité')->options(ResellerAccount::ACTIVITIES)->required(),
                 TextInput::make('contact_name')->label('Contact'),
                 TextInput::make('phone')->label('Téléphone')->tel()->required(),
+                SiteFields::siteSelect()->helperText('Site sur lequel la demande a été faite. Le compte revendeur vaut sur tous les sites.'),
                 Textarea::make('message')->label('Message')->rows(3)->columnSpanFull()->disabled(),
             ]),
             Section::make('Décision')->columnSpanFull()->schema([
@@ -90,6 +95,7 @@ class ResellerAccountResource extends Resource
             ->modifyQueryUsing(fn ($query) => $query->with(['user', 'city']))
             ->columns([
                 TextColumn::make('created_at')->label('Demande le')->date('d/m/Y')->sortable(),
+                SiteFields::siteColumn(),
                 TextColumn::make('company')->label('Société')->searchable()->weight('bold')->description(fn (ResellerAccount $r) => 'ICE '.$r->ice),
                 TextColumn::make('activity')->label('Activité')->formatStateUsing(fn (string $state) => ResellerAccount::ACTIVITIES[$state] ?? $state),
                 TextColumn::make('city.name')->label('Ville'),
@@ -97,6 +103,7 @@ class ResellerAccountResource extends Resource
                 TextColumn::make('user.email')->label('E-mail')->searchable(),
                 TextColumn::make('status')->label('Statut')->badge(),
             ])
+            ->filters([SiteFields::siteFilter()])
             ->recordActions([
                 self::validateAction(),
                 self::refuseAction(),

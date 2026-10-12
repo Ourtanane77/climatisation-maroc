@@ -1,11 +1,14 @@
+import "server-only";
 import type { ProductPageData } from "@/lib/product/types";
 import type { SiteNavigation } from "@/lib/types";
-import { SITE_NAME, siteUrl } from "@/lib/site";
+import { SITE, SITE_NAME, siteUrl } from "@/lib/site";
+
+export { JsonLd } from "./script";
 
 /**
  * Structured data built from real data only (shop settings, catalogue, articles): the company
- * (Organization), the site (WebSite), the two Marrakech stores (HVACBusiness), products and blog
- * posts. Never invented: no ratings, GTIN, coordinates or promo end dates (docs/audits/schema.md).
+ * (Organization), this storefront (WebSite, per SITE_KEY), the two Marrakech stores (HVACBusiness),
+ * products and blog posts. Never invented: no ratings, GTIN, coordinates or promo end dates (docs/audits/schema.md).
  */
 
 type Footer = SiteNavigation["footer"];
@@ -13,11 +16,6 @@ type Json = Record<string, unknown>;
 
 export const ORG_ID = siteUrl("/#organisation");
 const WEBSITE_ID = siteUrl("/#website");
-
-export function JsonLd({ data }: { data: Json | Json[] }) {
-  // "<" is escaped so a value can never close the script tag.
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }} />;
-}
 
 function telephone(footer: Footer, label?: string): string | undefined {
   const phone = footer.phones.find((p) => p.href.startsWith("tel:") && (!label || p.label === label)) ?? footer.phones.find((p) => p.href.startsWith("tel:"));
@@ -65,7 +63,7 @@ export function organizationSchema(footer: Footer, logo: string | null): Json {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": ORG_ID,
-    name: "Ariha Froid",
+    name: SITE.owner,
     alternateName: SITE_NAME,
     url: siteUrl("/"),
     ...(logo ? { logo: siteUrl(logo) } : {}),
@@ -84,7 +82,7 @@ export function websiteSchema(): Json {
     "@type": "WebSite",
     "@id": WEBSITE_ID,
     name: SITE_NAME,
-    alternateName: "Ariha Froid",
+    alternateName: SITE.owner,
     url: siteUrl("/"),
     inLanguage: "fr-MA",
     publisher: { "@id": ORG_ID },
@@ -101,7 +99,7 @@ export function storesSchema(footer: Footer): Json[] {
       "@context": "https://schema.org",
       "@type": "HVACBusiness",
       "@id": id,
-      name: `Ariha Froid · ${store.name}`,
+      name: `${SITE.owner} · ${store.name}`,
       url: id,
       parentOrganization: { "@id": ORG_ID },
       ...(telephone(footer, "Fixe") ? { telephone: telephone(footer, "Fixe") } : {}),

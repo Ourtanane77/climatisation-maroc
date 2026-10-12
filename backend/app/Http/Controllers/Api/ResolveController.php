@@ -7,12 +7,13 @@ use App\Models\Category;
 use App\Models\CityPage;
 use App\Models\Page;
 use App\Models\Redirect;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
  * What a free-form path is, for the Next.js catch-all routes (docs/plan.md §2, routing mechanics):
- * a category, a published static page, a published city page, a redirect, or nothing (404).
+ * a category, a static page or a city page published on the current site (slugs are unique per site), a redirect, or nothing (404).
  */
 class ResolveController extends Controller
 {
@@ -22,7 +23,7 @@ class ResolveController extends Controller
         $trimmed = ltrim($path, '/');
 
         // Empty categories are not public (404 until a product is published in them).
-        $category = Category::query()->public()->where('path', $trimmed)->first();
+        $category = Category::query()->where(SiteCatalog::publicCategories(...))->where('path', $trimmed)->first();
         if ($category) {
             return response()->json([
                 'type' => 'category',
@@ -33,13 +34,13 @@ class ResolveController extends Controller
         }
 
         if (! str_contains($trimmed, '/')) {
-            $page = Page::query()->published()->where('slug', $trimmed)->first();
+            $page = Page::query()->where(SiteCatalog::published(...))->where('slug', $trimmed)->first();
             if ($page) {
                 return response()->json(['type' => 'page', 'slug' => $page->slug, 'kind' => $page->kind->value]);
             }
 
             $city = str_starts_with($trimmed, 'climatisation-')
-                ? CityPage::query()->published()->where('slug', substr($trimmed, strlen('climatisation-')))->first()
+                ? CityPage::query()->where(SiteCatalog::published(...))->where('slug', substr($trimmed, strlen('climatisation-')))->first()
                 : null;
             if ($city) {
                 return response()->json(['type' => 'city', 'slug' => $city->slug]);

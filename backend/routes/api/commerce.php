@@ -16,5 +16,6 @@ Route::middleware('throttle:api-form')->group(function () {
 
 Route::get('/orders/{reference}', [OrderController::class, 'show'])
     ->middleware('throttle:api-read')
-    ->where('reference', 'CM-\d{4}-\d{5}')
+    // <site prefix>-YYYY-NNNNN (config/sites.php order_prefix: CM, AR…).
+    ->where('reference', '[A-Za-z]{2,5}-\d{4}-\d{5}')
     ->name('api.orders.show');

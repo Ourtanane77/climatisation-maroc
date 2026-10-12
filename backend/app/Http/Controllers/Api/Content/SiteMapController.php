@@ -11,6 +11,7 @@ use App\Models\CityPage;
 use App\Models\Page;
 use App\Models\SectorPage;
 use App\Models\ServicePage;
+use App\Support\Catalog\SiteCatalog;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -21,30 +22,30 @@ class SiteMapController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        $ranges = Category::query()->public()->roots()->orderBy('position')
-            ->with(['children' => fn ($q) => $q->whereIn('id', Category::query()->public()->select('id'))->orderBy('position')])->get();
+        $ranges = Category::query()->where(SiteCatalog::publicCategories(...))->roots()->orderBy('position')
+            ->with(['children' => fn ($q) => $q->where(SiteCatalog::publicCategories(...))->orderBy('position')])->get();
 
         $link = fn (string $title, string $href) => ['title' => $title, 'href' => $href];
 
         return response()->json([
             'ranges' => $ranges->map(fn (Category $c) => [
-                'title' => $c->name,
+                'title' => $c->siteText('name'),
                 'href' => $c->url(),
                 'quoteOnly' => (bool) $c->is_quote_only,
-                'children' => $c->children->map(fn (Category $s) => $link($s->short_name ?: $s->name, $s->url()))->values(),
+                'children' => $c->children->map(fn (Category $s) => $link($s->short_name ?: (string) $s->siteText('name'), $s->url()))->values(),
             ])->values(),
-            'services' => ServicePage::query()->published()->orderBy('position')->get()
+            'services' => ServicePage::query()->where(SiteCatalog::published(...))->orderBy('position')->get()
                 ->map(fn (ServicePage $s) => $link($s->name, $s->url()))->values(),
-            'sectors' => SectorPage::query()->published()->orderBy('position')->get()
+            'sectors' => SectorPage::query()->where(SiteCatalog::published(...))->orderBy('position')->get()
                 ->map(fn (SectorPage $s) => $link($s->name, $s->url()))->values(),
-            'blogCategories' => ArticleCategory::query()->whereHas('articles', fn ($q) => $q->where('is_published', true))
+            'blogCategories' => ArticleCategory::query()->visibleOn()->whereHas('articles', SiteCatalog::published(...))
                 ->orderBy('position')->get()
                 ->map(fn (ArticleCategory $c) => $link($c->name, $c->url()))->values(),
-            'articles' => Article::query()->published()->orderBy('position')->get()
+            'articles' => Article::query()->where(SiteCatalog::published(...))->orderBy('position')->get()
                 ->map(fn (Article $a) => $link($a->title, $a->url()))->values(),
-            'pages' => Page::query()->published()->where('kind', '!=', PageKind::Other)->orderBy('kind')->orderBy('position')->get()
+            'pages' => Page::query()->where(SiteCatalog::published(...))->where('kind', '!=', PageKind::Other)->orderBy('kind')->orderBy('position')->get()
                 ->map(fn (Page $p) => [...$link($p->title, $p->url()), 'kind' => $p->kind->value])->values(),
-            'cities' => CityPage::query()->published()->with('city')->get()
+            'cities' => CityPage::query()->where(SiteCatalog::published(...))->with('city')->get()
                 ->map(fn (CityPage $p) => $link($p->city->name, $p->url()))->values(),
         ]);
     }

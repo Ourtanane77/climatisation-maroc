@@ -16,6 +16,8 @@ use App\Settings\GeneralSettings;
 use App\Settings\HomeSettings;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
+use App\Support\Sites\Sites;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 
@@ -30,8 +32,8 @@ class NavigationController extends Controller
 
     public function __invoke(GeneralSettings $settings, HomeSettings $home): JsonResponse
     {
-        $roots = // Public categories only: an empty sub-category (no published product) is not linked.
-        $roots = Category::query()->public()->roots()->orderBy('position')->with(['children' => fn ($q) => $q->whereIn('id', Category::query()->public()->select('id'))])->get();
+        // Public categories of the site only: an empty sub-category (no visible product) is not linked.
+        $roots = Category::query()->where(SiteCatalog::publicCategories(...))->roots()->orderBy('position')->with(['children' => fn ($q) => $q->where(SiteCatalog::publicCategories(...))])->get();
         $ranges = $roots->reject(fn (Category $c) => $c->is_quote_only);
 
         return response()->json([
@@ -48,7 +50,7 @@ class NavigationController extends Controller
                 'mega' => [
                     'title' => $this->label($c),
                     'href' => $c->url(),
-                    'subs' => $c->children->map(fn (Category $s) => ['label' => $s->short_name ?? $s->name, 'href' => $s->url()])->values(),
+                    'subs' => $c->children->map(fn (Category $s) => ['label' => $s->short_name ?? $s->siteText('name'), 'href' => $s->url()])->values(),
                     'brands' => $this->brandsIn($c),
                     'featured' => $this->featured($home->mega_featured[$c->slug] ?? null),
                 ],
@@ -79,14 +81,14 @@ class NavigationController extends Controller
                 'stores' => array_values($settings->stores),
                 'hours' => $settings->hours,
                 'legal' => $this->legal(),
-                'copyright' => "\u{00A9} ".now()->year." Ariha Froid \u{00B7} Climatisation Maroc",
+                'copyright' => "\u{00A9} ".now()->year." Ariha Froid \u{00B7} ".Sites::current()->name,
             ],
         ]);
     }
 
     private function label(Category $c): string
     {
-        return $c->short_name ?? $c->name;
+        return $c->short_name ?? (string) $c->siteText('name');
     }
 
     /** "0666-854184" → "tel:+212666854184". */
@@ -98,8 +100,8 @@ class NavigationController extends Controller
     /** @return list<array{label: string, href: string}> */
     private function brandsIn(Category $range): array
     {
-        return Brand::query()->active()
-            ->whereHas('products', fn ($q) => $q->published()->whereIn('category_id', $range->descendantIds()))
+        return Brand::query()->where(SiteCatalog::brands(...))
+            ->whereHas('products', fn ($q) => $q->where(SiteCatalog::products(...))->whereIn('category_id', $range->descendantIds()))
             ->orderBy('position')
             ->get()
             ->map(fn (Brand $b) => ['label' => $b->name, 'href' => $b->url()])
@@ -109,7 +111,7 @@ class NavigationController extends Controller
     /** @return array<string, mixed>|null */
     private function featured(?int $productId): ?array
     {
-        $product = $productId ? Product::query()->published()->with(['variants', 'images'])->find($productId) : null;
+        $product = $productId ? Product::query()->where(SiteCatalog::products(...))->with(['variants', 'images'])->find($productId) : null;
         $variant = $product?->variants->firstWhere('is_default', true) ?? $product?->variants->first();
         if (! $product || ! $variant) {
             return null;
@@ -148,8 +150,8 @@ class NavigationController extends Controller
     private function drawerLinks(): array
     {
         return array_values(array_filter([
-            SectorPage::query()->published()->exists() ? ['label' => 'Solutions professionnelles', 'href' => '/solutions'] : null,
-            Article::query()->published()->exists() ? ['label' => 'Blog', 'href' => '/blog'] : null,
+            SectorPage::query()->where(SiteCatalog::published(...))->exists() ? ['label' => 'Solutions professionnelles', 'href' => '/solutions'] : null,
+            Article::query()->where(SiteCatalog::published(...))->exists() ? ['label' => 'Blog', 'href' => '/blog'] : null,
         ]));
     }
 
@@ -163,7 +165,7 @@ class NavigationController extends Controller
      */
     private function footerColumns(Collection $roots): array
     {
-        $pages = Page::query()->published()->whereIn('slug', ['a-propos', 'livraison-et-paiement'])->pluck('slug')->all();
+        $pages = Page::query()->where(SiteCatalog::published(...))->whereIn('slug', ['a-propos', 'livraison-et-paiement'])->pluck('slug')->all();
         $informations = array_values(array_filter([
             in_array('a-propos', $pages, true) ? ['label' => "\u{00C0} propos", 'href' => '/a-propos'] : null,
             ['label' => 'Contact', 'href' => '/contact'],
@@ -180,11 +182,12 @@ class NavigationController extends Controller
             if (in_array($root->slug, ['climatisation', 'chauffe-eau'], true) && $root->children->isNotEmpty()) {
                 $columns[] = [
                     'title' => $this->label($root),
-                    'links' => $root->children->map(fn (Category $c) => ['label' => $c->short_name ?? $c->name, 'href' => $c->url()])->values()->all(),
+                    'links' => $root->children->map(fn (Category $c) => ['label' => $c->short_name ?? $c->siteText('name'), 'href' => $c->url()])->values()->all(),
                 ];
             } else {
                 // Design labels: "Gaines circulaires" (full name) but "Froid" (short name of a long one).
-                $others[] = ['label' => mb_strlen($root->name) > 20 ? $this->label($root) : $root->name, 'href' => $root->url()];
+                $name = (string) $root->siteText('name');
+                $others[] = ['label' => mb_strlen($name) > 20 ? $this->label($root) : $name, 'href' => $root->url()];
             }
         }
         if ($others !== []) {
@@ -192,10 +195,10 @@ class NavigationController extends Controller
         }
 
         $columns[] = ['title' => 'Conseils et services', 'links' => array_values(array_filter([
-            Article::query()->published()->exists() ? ['label' => 'Blog', 'href' => '/blog'] : null,
+            Article::query()->where(SiteCatalog::published(...))->exists() ? ['label' => 'Blog', 'href' => '/blog'] : null,
             ['label' => 'Calculateur de puissance', 'href' => '/calculateur-puissance'],
-            SectorPage::query()->published()->exists() ? ['label' => 'Solutions professionnelles', 'href' => '/solutions'] : null,
-            ServicePage::query()->published()->exists() ? ['label' => 'Services', 'href' => '/services'] : null,
+            SectorPage::query()->where(SiteCatalog::published(...))->exists() ? ['label' => 'Solutions professionnelles', 'href' => '/solutions'] : null,
+            ServicePage::query()->where(SiteCatalog::published(...))->exists() ? ['label' => 'Services', 'href' => '/services'] : null,
             ['label' => 'Marques', 'href' => '/marques'],
             ['label' => 'Promotions', 'href' => '/promotions'],
             ['label' => 'Comparer des produits', 'href' => '/comparer'],
@@ -207,12 +210,12 @@ class NavigationController extends Controller
     /** @return list<array{label: string, href: string}> */
     private function legal(): array
     {
-        $links = Page::query()->published()->where('kind', PageKind::Legal->value)->get()
+        $links = Page::query()->where(SiteCatalog::published(...))->where('kind', PageKind::Legal->value)->get()
             ->sortBy(fn (Page $p) => array_search($p->slug, self::LEGAL_ORDER, true) === false ? 99 : array_search($p->slug, self::LEGAL_ORDER, true))
             ->map(fn (Page $p) => ['label' => $p->title, 'href' => $p->url()])
             ->values()->all();
 
-        $aftersales = ServicePage::query()->published()->where('slug', 'service-apres-vente')->first();
+        $aftersales = ServicePage::query()->where(SiteCatalog::published(...))->where('slug', 'service-apres-vente')->first();
         if ($aftersales) {
             $links[] = ['label' => "Service apr\u{00E8}s-vente", 'href' => $aftersales->url()];
         }

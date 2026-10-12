@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\SectorPage;
 use App\Models\ServicePage;
 use App\Support\Api\ImageUrl;
+use App\Support\Catalog\SiteCatalog;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
@@ -21,9 +22,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Every public URL for sitemap.xml (frontend/src/app/sitemap.ts), with its last change. Only
- * active categories and brands, published products and content: an unpublished record never
- * appears. Fixed pages (contact, devis…) use the latest content change as their date.
+ * Every public URL of the current site for sitemap.xml (frontend/src/app/sitemap.ts), with its
+ * last change. Only active categories and brands, published products and content visible on the
+ * site: an unpublished or hidden record never appears. Fixed pages (contact, devis…) use the
+ * latest content change as their date.
  */
 class SitemapController extends Controller
 {
@@ -36,10 +38,10 @@ class SitemapController extends Controller
             $urls->push(['path' => $path, 'lastmod' => $lastmod?->toIso8601String(), 'images' => $images]);
         };
 
-        $activeCategoryIds = Category::query()->active()->pluck('id');
-        $products = Product::query()->published()->whereIn('category_id', $activeCategoryIds)
+        $activeCategoryIds = Category::query()->active()->where(SiteCatalog::categories(...))->pluck('id');
+        $products = Product::query()->where(SiteCatalog::products(...))->whereIn('category_id', $activeCategoryIds)
             ->whereHas('variants')->with('images')->orderBy('position')->get();
-        $categories = Category::query()->active()->orderBy('path')->get();
+        $categories = Category::query()->active()->where(SiteCatalog::categories(...))->orderBy('path')->get();
         // A sub-category under an inactive range is not reachable.
         $categories = $categories->filter(fn (Category $c) => $c->parent_id === null || $categories->contains('id', $c->parent_id));
         // Empty categories (no published product in them or below) are thin pages: left out, except
@@ -61,8 +63,8 @@ class SitemapController extends Controller
             $add($product->url(), $product->updated_at, $images);
         }
 
-        $brands = Brand::query()->active()
-            ->whereHas('products', fn ($q) => $q->where('is_published', true)->whereIn('category_id', $activeCategoryIds))
+        $brands = Brand::query()->where(SiteCatalog::brands(...))
+            ->whereHas('products', fn ($q) => $q->where(SiteCatalog::products(...))->whereIn('category_id', $activeCategoryIds))
             ->orderBy('position')->get();
         if ($brands->isNotEmpty()) {
             $add('/marques', $brands->max('updated_at'));
@@ -73,24 +75,24 @@ class SitemapController extends Controller
 
         $add('/promotions', $latest);
 
-        $articles = Article::query()->published()->orderBy('position')->get();
+        $articles = Article::query()->where(SiteCatalog::published(...))->orderBy('position')->get();
         if ($articles->isNotEmpty()) {
             $add('/blog', $articles->max('updated_at'));
         }
-        ArticleCategory::query()->whereHas('articles', fn ($q) => $q->where('is_published', true))
+        ArticleCategory::query()->visibleOn()->whereHas('articles', SiteCatalog::published(...))
             ->orderBy('position')->get()
             ->each(fn (ArticleCategory $c) => $add($c->url(), $c->updated_at));
         foreach ($articles as $article) {
             $add($article->url(), $article->updated_at);
         }
 
-        $sectors = SectorPage::query()->published()->orderBy('position')->get();
+        $sectors = SectorPage::query()->where(SiteCatalog::published(...))->orderBy('position')->get();
         $add('/solutions', $sectors->max('updated_at'));
         foreach ($sectors as $sector) {
             $add($sector->url(), $sector->updated_at);
         }
 
-        $services = ServicePage::query()->published()->orderBy('position')->get();
+        $services = ServicePage::query()->where(SiteCatalog::published(...))->orderBy('position')->get();
         if ($services->isNotEmpty()) {
             $add('/services', $services->max('updated_at'));
         }
@@ -99,9 +101,9 @@ class SitemapController extends Controller
         }
 
         // Kind "other" pages (espace-professionnel) hold content for fixed routes listed below.
-        Page::query()->published()->where('kind', '!=', PageKind::Other)->orderBy('position')->get()
+        Page::query()->where(SiteCatalog::published(...))->where('kind', '!=', PageKind::Other)->orderBy('position')->get()
             ->each(fn (Page $p) => $add($p->url(), $p->updated_at));
-        CityPage::query()->published()->get()
+        CityPage::query()->where(SiteCatalog::published(...))->get()
             ->each(fn (CityPage $p) => $add($p->url(), $p->updated_at));
 
         // Fixed pages: their content comes from the settings and the catalogue, so their date is the
@@ -111,7 +113,7 @@ class SitemapController extends Controller
         foreach (['/calculateur-puissance', '/contact', '/demander-un-devis', '/devenir-revendeur', '/plan-du-site'] as $path) {
             $add($path, $fixedDate);
         }
-        $add('/espace-professionnel', Page::query()->published()->where('slug', 'espace-professionnel')->first()?->updated_at);
+        $add('/espace-professionnel', Page::query()->where(SiteCatalog::published(...))->where('slug', 'espace-professionnel')->first()?->updated_at);
 
         return response()->json(['data' => $urls->unique('path')->values()]);
     }
