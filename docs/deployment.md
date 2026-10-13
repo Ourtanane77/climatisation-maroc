@@ -98,6 +98,8 @@ Copy `.env.prod.example` to `.env.prod` (never commit it) and fill every value:
 | `APP_PORT` | port nginx listens on (behind the TLS terminator) |
 | `REVALIDATE_SECRET` | long random string (`openssl rand -hex 32`); compose passes it to both Laravel and Next.js |
 | `FRONTEND_INTERNAL_URL` | `http://next:3000` (keep). The compose file sets `SITE_CM_INTERNAL_URL=http://next:3000` and `SITE_ARFRO_INTERNAL_URL=http://next-arfro:3000` for revalidation |
+| `GTM_ID` (optional, per Next.js service) | Google Tag Manager container. arfro.com uses `GTM-W8BQPKPX` by default (`frontend/src/lib/site.ts`), Climatisation Maroc none; it loads in production builds only. Set an ID to override or `off` to disable |
+| `CLARITY_ID` (optional, per Next.js service) | Microsoft Clarity project. arfro.com uses `yx5c5sr7f7` by default, Climatisation Maroc none; production builds only. Set an ID to override or `off` to disable |
 | `NEXT_MEMORY`, `NEXT_ARFRO_MEMORY` | memory limits of the two Next.js containers (`1g`, `768m`) |
 | `DB_PASSWORD`, `DB_ROOT_PASSWORD` | strong random values (the MySQL container is created with them) |
 | `SESSION_SECURE_COOKIE` | `true` behind HTTPS (back-office login fails over plain HTTP when true) |

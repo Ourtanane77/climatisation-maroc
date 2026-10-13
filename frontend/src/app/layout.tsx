@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Manrope } from "next/font/google";
 import { connection } from "next/server";
-import { SITE, SITE_KEY, SITE_NAME, SITE_URL } from "@/lib/site";
+import { Clarity } from "@/components/analytics/Clarity";
+import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
+import { SITE, SITE_KEY, SITE_NAME, SITE_URL, clarityId, gtmId } from "@/lib/site";
 import { SiteKeyProvider } from "@/lib/site-context";
 import "./globals.css";
 
@@ -52,11 +54,15 @@ export function generateViewport(): Viewport {
  */
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
+  const gtm = gtmId();
   return (
     // data-site switches the design tokens per storefront (globals.css).
     <html lang="fr-MA" data-site={SITE_KEY} className={`${figtree.variable} ${manrope.variable}`}>
       <body>
+        <GoogleTagManagerNoScript id={gtm} />
         <SiteKeyProvider value={SITE_KEY}>{children}</SiteKeyProvider>
+        <GoogleTagManager id={gtm} />
+        <Clarity id={clarityId()} />
       </body>
     </html>
   );

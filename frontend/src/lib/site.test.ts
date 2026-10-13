@@ -63,6 +63,49 @@ describe("site config", () => {
   });
 });
 
+describe("Google Tag Manager", () => {
+  it("is Arfro's container in production, none for Climatisation Maroc", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const arfro = await load({ SITE_KEY: "arfro" });
+    expect(arfro.site.gtmId()).toBe("GTM-W8BQPKPX");
+    const cm = await load({});
+    vi.stubEnv("NODE_ENV", "production");
+    expect(cm.site.gtmId()).toBeNull();
+  });
+
+  it("stays off in development unless GTM_ID is set, and GTM_ID=off disables it", async () => {
+    const { site } = await load({ SITE_KEY: "arfro" });
+    vi.stubEnv("NODE_ENV", "development");
+    expect(site.gtmId()).toBeNull();
+    vi.stubEnv("GTM_ID", "GTM-TEST1");
+    expect(site.gtmId()).toBe("GTM-TEST1");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("GTM_ID", "off");
+    expect(site.gtmId()).toBeNull();
+  });
+
+  it("adds Arfro's Clarity project in production, none for Climatisation Maroc", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const arfro = await load({ SITE_KEY: "arfro" });
+    expect(arfro.site.clarityId()).toBe("yx5c5sr7f7");
+    const cm = await load({});
+    vi.stubEnv("NODE_ENV", "production");
+    expect(cm.site.clarityId()).toBeNull();
+    vi.stubEnv("CLARITY_ID", "off");
+    expect(arfro.site.clarityId()).toBeNull();
+    const { Clarity } = await import("@/components/analytics/Clarity");
+    expect(Clarity({ id: 'x");alert(1);//' })).toBeNull();
+    expect(Clarity({ id: "yx5c5sr7f7" })).not.toBeNull();
+  });
+
+  it("renders nothing for a malformed ID", async () => {
+    const { GoogleTagManager, GoogleTagManagerNoScript } = await import("@/components/analytics/GoogleTagManager");
+    expect(GoogleTagManager({ id: "GTM-X');alert(1);//" })).toBeNull();
+    expect(GoogleTagManagerNoScript({ id: null })).toBeNull();
+    expect(GoogleTagManagerNoScript({ id: "GTM-W8BQPKPX" })).not.toBeNull();
+  });
+});
+
 describe("API calls name the storefront", () => {
   it("sends X-Site on every apiGet", async () => {
     await load({ SITE_KEY: "arfro" });

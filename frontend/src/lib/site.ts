@@ -48,6 +48,10 @@ export interface SiteConfig {
   /** Prefix of the order references the API issues for this storefront (CM-2026-00001). */
   orderPrefix: string;
   themeColor: string;
+  /** Google Tag Manager container (production only, see gtmId()); null = none. */
+  gtm: string | null;
+  /** Microsoft Clarity project (production only, see clarityId()); null = none. */
+  clarity: string | null;
 }
 
 /** Neutral shop description (no site name in it): shared until each site gets its own text. */
@@ -64,6 +68,8 @@ const SITES: Record<SiteKey, SiteConfig> = {
     description: SHOP_DESCRIPTION,
     orderPrefix: "CM",
     themeColor: "#0B5CAD",
+    gtm: null,
+    clarity: null,
   },
   arfro: {
     key: "arfro",
@@ -76,6 +82,8 @@ const SITES: Record<SiteKey, SiteConfig> = {
     description: SHOP_DESCRIPTION,
     orderPrefix: "AR",
     themeColor: "#0B5CAD",
+    gtm: "GTM-W8BQPKPX",
+    clarity: "yx5c5sr7f7",
   },
 };
 
@@ -96,6 +104,26 @@ export const SITE: SiteConfig = siteConfig(SITE_KEY);
 export const SITE_NAME = SITE.name;
 
 export const SITE_URL = (env["SITE_URL"] || env["NEXT_PUBLIC_SITE_URL"] || "http://localhost:8080").replace(/\/$/, "");
+
+/**
+ * Tag Manager container of this instance: the runtime env GTM_ID when set (an ID, or « off »), else the
+ * site's own; production builds only, so development visits never reach the analytics.
+ */
+export function gtmId(site: SiteConfig = SITE): string | null {
+  return trackerId("GTM_ID", site.gtm);
+}
+
+/** Clarity project of this instance: runtime env CLARITY_ID (an ID, or « off »), else the site's own. */
+export function clarityId(site: SiteConfig = SITE): string | null {
+  return trackerId("CLARITY_ID", site.clarity);
+}
+
+/** A tracker ID: the env override when set (« off » disables), else the site's ID in production. */
+function trackerId(envName: string, siteId: string | null): string | null {
+  const override = env[envName]?.trim();
+  if (override) return override.toLowerCase() === "off" ? null : override;
+  return process.env.NODE_ENV === "production" ? siteId : null;
+}
 
 /** Headers that tell Laravel which storefront is asking (prices, content, settings, references). */
 export function siteHeaders(): { "X-Site": SiteKey } {
