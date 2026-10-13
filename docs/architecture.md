@@ -84,6 +84,10 @@ Laravel ──(after back-office changes)──► /api/revalidate of each Next.
   `src/lib/design-assets.ts` uses a photo only when it is in the manifest. Logos and icons per
   storefront: `public/brand/<site>/` (colour logo in the header, white logo in the footer,
   favicon and app icons), declared in `src/lib/site.ts`; masters in `design/logos/`.
+- **Per-site look.** The root layout sets `<html data-site="cm|arfro">`: `globals.css` overrides the
+  design tokens for arfro (`[data-site="arfro"]`), and client components branch with `useIsArfro()`
+  (`src/lib/site-context.tsx`), server components with `SITE_KEY`. Climatisation Maroc keeps the
+  original design; arfro.com has its own (docs/deviations.md, « Arfro restyle »).
 
 ## Multi-site
 

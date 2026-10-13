@@ -1,5 +1,7 @@
+import { CategoryVisual } from "@/components/catalog/CategoryVisual";
 import { ProductCard } from "@/components/catalog/ProductCard";
-import { AdviceCta, BrandTiles, GuideCards, PageIntro, PowerChips, Section, TypeTiles } from "@/components/catalog/Sections";
+import { AdviceCta, BrandTiles, CategoryHero, GuideCards, PageIntro, PowerChips, Section, TypeTiles } from "@/components/catalog/Sections";
+import { FaqDetails } from "@/components/product/FaqDetails";
 import { ProjectCtaBand } from "@/components/content/blocks";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
@@ -7,6 +9,7 @@ import { withBrandBadge } from "@/lib/catalog/cards";
 import type { CategoryData } from "@/lib/catalog/types";
 import { PROJECTS_PHONE_LABEL } from "@/lib/content/copy";
 import { getNavigation } from "@/lib/navigation";
+import { SITE_KEY } from "@/lib/site";
 import { waLink } from "@/lib/whatsapp";
 
 /**
@@ -17,11 +20,21 @@ export default async function LandingTemplate({ category }: { category: Category
   const nav = await getNavigation();
   const unit = category.shortName ?? category.name;
   const lower = unit.toLowerCase();
+  const arfro = SITE_KEY === "arfro";
 
   return (
     <>
       <Breadcrumb items={category.breadcrumb} />
-      <PageIntro title={category.h1} intro={category.intro} />
+      {arfro ? (
+        // Arfro: the intro sits in the grey hero panel with the range's cut-out picture.
+        <CategoryHero
+          title={category.h1}
+          intro={category.intro}
+          visual={<CategoryVisual href={category.href} sizes="(min-width: 760px) 460px, 90vw" className="block h-auto w-full max-w-[460px] object-contain" />}
+        />
+      ) : (
+        <PageIntro title={category.h1} intro={category.intro} />
+      )}
 
       {category.children.length > 0 && (
         <Section id="types" title={category.path === "climatisation" ? "Choisir un type de climatiseur" : `Choisir un type de ${lower}`}>
@@ -37,7 +50,7 @@ export default async function LandingTemplate({ category }: { category: Category
 
       {category.popular.length > 0 && (
         <Section id="populaires" title="Les plus demandés">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className={arfro ? "grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-4" : "grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"}>
             {category.popular.map((p) => (
               <ProductCard key={p.href} product={withBrandBadge(p)} />
             ))}
@@ -58,8 +71,8 @@ export default async function LandingTemplate({ category }: { category: Category
       )}
 
       {category.faq.length > 0 && (
-        <Section id="faq" title="Questions fréquentes">
-          <FaqAccordion items={category.faq} />
+        <Section id="faq" title="Questions fréquentes" className={arfro ? "max-w-[900px]" : undefined}>
+          {arfro ? <FaqDetails items={category.faq} /> : <FaqAccordion items={category.faq} />}
         </Section>
       )}
 

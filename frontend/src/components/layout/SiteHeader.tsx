@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "@/components/ui/Toast";
 import { BurgerIcon, CartIcon, ChevronDownIcon, CloseIcon, SearchIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { addToCart, useCartCount } from "@/lib/cart/store";
@@ -13,6 +13,7 @@ import { waLink } from "@/lib/whatsapp";
 import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { Logo, type SiteLogo } from "./Logo";
 import { MobileDrawer } from "./MobileDrawer";
+import { useHeaderMenus } from "./useHeaderMenus";
 
 /** aria-current for a navigation link: "page" on its own URL, "true" anywhere inside its section. */
 export function currentFor(pathname: string, href: string): "page" | "true" | undefined {
@@ -41,22 +42,18 @@ export function SiteHeader({
   account?: React.ReactNode;
 }) {
   const count = useCartCount(initialCartCount);
-  const pathname = usePathname();
+  const { pathname, mega, setMega, dropdown, setDropdown, headerRef, openMega, scheduleClose, cancelClose, closeAll } = useHeaderMenus();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [mega, setMega] = useState<string | null>(null);
   const [drawer, setDrawer] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
-  const [dropdown, setDropdown] = useState<"scope" | "plus" | null>(null);
-  const [scope, setScope] = useState(nav.searchScopes[0] ?? "Toutes");
   const [spacer, setSpacer] = useState(0);
-  const headerRef = useRef<HTMLElement>(null);
   const lastY = useRef(0);
 
   // Keep the page from jumping when the header switches to position: fixed.
   useLayoutEffect(() => {
     if (!scrolled && headerRef.current) setSpacer(headerRef.current.offsetHeight);
-  }, [scrolled, mobileSearch]);
+  }, [scrolled, mobileSearch, headerRef]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -73,59 +70,9 @@ export function SiteHeader({
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Mega menu: opened on hover/focus of a range; closed a moment after the pointer leaves the
-  // header (so moving from the nav item into the panel keeps it open), on a click or tap
-  // anywhere outside the header, on Escape, on scroll and on navigation.
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const openMega = useCallback((key: string | null) => {
-    clearTimeout(closeTimer.current);
-    setMega(key);
-  }, []);
-  const scheduleClose = useCallback(() => {
-    clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setMega(null), 150);
-  }, []);
-  useEffect(() => () => clearTimeout(closeTimer.current), []);
-
-  const closeAll = useCallback(() => {
-    clearTimeout(closeTimer.current);
-    setMega(null);
-    setDropdown(null);
-  }, []);
-
-  useEffect(() => {
-    if (!dropdown && !mega) return;
-    const onDown = (e: PointerEvent) => {
-      const target = e.target as HTMLElement;
-      if (!headerRef.current?.contains(target)) {
-        closeAll();
-      } else if (dropdown && !target.closest?.("[data-dd]")) {
-        setDropdown(null);
-      }
-    };
-    document.addEventListener("pointerdown", onDown);
-    return () => document.removeEventListener("pointerdown", onDown);
-  }, [dropdown, mega, closeAll]);
-
-  // A new page (link in the mega menu, the drawer or anywhere else) closes every menu
-  // (state adjusted during render, as React recommends, rather than in an effect).
-  const [menuPath, setMenuPath] = useState(pathname);
-  if (menuPath !== pathname) {
-    setMenuPath(pathname);
-    setMega(null);
-    setDropdown(null);
-  }
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeAll();
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [closeAll]);
+  }, [setMega, setDropdown]);
 
   const activeRange = nav.ranges.find((r) => r.key === mega && r.mega);
-  const placeholder = scope === nav.searchScopes[0] ? "Rechercher un produit ou une référence" : `Rechercher dans ${scope}`;
   const logoHeight = scrolled ? 38 : 50;
 
   return (
@@ -134,7 +81,7 @@ export function SiteHeader({
       <header
         ref={headerRef}
         onMouseLeave={scheduleClose}
-        onMouseEnter={() => clearTimeout(closeTimer.current)}
+        onMouseEnter={cancelClose}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) closeAll();
         }}
@@ -161,62 +108,12 @@ export function SiteHeader({
               <Logo logo={logo} height={logoHeight} className="hidden md:flex" />
             </Link>
 
-            <form
-              action="/recherche"
-              role="search"
-              className="border-border bg-bg hover:border-hover-line relative hidden h-12 max-w-[600px] min-w-0 flex-1 items-center rounded-full border-[1.5px] md:flex"
-            >
-              <div data-dd className="relative flex h-full shrink-0 items-center">
-                <button
-                  type="button"
-                  onClick={() => setDropdown(dropdown === "scope" ? null : "scope")}
-                  aria-haspopup="listbox"
-                  aria-expanded={dropdown === "scope"}
-                  aria-label={`Rayon de recherche : ${scope}`}
-                  className="border-border flex h-full items-center gap-2 rounded-l-full border-r-[1.5px] bg-white pr-3.5 pl-5 text-[15px] font-bold whitespace-nowrap"
-                >
-                  {scope}
-                  <ChevronDownIcon size={14} className={cn("transition-transform", dropdown === "scope" && "rotate-180")} />
-                </button>
-                {dropdown === "scope" && (
-                  <ul
-                    role="listbox"
-                    aria-label="Rayon"
-                    className="animate-rise rounded-18 shadow-dropdown absolute top-[calc(100%+8px)] left-0 z-50 flex min-w-60 flex-col gap-0.5 bg-white p-1.5"
-                  >
-                    {nav.searchScopes.map((s) => (
-                      <li key={s} role="option" aria-selected={s === scope}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setScope(s);
-                            setDropdown(null);
-                          }}
-                          className={cn(
-                            "rounded-12 hover:bg-tint-blue hover:text-brand flex h-[42px] w-full items-center justify-between gap-4 px-3.5 text-left text-[15px] font-semibold whitespace-nowrap",
-                            s === scope ? "bg-tint-select text-brand" : "text-ink bg-white",
-                          )}
-                        >
-                          {s}
-                          <span className="text-brand font-extrabold">{s === scope ? "✓" : ""}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              {scope !== nav.searchScopes[0] && <input type="hidden" name="gamme" value={scope} />}
-              <Suspense fallback={<SearchInput placeholder={placeholder} />}>
-                <SearchInputWithTerm placeholder={placeholder} />
-              </Suspense>
-              <button
-                type="submit"
-                aria-label="Lancer la recherche"
-                className="bg-brand mr-1 flex size-10 shrink-0 items-center justify-center rounded-full text-white"
-              >
-                <SearchIcon size={18} />
-              </button>
-            </form>
+            <ScopedSearch
+              scopes={nav.searchScopes}
+              open={dropdown === "scope"}
+              onOpenChange={(o) => setDropdown(o ? "scope" : null)}
+              className="relative hidden h-12 max-w-[600px] min-w-0 flex-1 md:flex"
+            />
 
             <div className="ml-auto flex items-center gap-3">
               {/* A logged-in reseller sees the account pill in its place (Commande rapide design). */}
@@ -465,9 +362,85 @@ export function SiteHeader({
   );
 }
 
+/**
+ * Search box with its range scope picker ("Toutes", "Climatisation"…): a GET form to /recherche
+ * (`q`, plus `gamme` when a range is picked). The scope list is a `[data-dd]` dropdown, so the
+ * header's useHeaderMenus closes it on an outside click.
+ */
+export function ScopedSearch({
+  scopes,
+  open,
+  onOpenChange,
+  className,
+  autoFocus,
+}: {
+  scopes: string[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  className?: string;
+  autoFocus?: boolean;
+}) {
+  const [scope, setScope] = useState(scopes[0] ?? "Toutes");
+  const placeholder = scope === scopes[0] ? "Rechercher un produit ou une référence" : `Rechercher dans ${scope}`;
+  return (
+    <form action="/recherche" role="search" className={cn("border-border bg-bg hover:border-hover-line items-center rounded-full border-[1.5px]", className)}>
+      <div data-dd className="relative flex h-full shrink-0 items-center">
+        <button
+          type="button"
+          onClick={() => onOpenChange(!open)}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-label={`Rayon de recherche : ${scope}`}
+          className="border-border flex h-full items-center gap-2 rounded-l-full border-r-[1.5px] bg-white pr-3.5 pl-5 text-[15px] font-bold whitespace-nowrap"
+        >
+          {scope}
+          <ChevronDownIcon size={14} className={cn("transition-transform", open && "rotate-180")} />
+        </button>
+        {open && (
+          <ul
+            role="listbox"
+            aria-label="Rayon"
+            className="animate-rise rounded-18 shadow-dropdown absolute top-[calc(100%+8px)] left-0 z-50 flex min-w-60 flex-col gap-0.5 bg-white p-1.5"
+          >
+            {scopes.map((s) => (
+              <li key={s} role="option" aria-selected={s === scope}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScope(s);
+                    onOpenChange(false);
+                  }}
+                  className={cn(
+                    "rounded-12 hover:bg-tint-blue hover:text-brand flex h-[42px] w-full items-center justify-between gap-4 px-3.5 text-left text-[15px] font-semibold whitespace-nowrap",
+                    s === scope ? "bg-tint-select text-brand" : "text-ink bg-white",
+                  )}
+                >
+                  {s}
+                  <span className="text-brand font-extrabold">{s === scope ? "✓" : ""}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {scope !== scopes[0] && <input type="hidden" name="gamme" value={scope} />}
+      <Suspense fallback={<SearchInput placeholder={placeholder} autoFocus={autoFocus} />}>
+        <SearchInputWithTerm placeholder={placeholder} autoFocus={autoFocus} />
+      </Suspense>
+      <button
+        type="submit"
+        aria-label="Lancer la recherche"
+        className="bg-brand mr-1 flex size-10 shrink-0 items-center justify-center rounded-full text-white"
+      >
+        <SearchIcon size={18} />
+      </button>
+    </form>
+  );
+}
+
 const searchInputClass = "h-full min-w-0 flex-1 border-0 bg-transparent px-[18px] text-base outline-none";
 
-function SearchInput({ placeholder, defaultValue }: { placeholder: string; defaultValue?: string }) {
+function SearchInput({ placeholder, defaultValue, autoFocus }: { placeholder: string; defaultValue?: string; autoFocus?: boolean }) {
   return (
     <input
       key={defaultValue}
@@ -477,13 +450,14 @@ function SearchInput({ placeholder, defaultValue }: { placeholder: string; defau
       defaultValue={defaultValue}
       aria-label="Rechercher"
       autoComplete="off"
+      autoFocus={autoFocus}
       className={searchInputClass}
     />
   );
 }
 
 /** On the results page the box keeps the searched term (design: Recherche). */
-function SearchInputWithTerm({ placeholder }: { placeholder: string }) {
+function SearchInputWithTerm({ placeholder, autoFocus }: { placeholder: string; autoFocus?: boolean }) {
   const term = useSearchParams().get("q") ?? "";
-  return <SearchInput placeholder={placeholder} defaultValue={term} />;
+  return <SearchInput placeholder={placeholder} defaultValue={term} autoFocus={autoFocus} />;
 }

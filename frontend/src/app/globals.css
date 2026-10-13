@@ -93,6 +93,57 @@
   }
 }
 
+/*
+ * arfro.com restyle (owner's request, 2026-10-13; docs/deviations.md « Arfro restyle »): same brand
+ * colours, look of LG/Samsung storefronts. Manrope, white page with cool-grey panels, rounder
+ * corners, blue primary buttons (orange only for promotions), flat cards. The tokens below override
+ * the @theme values when <html data-site="arfro">; Arfro-only components check useIsArfro().
+ */
+[data-site="arfro"] {
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+
+  --color-brand-hover: #083f78;
+  --color-accent: #0b5cad;
+  --color-accent-hover: #083f78;
+  --color-promo: #b8441a;
+  --color-ink: #0f1b2d;
+  --color-ink-2: #3a4557;
+  --color-muted: #5b6577;
+  --color-muted-2: #5b6577;
+  --color-bg: #f2f4f7;
+  --color-tint-blue: #e3eefa;
+  --color-tint-thumb: #f2f4f7;
+  --color-tint-select: #f3f8fd;
+  --color-tint-orange: #fdeee7;
+  --color-border: #e3e7ee;
+  --color-border-2: #e3e7ee;
+  --color-input: #c9d0db;
+  --color-control: #c9d0db;
+  --color-footer-text: #9fbcdd;
+  --color-footer-text-2: #d5e2f1;
+
+  --radius-10: 14px;
+  --radius-12: 16px;
+  --radius-14: 18px;
+  --radius-16: 20px;
+  --radius-18: 22px;
+  --radius-20: 24px;
+  --radius-24: 28px;
+
+  --shadow-card-hover: 0 0 0 1px #e3e7ee;
+  --shadow-feature-hover: 0 0 0 1px #e3e7ee;
+  --shadow-tile-hover: 0 0 0 1px #e3e7ee;
+}
+/* Element rules stay in the base layer, so utilities (hover:text-white…) still win. */
+@layer base {
+  [data-site="arfro"] body {
+    background: #ffffff;
+  }
+  [data-site="arfro"] a:hover {
+    color: var(--color-brand-hover);
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

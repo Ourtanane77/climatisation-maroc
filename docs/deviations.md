@@ -142,7 +142,7 @@ the colours with dark `#1A1A1A` text. Left as drawn until decided.
 
 | Area | Design | Built | Why |
 |---|---|---|---|
-| Arfro storefront (arfro.com) | No design file | Same design as Climatisation Maroc with its own logo and icons; texts can differ per site | Owner's decision: one look for both sites. |
+| Arfro storefront (arfro.com) | No design file | Own look since 2026-10-13 (see « Arfro restyle » below), own logo and icons; texts can differ per site | Owner's decision. |
 | Logos (2026-10-12) | Colour logo in a white pill on the blue footer | Each site's own logo (« Ariha Froid » for Climatisation Maroc, « Arfro » for arfro.com); the footer shows the owner's white version directly on the blue; favicons from the owner's icons | Owner's logo files (`design/logos/`). |
 
 ## Owner requests after phase 8
@@ -151,3 +151,38 @@ the colours with dark `#1A1A1A` text. Left as drawn until decided.
 |---|---|---|---|
 | Article page layout (≥ 1100 px) | Text column 720 px + « Sommaire » 260 px, leaving empty space on wide screens | Text 2/3 and « Sommaire » 1/3 of the page column | Owner's request (2026-10-07): the summary looked like it took half the page. |
 | « Gaines circulaires » type tile | — | Owner's photo with its white background removed (`design/uploads/gaines-cat/cat-gaines-circulaires.png`, made from the owner's photo) | The tiles show transparent photos on coloured backgrounds. |
+
+## Arfro restyle (2026-10-13)
+
+The owner asked for arfro.com to look different from Climatisation Maroc (same colours, same content
+and pages), inspired by LG and Samsung storefronts. Approved mockups: the « Arfro restyle » design
+canvas (home desktop and mobile, category, product). Climatisation Maroc is unchanged.
+
+| Area | Climatisation Maroc | Arfro |
+|---|---|---|
+| Tokens | Figtree, grey page, orange accent | Manrope, white page with #F2F4F7 panels, blue primary buttons (orange for promotions only), rounder corners, flat cards (`[data-site="arfro"]` in `globals.css`) |
+| Header | Search bar in the header | Dark promo strip, utility bar (Particuliers / Professionnels, services, phone), slim header with text links and icon buttons, blue cart pill |
+| Home | Bento, rails | Hero photo with a white card, round category tiles, tabbed selections, feature banners, power helper, brands, promises |
+| Cards | Bordered cards | Grey image well, brand in small capitals, « Acheter » and « Comparer » pills |
+| Category and product pages | Design files | Grey category hero with sub-category pills, filter sidebar with hairlines; product variant cards, grey buy panel, section tabs |
+| Footer | Brand blue | Navy #083F78 |
+
+Arfro home details: the « Gaines circulaires » rail is left out (ducts stay on their range page);
+copper and spare parts are the third « Nos sélections » tab; the power finder bar and the reassurance
+strip become the « Quelle puissance choisir ? » panel and the promises strip; the pro block becomes
+the « Solutions professionnelles » banner. On phones the banners, brands and promises stay (the
+mobile mockup leaves them out) so no content disappears. Arfro cards hide a brand badge that only
+repeats the brand name and show a « Comparer » pill on every card with a reference.
+
+Arfro chrome details: below 1360 px the header steps down (smaller links, round cart, fewer icons)
+so the navigation never overflows; the WhatsApp button moves from the desktop header to the drawer
+(the phone number is in the utility bar); the footer's bottom row keeps every phone and the full
+store addresses instead of the mockup's condensed line; the drawer adds « Suivre ma commande » and
+« Espace professionnel » because the utility bar is hidden on phones. Arfro's header is sticky
+(Climatisation Maroc's hides on scroll).
+
+Arfro catalogue details: the technical-visit option sits in the product buy panel (only where the
+product has an installation kit), so the installation section has one « + » per accessory and no
+« Tout ajouter »; the product H1 is the family name; « Demander un devis » is a text link under the
+promises; the listing's SEO heading reads « Bien choisir vos <catégorie> »; the promo filter is a
+single « En promotion » row.

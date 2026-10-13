@@ -4,7 +4,9 @@ import { FilterColumn } from "@/components/catalog/FilterColumn";
 import { MobileFilterSheet, SortSelect } from "@/components/catalog/ListingControls";
 import { Pagination } from "@/components/catalog/Pagination";
 import { ProductCard } from "@/components/catalog/ProductCard";
-import { GuidePills, PageIntro, Section, SisterChips } from "@/components/catalog/Sections";
+import { CategoryVisual } from "@/components/catalog/CategoryVisual";
+import { CategoryHero, GuidePills, PageIntro, Section, SisterChips } from "@/components/catalog/Sections";
+import { FaqDetails } from "@/components/product/FaqDetails";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ButtonLink } from "@/components/ui/Button";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
@@ -16,6 +18,7 @@ import type { CategoryData, ListingData } from "@/lib/catalog/types";
 import { cn } from "@/lib/cn";
 import { plural } from "@/lib/format";
 import { getNavigation } from "@/lib/navigation";
+import { SITE_KEY } from "@/lib/site";
 import type { SearchParams } from "@/lib/types";
 
 /**
@@ -46,6 +49,165 @@ export default async function ListingTemplate({ category, searchParams }: { cate
       hrefFor={(key, value) => toggleFilterHref(base, searchParams, key, value)}
     />
   );
+
+  if (SITE_KEY === "arfro") {
+    // Arfro (Categorie.dc.html): grey hero panel with the sibling pills and the category picture,
+    // toolbar, hairline filter sidebar, 3-column grid, two-column SEO text.
+    const promoLabel = listing.facets.find((f) => f.key === "promo")?.label;
+    const chipLabel = (a: (typeof active)[number]) => (a.facet === "promo" && promoLabel ? promoLabel : a.label);
+    return (
+      <>
+        <Breadcrumb items={category.breadcrumb} />
+        <CategoryHero
+          title={category.h1}
+          intro={category.intro}
+          pills={category.siblings.map((s) => ({ label: s.label, href: s.href, active: s.active }))}
+          visual={<CategoryVisual href={category.href} sizes="(min-width: 760px) 460px, 90vw" className="block h-auto w-full max-w-[460px] object-contain" />}
+        />
+
+        <section id="produits" className="flex flex-col">
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-8 pb-5 md:pt-9">
+            <div className="flex flex-wrap items-center gap-2">
+              <strong className="mr-2 text-[15px] font-extrabold" aria-live="polite">
+                {plural(total, "produit")}
+              </strong>
+              {active.map((a) => (
+                <Link
+                  key={`${a.facet}-${a.value}`}
+                  href={toggleFilterHref(base, searchParams, a.facet, a.value)}
+                  scroll={false}
+                  rel="nofollow"
+                  aria-label={`Retirer le filtre ${chipLabel(a)}`}
+                  className="bg-tint-blue text-brand hover:text-brand-hover flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-bold"
+                >
+                  {chipLabel(a)}
+                  <span aria-hidden>✕</span>
+                </Link>
+              ))}
+              {active.length > 0 && (
+                <Link
+                  href={clearFiltersHref(base, searchParams)}
+                  scroll={false}
+                  className="text-ink hover:text-brand inline-flex min-h-9 items-center px-1 text-sm font-semibold underline"
+                >
+                  Tout effacer
+                </Link>
+              )}
+            </div>
+            {controls.sort && (
+              <div className="flex flex-wrap items-center justify-end gap-2 md:gap-3">
+                {controls.filters && (
+                  <MobileFilterSheet count={total} initialOpen={first(searchParams.filtres) === "1"}>
+                    {filters}
+                  </MobileFilterSheet>
+                )}
+                <SortSelect
+                  value={sort}
+                  options={SORTS.map((s) => ({
+                    value: s.value,
+                    label: s.label,
+                    href: setParamHref(base, searchParams, "tri", s.value === DEFAULT_SORT ? null : s.value),
+                  }))}
+                />
+                <div className="border-control flex rounded-full border-[1.5px] bg-white p-[3px]" role="group" aria-label="Affichage">
+                  {(["grille", "liste"] as const).map((v) => (
+                    <Link
+                      key={v}
+                      href={setParamHref(base, searchParams, "vue", v === "grille" ? null : v)}
+                      scroll={false}
+                      rel="nofollow"
+                      aria-current={view === v ? "true" : undefined}
+                      className={cn(
+                        "flex h-9 items-center rounded-full px-3 text-sm font-bold min-[391px]:px-4",
+                        view === v ? "bg-ink text-white hover:text-white" : "text-ink hover:text-ink",
+                      )}
+                    >
+                      {v === "grille" ? "Grille" : "Liste"}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div
+            className={cn("grid grid-cols-1 items-start gap-8", controls.filters && "md:grid-cols-[232px_minmax(0,1fr)] xl:grid-cols-[272px_minmax(0,1fr)]")}
+          >
+            {controls.filters && <div className="hidden md:block">{filters}</div>}
+            <div className="flex min-w-0 flex-col">
+              {listing.data.length > 0 ? (
+                <div
+                  className={cn(
+                    "grid grid-cols-1 gap-x-5 gap-y-8",
+                    view === "liste" ? "" : controls.filters ? "sm:grid-cols-2 xl:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                  )}
+                >
+                  {listing.data.map((p) => {
+                    const sku = p.sku ?? p.options?.[0]?.sku;
+                    return (
+                      <ProductCard
+                        key={p.href}
+                        headingLevel="h2"
+                        product={withBrandBadge(p)}
+                        compareSlot={sku ? <CompareCheckbox item={{ sku, name: p.name }} /> : undefined}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-24 bg-bg flex flex-col items-center gap-4 px-8 py-12 text-center">
+                  <h2 className="m-0 text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em]">
+                    {isClim ? "Aucun climatiseur ne correspond à ces filtres" : "Aucun produit ne correspond à ces filtres"}
+                  </h2>
+                  <p className="text-ink-2 m-0 max-w-[480px] text-base leading-[1.5]">
+                    Retirez un filtre ou appelez le {nav.salesPhone.display} : nous vous orientons vers l&apos;appareil disponible le plus proche.
+                  </p>
+                  <ButtonLink href={clearFiltersHref(base, searchParams)} variant="blue" className="h-[52px] px-7">
+                    Effacer les filtres
+                  </ButtonLink>
+                </div>
+              )}
+              <Pagination
+                page={listing.meta.page}
+                lastPage={listing.meta.lastPage}
+                hrefFor={(p) => setParamHref(base, searchParams, "page", p === 1 ? null : String(p))}
+              />
+            </div>
+          </div>
+        </section>
+
+        {(category.body || category.guides.length > 0) && (
+          <section id="guides" aria-labelledby="guides-title" className="border-border mt-14 flex flex-wrap gap-x-12 gap-y-6 border-t pt-10 md:mt-20 md:pt-12">
+            <h2 id="guides-title" className="m-0 flex-[1_1_280px] text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] md:text-[30px]">
+              {category.body ? `Bien choisir vos ${category.name.toLowerCase()}` : "Guides associés"}
+            </h2>
+            <div className="flex min-w-0 flex-[2_1_520px] flex-col gap-6">
+              {category.body && (
+                <div className="text-ink-2 text-base leading-[1.7]">
+                  {category.body.split(/\n{2,}/).map((para) => (
+                    <p key={para.slice(0, 40)} className="m-0 mb-4 last:mb-0">
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              )}
+              {category.body && category.guides.length > 0 && <h3 className="m-0 text-[17px] font-extrabold">Guides associés</h3>}
+              {category.guides.length > 0 && <GuidePills guides={category.guides} />}
+            </div>
+          </section>
+        )}
+
+        {category.faq.length > 0 && (
+          <Section id="faq" title="Questions fréquentes" className="max-w-[900px]">
+            <FaqDetails items={category.faq} />
+          </Section>
+        )}
+
+        <div className="h-24" aria-hidden />
+        <CompareTray />
+      </>
+    );
+  }
 
   return (
     <>

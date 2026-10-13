@@ -8,7 +8,9 @@ import { toast } from "@/components/ui/Toast";
 import { addToCart } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
 import { discountBadge, isOnRequest, priceRequestHref, publicRef } from "@/lib/format";
+import { useIsArfro } from "@/lib/site-context";
 import type { ProductCardData } from "@/lib/types";
+import { ArfroCard } from "./ArfroCard";
 import { ProductVisual } from "./ProductVisual";
 
 /**
@@ -17,6 +19,8 @@ import { ProductVisual } from "./ProductVisual";
  *   "À partir de" the lowest price and `refText` (e.g. "4 puissances").
  * - `action="view"` → "Voir le produit" link; `action="add"` → "Ajouter au panier" with the
  *   2-second green confirmation (adding a family without a pick adds its first variant).
+ * - On arfro.com the same state renders the Arfro layout (ArfroCard: grey image well, « Acheter »,
+ *   « Comparer »); Climatisation Maroc keeps the markup below.
  */
 export function ProductCard({
   product,
@@ -31,6 +35,7 @@ export function ProductCard({
   compareSlot?: React.ReactNode;
   headingLevel?: "h2" | "h3";
 }) {
+  const arfro = useIsArfro();
   const options = product.options ?? [];
   const multi = options.length > 1;
   const [picked, setPicked] = useState<number | null>(multi ? null : options.length ? 0 : null);
@@ -72,6 +77,31 @@ export function ProductCard({
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setAdded(false), 1800);
     toast(`${target ? `${product.name} ${target.fullLabel}` : product.name} ajouté au panier`);
+  }
+
+  if (arfro) {
+    return (
+      <ArfroCard
+        product={product}
+        action={action}
+        headingLevel={headingLevel}
+        picked={picked}
+        multi={multi}
+        onPick={setPicked}
+        showFrom={showFrom}
+        price={price}
+        regular={regular}
+        refText={ref}
+        image={image}
+        imageSrcSet={imageSrcSet}
+        dark={dark}
+        badge={badge}
+        onRequest={onRequest}
+        requestHref={priceRequestHref(addTarget?.sku ?? product.sku)}
+        added={added}
+        onAdd={onAdd}
+      />
+    );
   }
 
   return (

@@ -8,6 +8,7 @@ import { addToCart, useCart } from "@/lib/cart/store";
 import type { DenseItem } from "@/lib/catalog/types";
 import { cn } from "@/lib/cn";
 import { dh, isOnRequest, plural, priceRequestHref, priceText, publicRef } from "@/lib/format";
+import { useIsArfro } from "@/lib/site-context";
 import { DenseRow, DenseRowHeader } from "./DenseRow";
 import { ProductArt } from "./ProductArt";
 
@@ -47,6 +48,8 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
   const [sort, setSort] = useState<Sort>("pertinence");
   const [view, setView] = useState<"liste" | "grille">("liste");
   const cart = useCart();
+  // Arfro: grey tiles and panels on the white page, hairline-bordered list (docs/deviations.md).
+  const arfro = useIsArfro();
 
   const shown = useMemo(() => filterDense(items, query, sort), [items, query, sort]);
   const bySku = useMemo(() => new Map(items.map((i) => [i.sku, i])), [items]);
@@ -65,7 +68,7 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
   }
 
   return (
-    <section className="grid grid-cols-1 gap-6 pt-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <section className={cn("grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]", arfro ? "pt-8" : "pt-6")}>
       <div className="flex min-w-0 flex-col gap-4">
         {pills.length > 1 && (
           <nav aria-label="Sous-catégories" className="-mx-4 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 md:mx-0 md:px-0">
@@ -137,7 +140,7 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
         </p>
 
         {view === "liste" ? (
-          <div className="rounded-24 bg-white px-4 py-1 md:px-6 md:py-4">
+          <div className={cn("rounded-24 bg-white px-4 py-1 md:px-6 md:py-4", arfro && "border-border border")}>
             <DenseRowHeader />
             {shown.map((item) => (
               <DenseRow key={item.sku} item={{ ...item, art: item.art ?? undefined }} inSelection={inSelection.has(item.sku)} />
@@ -146,7 +149,7 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
         ) : (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             {shown.map((item) => (
-              <article key={item.sku} className="rounded-20 flex flex-col gap-2.5 bg-white p-4">
+              <article key={item.sku} className={cn("flex flex-col gap-2.5 p-4", arfro ? "rounded-24 bg-bg md:p-5" : "rounded-20 bg-white")}>
                 {/* Out of stock: only the picture is faded (design fades the card; text kept at AA contrast). */}
                 <Link href={item.href} tabIndex={-1} aria-hidden className={cn("flex h-[110px] items-center justify-center", !item.inStock && "opacity-60")}>
                   {item.image ? (
@@ -164,7 +167,10 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
                 {isOnRequest(item.price) ? (
                   <Link
                     href={priceRequestHref(item.sku)}
-                    className="rounded-12 border-line-strong text-ink hover:border-ink hover:bg-ink mt-auto flex h-11 items-center justify-center border-[1.5px] bg-white text-[15px] font-bold transition-colors hover:text-white"
+                    className={cn(
+                      "border-line-strong text-ink hover:border-ink hover:bg-ink mt-auto flex h-11 items-center justify-center border-[1.5px] bg-white text-[15px] font-bold transition-colors hover:text-white",
+                      arfro ? "rounded-full" : "rounded-12",
+                    )}
                   >
                     Demander un prix
                   </Link>
@@ -173,7 +179,8 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
                     type="button"
                     onClick={() => addGrid(item)}
                     className={cn(
-                      "rounded-12 mt-auto h-11 border-[1.5px] text-[15px] font-bold transition-colors",
+                      "mt-auto h-11 border-[1.5px] text-[15px] font-bold transition-colors",
+                      arfro ? "rounded-full" : "rounded-12",
                       inSelection.has(item.sku)
                         ? "border-success bg-success text-white"
                         : "border-line-strong hover:border-ink hover:bg-ink bg-white hover:text-white",
@@ -190,8 +197,11 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
         )}
       </div>
 
-      <aside className="rounded-24 sticky top-[88px] hidden flex-col gap-3.5 self-start bg-white p-6 xl:flex" aria-labelledby="selection-title">
-        <h2 id="selection-title" className="m-0 text-[22px] font-bold">
+      <aside
+        className={cn("rounded-24 sticky top-[88px] hidden flex-col gap-3.5 self-start p-6 xl:flex", arfro ? "bg-bg" : "bg-white")}
+        aria-labelledby="selection-title"
+      >
+        <h2 id="selection-title" className={cn("m-0 text-[22px]", arfro ? "font-extrabold" : "font-bold")}>
           Votre sélection
         </h2>
         {selection.length ? (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ProductArt } from "@/components/catalog/ProductArt";
 import { cn } from "@/lib/cn";
 import { discountBadge } from "@/lib/format";
+import { useIsArfro } from "@/lib/site-context";
 import { useProduct } from "./ProductContext";
 
 /**
@@ -16,6 +17,7 @@ import { useProduct } from "./ProductContext";
  */
 export function ProductGallery() {
   const { product, variant } = useProduct();
+  const arfro = useIsArfro();
   const photos = product.images.filter((i) => i.src).map((i) => ({ kind: "photo" as const, ...i }));
   const views = photos.length ? photos : [{ kind: "art" as const, src: null, thumb: null, srcSet: null, alt: product.name }];
   // A thumbnail pick holds until another variant is chosen, which shows that variant's photo.
@@ -50,6 +52,42 @@ export function ProductGallery() {
         className="block max-h-full max-w-full object-contain mix-blend-multiply"
       />
     );
+
+  if (arfro) {
+    // Arfro (Produit.dc.html): large grey well (radius 28), discount pill, square grey thumbnails
+    // with a 2px brand border on the one shown.
+    return (
+      <div className="flex min-w-0 flex-col gap-3.5 xl:sticky xl:top-24">
+        <div className="rounded-24 bg-bg relative aspect-[1.15] overflow-hidden">
+          <div className="absolute inset-[12%] flex items-center justify-center">{render(current)}</div>
+          {discounted && (
+            <span className="bg-tint-orange text-promo absolute top-4 left-4 flex h-[30px] items-center rounded-full px-3.5 text-[13px] font-extrabold md:top-[22px] md:left-[22px]">
+              {discountBadge(variant.regularPrice!, variant.price)}
+            </span>
+          )}
+        </div>
+        {views.length > 1 && (
+          <div className="grid grid-cols-4 gap-2.5 md:gap-3.5">
+            {views.map((view, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={view.kind === "art" ? "Schéma" : `Vue ${i + 1}`}
+                aria-pressed={i === index}
+                onClick={() => setIndex(i)}
+                className={cn(
+                  "rounded-18 bg-bg flex aspect-square items-center justify-center overflow-hidden border-2 p-[12%]",
+                  i === index ? "border-brand" : "hover:border-control border-transparent",
+                )}
+              >
+                {render(view, true)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3 xl:sticky xl:top-24">

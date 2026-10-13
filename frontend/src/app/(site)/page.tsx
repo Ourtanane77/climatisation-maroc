@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { ArfroHome } from "@/components/home/arfro/ArfroHome";
 import { Bento } from "@/components/home/Bento";
 import { BrandMarquee } from "@/components/home/BrandMarquee";
 import { HomeHero } from "@/components/home/HomeHero";
@@ -11,7 +12,7 @@ import { RailSection } from "@/components/home/Rail";
 import { SLOT } from "@/components/home/slot";
 import { cn } from "@/lib/cn";
 import { getHome } from "@/lib/home/api";
-import { SITE } from "@/lib/site";
+import { SITE, SITE_KEY } from "@/lib/site";
 import { seoMetadata } from "@/lib/seo/metadata";
 import { designImage } from "@/lib/design-assets";
 
@@ -19,9 +20,13 @@ export function generateMetadata(): Metadata {
   return seoMetadata({ title: SITE.defaultTitle, absolute: true, description: SITE.description, path: "/", image: designImage("cover-ariha.png") });
 }
 
-/** Home page (design/Accueil.dc.html). Sections without data are left out. */
+/**
+ * Home page (design/Accueil.dc.html). Sections without data are left out. arfro.com has its own
+ * layout on the same data (components/home/arfro, docs/deviations.md « Arfro restyle »).
+ */
 export default async function HomePage() {
   const home = await getHome();
+  if (SITE_KEY === "arfro") return <ArfroHome home={home} />;
 
   return (
     <>

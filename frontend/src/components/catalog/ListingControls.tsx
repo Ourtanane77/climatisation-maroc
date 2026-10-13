@@ -2,7 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CloseIcon } from "@/components/ui/icons";
+import { ChevronDownIcon, CloseIcon } from "@/components/ui/icons";
+import { cn } from "@/lib/cn";
+import { useIsArfro } from "@/lib/site-context";
 
 /**
  * Client parts of the category toolbar: the mobile "Filtres" button with its full-screen sheet
@@ -10,6 +12,7 @@ import { CloseIcon } from "@/components/ui/icons";
  */
 export function MobileFilterSheet({ count, initialOpen = false, children }: { count: number; initialOpen?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(initialOpen);
+  const arfro = useIsArfro();
 
   useEffect(() => {
     if (!open) return;
@@ -29,7 +32,10 @@ export function MobileFilterSheet({ count, initialOpen = false, children }: { co
         type="button"
         onClick={() => setOpen(true)}
         aria-expanded={open}
-        className="border-ink flex h-11 items-center rounded-full border-[1.5px] bg-white px-[18px] text-[15px] font-bold md:hidden"
+        className={cn(
+          "flex h-11 items-center rounded-full border-[1.5px] bg-white px-[18px] font-bold md:hidden",
+          arfro ? "border-control text-sm" : "border-ink text-[15px]",
+        )}
       >
         Filtres
       </button>
@@ -56,20 +62,39 @@ export function MobileFilterSheet({ count, initialOpen = false, children }: { co
 /** "Trier : Prix croissant" pill; a native select laid over it keeps it accessible. */
 export function SortSelect({ options, value }: { options: { value: string; label: string; href: string }[]; value: string }) {
   const router = useRouter();
+  const arfro = useIsArfro();
   const current = options.find((o) => o.value === value) ?? options[0];
+  const go = (next: string) => {
+    const target = options.find((o) => o.value === next);
+    if (target) router.push(target.href, { scroll: false });
+  };
+  if (arfro) {
+    // Arfro (Categorie.dc.html): « Trier par » then a visible pill select (44px, 1.5px border).
+    return (
+      <label className="flex items-center gap-2.5 text-sm font-bold whitespace-nowrap">
+        <span className="max-md:sr-only">Trier par</span>
+        <span className="relative flex">
+          <select
+            value={current.value}
+            onChange={(e) => go(e.target.value)}
+            className="border-control text-ink h-11 cursor-pointer appearance-none rounded-full border-[1.5px] bg-white pr-10 pl-4 text-sm font-bold"
+          >
+            {options.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDownIcon size={14} aria-hidden className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2" />
+        </span>
+      </label>
+    );
+  }
   return (
     <label className="border-control relative flex h-11 items-center gap-1 rounded-full border-[1.5px] bg-white px-3 text-[15px] leading-[1.1] whitespace-nowrap md:px-4">
       {/* On phones the pill shows the value only, so the toolbar stays on one line. */}
       <span className="max-md:sr-only">Trier :</span> <strong>{current.label}</strong>
-      <select
-        aria-label="Trier"
-        value={current.value}
-        onChange={(e) => {
-          const target = options.find((o) => o.value === e.target.value);
-          if (target) router.push(target.href, { scroll: false });
-        }}
-        className="absolute inset-0 cursor-pointer opacity-0"
-      >
+      <select aria-label="Trier" value={current.value} onChange={(e) => go(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0">
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}

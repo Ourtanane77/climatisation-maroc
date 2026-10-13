@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree } from "next/font/google";
+import { Figtree, Manrope } from "next/font/google";
 import { connection } from "next/server";
-import { SITE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE, SITE_KEY, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SiteKeyProvider } from "@/lib/site-context";
 import "./globals.css";
 
 const figtree = Figtree({
@@ -10,6 +11,15 @@ const figtree = Figtree({
   // Figtree is a variable font, so no weight list is needed (one file serves 400–800).
   subsets: ["latin"],
   display: "swap",
+});
+
+// arfro.com's typeface (its look follows LG/Samsung storefronts). Not preloaded: Climatisation Maroc
+// never uses it, and next/font options must be literals (no per-site preload).
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 /** Per storefront (SITE_KEY, SITE_URL), read at runtime: one build serves both sites. */
@@ -43,8 +53,11 @@ export function generateViewport(): Viewport {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
   return (
-    <html lang="fr-MA" className={figtree.variable}>
-      <body>{children}</body>
+    // data-site switches the design tokens per storefront (globals.css).
+    <html lang="fr-MA" data-site={SITE_KEY} className={`${figtree.variable} ${manrope.variable}`}>
+      <body>
+        <SiteKeyProvider value={SITE_KEY}>{children}</SiteKeyProvider>
+      </body>
     </html>
   );
 }

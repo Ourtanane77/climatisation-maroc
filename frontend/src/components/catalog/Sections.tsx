@@ -2,19 +2,31 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import type { BrandTile, CategoryTile } from "@/lib/catalog/types";
+import { SITE_KEY } from "@/lib/site";
 import { CategoryVisual } from "./CategoryVisual";
 
 /**
  * Building blocks of the range and category pages (design: Climatisation.dc.html,
- * Categorie Climatiseurs muraux.dc.html). Server components.
+ * Categorie Climatiseurs muraux.dc.html). Server components. On arfro.com they take the Arfro look
+ * (grey #F2F4F7 panels on a white page, docs/deviations.md « Arfro restyle »).
  */
+
+const ARFRO = SITE_KEY === "arfro";
 
 /** Section with the shared H2 (32 mobile / 44, margin-bottom 32) and the `secGap` top padding. */
 export function Section({ id, title, children, className }: { id?: string; title?: string; children: React.ReactNode; className?: string }) {
   return (
-    <section id={id} className={cn("pt-10 md:pt-14", className)} aria-labelledby={title && id ? `${id}-title` : undefined}>
+    <section id={id} className={cn(ARFRO ? "pt-12 md:pt-[72px]" : "pt-10 md:pt-14", className)} aria-labelledby={title && id ? `${id}-title` : undefined}>
       {title && (
-        <h2 id={id ? `${id}-title` : undefined} className="m-0 mb-8 text-[32px] leading-[1.05] font-bold tracking-[-0.03em] md:text-[44px]">
+        <h2
+          id={id ? `${id}-title` : undefined}
+          className={cn(
+            "m-0",
+            ARFRO
+              ? "mb-6 text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] md:text-[30px]"
+              : "mb-8 text-[32px] leading-[1.05] font-bold tracking-[-0.03em] md:text-[44px]",
+          )}
+        >
           {title}
         </h2>
       )}
@@ -37,6 +49,59 @@ export function PageIntro({ title, intro, dense = false }: { title: string; intr
   );
 }
 
+/**
+ * Arfro category hero (Categorie.dc.html): rounded grey panel with the H1 (48/800), the intro, the
+ * sibling pills (active one ink) and the category's cut-out picture on the right.
+ */
+export function CategoryHero({
+  title,
+  intro,
+  pills = [],
+  pillsLabel = "Types",
+  visual,
+  children,
+}: {
+  title: string;
+  intro?: string | null;
+  pills?: { label: string; href: string; active: boolean }[];
+  pillsLabel?: string;
+  visual?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-24 bg-bg flex flex-wrap items-center gap-6 overflow-hidden px-6 py-8 md:gap-10 md:px-14 md:py-12">
+      <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-4">
+        <h1 className="m-0 text-[34px] leading-[1.05] font-extrabold tracking-[-0.025em] md:text-[48px]">{title}</h1>
+        {intro && <p className="text-muted m-0 max-w-[560px] text-base leading-[1.55] md:text-[17px]">{intro}</p>}
+        {pills.length > 1 && (
+          <nav aria-label={pillsLabel} className="flex flex-wrap gap-2 pt-2">
+            {pills.map((p) => (
+              <Link
+                key={p.href}
+                href={p.href}
+                scroll={false}
+                aria-current={p.active ? "page" : undefined}
+                className={cn(
+                  "flex h-11 items-center rounded-full px-[18px] text-sm font-bold whitespace-nowrap",
+                  p.active ? "bg-ink text-white hover:text-white" : "text-ink hover:text-brand bg-white",
+                )}
+              >
+                {p.label}
+              </Link>
+            ))}
+          </nav>
+        )}
+        {children}
+      </div>
+      {visual && (
+        <div aria-hidden className="flex min-w-0 flex-[0_1_460px] items-center justify-center [&_img]:max-h-[160px] md:[&_img]:max-h-[320px]">
+          {visual}
+        </div>
+      )}
+    </section>
+  );
+}
+
 /** "Choisir un type de …": coloured tiles with the drawing at the bottom. */
 export function TypeTiles({ tiles }: { tiles: CategoryTile[] }) {
   const artWidth: Record<string, string> = { gainable: "100%", cassette: "52%", console: "38%" };
@@ -46,10 +111,13 @@ export function TypeTiles({ tiles }: { tiles: CategoryTile[] }) {
         <Link
           key={t.href}
           href={t.href}
-          className="rounded-24 text-ink hover:text-ink ease-design relative flex min-h-[300px] flex-col gap-1.5 overflow-hidden p-6 transition-transform duration-300 hover:-translate-y-1 md:min-h-[340px]"
-          style={{ background: t.bg ?? "#E8EFF8" }}
+          className={cn(
+            "rounded-24 text-ink hover:text-ink ease-design relative flex min-h-[300px] flex-col gap-1.5 overflow-hidden transition-transform duration-300 hover:-translate-y-1 md:min-h-[340px]",
+            ARFRO ? "bg-bg p-7" : "p-6",
+          )}
+          style={ARFRO ? undefined : { background: t.bg ?? "#E8EFF8" }}
         >
-          <span className="text-[26px] leading-[1.15] font-bold">{t.shortName ?? t.name}</span>
+          <span className={cn("text-[26px] leading-[1.15]", ARFRO ? "font-extrabold tracking-[-0.02em]" : "font-bold")}>{t.shortName ?? t.name}</span>
           {t.text && <span className="text-ink-2 max-w-[80%] text-[15px] leading-[1.4]">{t.text}</span>}
           <span aria-hidden className="absolute inset-x-6 bottom-5 flex h-[55%] items-end justify-center">
             <CategoryVisual
@@ -76,9 +144,12 @@ export function PowerChips({ powers }: { powers: { label: string; sub: string; h
         <Link
           key={p.label}
           href={p.href}
-          className="border-border text-ink hover:border-brand hover:text-brand group flex min-h-16 flex-col justify-center rounded-full border-[1.5px] bg-white px-[22px] py-2"
+          className={cn(
+            "text-ink hover:text-brand group flex min-h-16 flex-col justify-center rounded-full px-[22px] py-2",
+            ARFRO ? "bg-bg hover:shadow-[inset_0_0_0_2px_var(--color-brand)]" : "border-border hover:border-brand border-[1.5px] bg-white",
+          )}
         >
-          <span className="text-lg leading-[1.2] font-bold">{p.label}</span>
+          <span className={cn("text-lg leading-[1.2]", ARFRO ? "font-extrabold" : "font-bold")}>{p.label}</span>
           <span className="text-muted group-hover:text-brand text-sm">{p.sub}</span>
         </Link>
       ))}
@@ -100,7 +171,10 @@ export function BrandTiles({ brands }: { brands: BrandTile[] }) {
           <Link
             key={b.slug}
             href={b.href}
-            className="rounded-20 hover:shadow-tile-hover text-ink flex h-[120px] flex-col items-center justify-center gap-1.5 bg-white transition-shadow"
+            className={cn(
+              "hover:shadow-tile-hover text-ink flex h-[120px] flex-col items-center justify-center gap-1.5 transition-shadow",
+              ARFRO ? "bg-bg rounded-24 [&_img]:mix-blend-multiply" : "rounded-20 bg-white",
+            )}
             aria-label={b.note ? `${b.name} · ${b.note}` : b.name}
           >
             {b.logo ? (
@@ -127,10 +201,13 @@ export function GuideCards({ guides }: { guides: { title: string; href: string }
         <Link
           key={g.href}
           href={g.href}
-          className="rounded-24 text-ink hover:text-ink flex min-h-[200px] flex-col justify-between gap-6 p-7"
-          style={{ background: GUIDE_BGS[i % GUIDE_BGS.length] }}
+          className={cn(
+            "rounded-24 text-ink hover:text-ink flex min-h-[200px] flex-col justify-between gap-6 p-7",
+            ARFRO && "bg-bg hover:shadow-[inset_0_0_0_2px_var(--color-brand)]",
+          )}
+          style={ARFRO ? undefined : { background: GUIDE_BGS[i % GUIDE_BGS.length] }}
         >
-          <h3 className="m-0 text-2xl leading-[1.2] font-bold">{g.title}</h3>
+          <h3 className={cn("m-0 text-2xl leading-[1.2]", ARFRO ? "font-extrabold tracking-[-0.01em]" : "font-bold")}>{g.title}</h3>
           <span className="text-brand text-base font-bold">Lire le guide</span>
         </Link>
       ))}
@@ -146,7 +223,10 @@ export function GuidePills({ guides }: { guides: { title: string; href: string }
         <Link
           key={g.href}
           href={g.href}
-          className="text-ink hover:text-brand flex min-h-[52px] items-center rounded-full bg-white px-[22px] py-2 text-base font-bold"
+          className={cn(
+            "text-ink hover:text-brand flex min-h-[52px] items-center rounded-full px-[22px] py-2 text-base font-bold",
+            ARFRO ? "bg-bg" : "bg-white",
+          )}
         >
           {g.title}
         </Link>
@@ -181,9 +261,18 @@ export function SisterChips({ items }: { items: { label: string; href: string; a
 export function AdviceCta({ title, text, whatsappHref }: { title: string; text: string; whatsappHref: string }) {
   return (
     <section id="contact" className="py-10 md:py-14">
-      <div className="rounded-24 bg-tint-blue flex flex-wrap items-center justify-between gap-6 p-6 md:p-12">
+      <div className={cn("rounded-24 flex flex-wrap items-center justify-between gap-6 p-6 md:p-12", ARFRO ? "bg-bg" : "bg-tint-blue")}>
         <div>
-          <h2 className="m-0 text-[32px] leading-[1.05] font-bold tracking-[-0.03em] md:text-[44px]">{title}</h2>
+          <h2
+            className={cn(
+              "m-0",
+              ARFRO
+                ? "text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] md:text-[30px]"
+                : "text-[32px] leading-[1.05] font-bold tracking-[-0.03em] md:text-[44px]",
+            )}
+          >
+            {title}
+          </h2>
           <p className="text-ink-2 mt-2 mb-0 text-lg">{text}</p>
         </div>
         <div className="flex w-full flex-wrap gap-3 md:w-auto">
