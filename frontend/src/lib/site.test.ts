@@ -98,6 +98,14 @@ describe("Google Tag Manager", () => {
     expect(Clarity({ id: "yx5c5sr7f7" })).not.toBeNull();
   });
 
+  it("never gives a script an id that shadows the tracker's global (window.clarity, window.dataLayer)", async () => {
+    const { CLARITY_SCRIPT_ID } = await import("@/components/analytics/Clarity");
+    const { GTM_SCRIPT_ID } = await import("@/components/analytics/GoogleTagManager");
+    for (const id of [CLARITY_SCRIPT_ID, GTM_SCRIPT_ID]) {
+      expect(["clarity", "dataLayer", "gtm", "google_tag_manager"]).not.toContain(id);
+    }
+  });
+
   it("renders nothing for a malformed ID", async () => {
     const { GoogleTagManager, GoogleTagManagerNoScript } = await import("@/components/analytics/GoogleTagManager");
     expect(GoogleTagManager({ id: "GTM-X');alert(1);//" })).toBeNull();

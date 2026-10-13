@@ -3,11 +3,14 @@ import Script from "next/script";
 /** Container IDs look like GTM-XXXXXXX; anything else is ignored (the ID is written into a script). */
 const GTM_ID_PATTERN = /^GTM-[A-Z0-9]+$/;
 
-/** Google Tag Manager loader (Google's snippet), loaded after hydration. Rendered in <body>. */
+/** Google Tag Manager loader (Google's snippet), loaded after hydration. Rendered in <body>. The id
+ * avoids names scripts read from window (element ids become window properties). */
+export const GTM_SCRIPT_ID = "google-tag-manager-init";
+
 export function GoogleTagManager({ id }: { id: string | null }) {
   if (!id || !GTM_ID_PATTERN.test(id)) return null;
   return (
-    <Script id="gtm" strategy="afterInteractive">
+    <Script id={GTM_SCRIPT_ID} strategy="afterInteractive">
       {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${id}');`}
     </Script>
   );
