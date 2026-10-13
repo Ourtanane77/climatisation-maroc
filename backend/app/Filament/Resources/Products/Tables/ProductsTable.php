@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Filament\Actions\SpreadsheetImportAction;
 use App\Filament\Exports\ProductVariantExporter;
 use App\Filament\Forms\Fields;
 use App\Filament\Forms\SiteFields;
@@ -14,7 +15,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportAction;
-use Filament\Actions\ImportAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -86,7 +86,7 @@ class ProductsTable
                     ->query(fn (Builder $query) => $query->whereHas('variants', fn (Builder $v) => $v->whereNotNull('promo_price')->whereColumn('promo_price', '<', 'price'))),
             ])
             ->headerActions([
-                ImportAction::make()->label('Importer (CSV)')->importer(ProductVariantImporter::class),
+                SpreadsheetImportAction::make()->label('Importer (CSV / Excel)')->importer(ProductVariantImporter::class),
                 ExportAction::make()->label('Exporter (CSV)')->exporter(ProductVariantExporter::class),
             ])
             ->recordActions([EditAction::make()])

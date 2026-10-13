@@ -64,7 +64,7 @@ références vendues (9 000, 12 000, 18 000 et 24 000 BTU), chacune avec sa réf
 prix et son stock. Un produit simple a une seule variante.
 
 **Catalogue › Produits** affiche la liste, avec recherche, filtres (catégorie, marque, publié,
-promo, « À vérifier ») et import/export CSV. La fiche d'un produit est organisée en onglets :
+promo, « À vérifier ») et import (CSV ou Excel) / export. La fiche d'un produit est organisée en onglets :
 
 | Onglet | Contenu |
 |---|---|
@@ -171,6 +171,27 @@ statut : en attente, validé, refusé.
 - **Refuser** : indiquez un motif, il est communiqué au demandeur par e-mail.
 
 Vérifiez l'ICE (15 chiffres) et l'activité avant de valider.
+
+### Importer une liste de revendeurs
+
+**Importer une liste (CSV / Excel)**, en haut de la page Revendeurs, ajoute ou met à jour des
+revendeurs en une fois.
+
+1. Téléchargez un exemple (**Télécharger un exemple Excel** ou **le fichier CSV exemple**) et
+   remplissez-le, une ligne par revendeur. Gardez la ligne d'en-tête.
+2. Colonnes : **Société**, **ICE** (15 chiffres), **E-mail** et **Téléphone** sont obligatoires ;
+   **Contact**, **Ville**, **Activité** (installateur, revendeur, bureau_etudes, promoteur, autre),
+   **Statut** (valide, en_attente, refuse) et **Site** (cm ou arfro) sont facultatifs. Sans valeur :
+   activité « revendeur », statut « valide », site Climatisation Maroc. Une ville inconnue devient
+   « Autre ville ».
+3. Choisissez le fichier (.xlsx ou .csv ; un ancien fichier .xls doit d'abord être enregistré en
+   .xlsx), vérifiez que chaque colonne est bien reconnue, puis **Importer**.
+
+Chaque ligne est reconnue par son e-mail : un revendeur déjà présent est mis à jour, sinon le
+compte est créé. Aucun e-mail n'est envoyé : le revendeur choisit son mot de passe avec « Mot de
+passe oublié » sur le site. Une notification indique le nombre de lignes importées ; les lignes en
+erreur (ICE incomplet, téléphone déjà utilisé, e-mail d'un membre de l'équipe…) se téléchargent
+avec le motif.
 
 ## Contenus
 
