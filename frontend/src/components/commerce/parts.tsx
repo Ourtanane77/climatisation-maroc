@@ -3,6 +3,7 @@ import { ProductVisual } from "@/components/catalog/ProductVisual";
 import { MAT, MatIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
 import { dh, publicRef } from "@/lib/format";
+import type { OrderPayment } from "@/lib/commerce/types";
 import type { ArtKey } from "@/lib/types";
 
 /**
@@ -101,6 +102,23 @@ export function CashLine() {
     <span className="flex items-center gap-2.5 text-[15px] font-semibold">
       <MatIcon d={MAT.cash} size={22} className="text-brand" />
       Paiement à la livraison
+    </span>
+  );
+}
+
+const CARD_LABELS: Record<NonNullable<OrderPayment["status"]>, string> = {
+  en_attente: "Carte bancaire : paiement en attente",
+  payee: "Payée en ligne par carte bancaire",
+  echouee: "Carte bancaire : paiement non abouti",
+};
+
+/** Payment method of an order: on delivery (as drawn), or card with its status. */
+export function PaymentLine({ payment }: { payment: OrderPayment }) {
+  if (payment.method !== "carte") return <CashLine />;
+  return (
+    <span className={cn("flex items-center gap-2.5 text-[15px] font-semibold", payment.status === "payee" && "text-success")}>
+      <MatIcon d={MAT.card} size={22} className={payment.status === "payee" ? "text-success" : "text-brand"} />
+      {CARD_LABELS[payment.status ?? "en_attente"]}
     </span>
   );
 }

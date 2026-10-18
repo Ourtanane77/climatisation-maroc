@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Orders;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Filament\Concerns\ScopesRecordsToManagedSites;
 use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Orders\Pages\ListOrders;
@@ -53,7 +55,10 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getEloquentQuery()->where('status', OrderStatus::Nouvelle)->count();
+        // A card order counts once paid: an unpaid one may be a payment abandoned on CMI's page.
+        $count = static::getEloquentQuery()->where('status', OrderStatus::Nouvelle)
+            ->where(fn (Builder $q) => $q->where('payment_method', PaymentMethod::Livraison->value)->orWhere('payment_status', PaymentStatus::Payee->value))
+            ->count();
 
         return $count ? (string) $count : null;
     }
@@ -83,6 +88,13 @@ class OrderResource extends Resource
                     SiteFields::siteEntry(),
                     TextEntry::make('status')->label('Statut')->badge(),
                     TextEntry::make('created_at')->label('Passée le')->dateTime('d/m/Y à H:i'),
+                    TextEntry::make('payment_method')->label('Paiement')->badge(),
+                    TextEntry::make('payment_status')->label('Paiement en ligne')->badge()
+                        ->visible(fn (Order $record) => $record->payment_method === PaymentMethod::Carte)
+                        ->placeholder('—')
+                        ->helperText(fn (Order $record) => $record->paid_at
+                            ? 'Le '.$record->paid_at->format('d/m/Y à H:i').($record->payment_transaction_id ? ' · transaction '.$record->payment_transaction_id : '')
+                            : null),
                     TextEntry::make('pricing')->label('Tarif')->formatStateUsing(fn (string $state) => $state === 'pro' ? 'Revendeur' : 'Public'),
                 ]),
                 Section::make('Client')->columnSpan(1)->schema([
@@ -125,6 +137,18 @@ class OrderResource extends Resource
                     TextEntry::make('internal_note')->hiddenLabel()->placeholder('Aucune note.'),
                 ]),
             ]),
+            Section::make('Messages CMI')->columnSpanFull()->collapsed()
+                ->visible(fn (Order $record) => $record->payment_method === PaymentMethod::Carte)
+                ->schema([
+                    RepeatableEntry::make('payments')->hiddenLabel()->columns(5)->placeholder('Aucun message reçu de CMI.')->schema([
+                        TextEntry::make('created_at')->label('Reçu le')->dateTime('d/m/Y H:i:s'),
+                        TextEntry::make('proc_return_code')->label('Code')->placeholder('—'),
+                        TextEntry::make('response')->label('Réponse')->placeholder('—'),
+                        TextEntry::make('amount')->label('Montant')->formatStateUsing(fn ($state) => static::dhs($state)),
+                        TextEntry::make('valid_hash')->label('Signature')->formatStateUsing(fn ($state) => $state ? 'Valide' : 'Invalide')
+                            ->badge()->color(fn ($state) => $state ? 'success' : 'danger'),
+                    ]),
+                ]),
         ]);
     }
 
@@ -140,11 +164,16 @@ class OrderResource extends Resource
                 TextColumn::make('phone')->label('Téléphone')->searchable(),
                 TextColumn::make('city_name')->label('Ville')->sortable(),
                 TextColumn::make('total')->label('Total')->formatStateUsing(fn ($state) => static::dhs($state))->sortable()->alignEnd(),
+                TextColumn::make('payment_method')->label('Paiement')->badge()->toggleable()
+                    ->formatStateUsing(fn (PaymentMethod $state, Order $record) => $record->payment_status?->getLabel() ?? $state->getLabel())
+                    ->color(fn (PaymentMethod $state, Order $record) => $record->payment_status?->getColor() ?? $state->getColor()),
                 IconColumn::make('option_technical_visit')->label('Visite')->boolean()->toggleable(),
                 TextColumn::make('status')->label('Statut')->badge()->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(OrderStatus::class)->multiple(),
+                SelectFilter::make('payment_method')->label('Paiement')->options(PaymentMethod::class),
+                SelectFilter::make('payment_status')->label('Paiement en ligne')->options(PaymentStatus::class),
                 SiteFields::siteFilter(),
                 Filter::make('dates')->schema([
                     DatePicker::make('from')->label('Du'),

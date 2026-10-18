@@ -4,8 +4,10 @@ namespace App\Support\Sites;
 
 use App\Settings\ArfroGeneralSettings;
 use App\Settings\ArfroHomeSettings;
+use App\Settings\ArfroPaymentSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\HomeSettings;
+use App\Settings\PaymentSettings;
 use Spatie\LaravelSettings\Settings;
 
 /**
@@ -19,6 +21,7 @@ final class SiteSettings
     public const BINDINGS = [
         GeneralSettings::class => ['arfro' => ArfroGeneralSettings::class],
         HomeSettings::class => ['arfro' => ArfroHomeSettings::class],
+        PaymentSettings::class => ['arfro' => ArfroPaymentSettings::class],
     ];
 
     /**

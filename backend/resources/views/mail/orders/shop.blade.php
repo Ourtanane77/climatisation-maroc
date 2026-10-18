@@ -10,7 +10,8 @@ Note pour le livreur : {{ $order->note }}
 @endif
 
 Site : {{ $siteName }}<br>
-Tarif : {{ $order->pricing === 'pro' ? 'Revendeur' : 'Public' }}
+Tarif : {{ $order->pricing === 'pro' ? 'Revendeur' : 'Public' }}<br>
+Paiement : {{ $order->payment_status?->getLabel() ?? $order->payment_method->getLabel() }}
 
 <x-mail::table>
 | Article | Réf. | Qté | Prix | Total |

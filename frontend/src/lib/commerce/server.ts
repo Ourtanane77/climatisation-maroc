@@ -5,7 +5,7 @@ import { getToken } from "@/lib/auth";
 import { clientIpFrom } from "@/lib/client-ip";
 import { siteHeaders, SITE } from "@/lib/site";
 import { CART_COOKIE, VISIT_COOKIE, parseCart, type CartLine } from "@/lib/cart/cookie";
-import type { City, OrderView, Quote } from "./types";
+import type { City, OrderView, PaymentForm, Quote } from "./types";
 
 /**
  * Server-side calls to the commerce API (backend-for-frontend): they forward the reseller token
@@ -65,6 +65,19 @@ export async function getOrder(reference: string, token: string): Promise<OrderV
   if (!new RegExp(`^${SITE.orderPrefix}-\\d{4}-\\d{5}$`, "i").test(reference) || !token) return null;
   const { status, body } = await apiForward<OrderView>("GET", `/orders/${encodeURIComponent(reference.toUpperCase())}?t=${encodeURIComponent(token)}`);
   return status === 200 ? body : null;
+}
+
+/** Payment methods offered at checkout: card payment only when the back office turned it on. */
+export async function getCheckoutOptions(): Promise<{ onlinePayment: boolean }> {
+  const { status, body } = await apiForward<{ onlinePayment?: boolean }>("GET", "/checkout/options");
+  return { onlinePayment: status === 200 && body.onlinePayment === true };
+}
+
+/** The signed CMI form of a card order, or null when it cannot be paid now (paid, cancelled, card off). */
+export async function getPaymentForm(reference: string, token: string): Promise<PaymentForm | null> {
+  if (!new RegExp(`^${SITE.orderPrefix}-\\d{4}-\\d{5}$`, "i").test(reference) || !token) return null;
+  const { status, body } = await apiForward<PaymentForm>("POST", `/orders/${encodeURIComponent(reference.toUpperCase())}/payment`, { t: token });
+  return status === 200 && body.url && body.fields ? body : null;
 }
 
 export async function getCities(): Promise<City[]> {

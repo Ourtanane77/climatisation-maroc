@@ -75,6 +75,24 @@ export interface TimelineStep {
   state: "done" | "active" | "pending";
 }
 
+/** Payment method chosen at checkout: on delivery, or online by card (CMI). */
+export type PaymentMethodKey = "livraison" | "carte";
+
+/** Online card payment of an order (card orders only have a status). */
+export interface OrderPayment {
+  method: PaymentMethodKey;
+  status: "en_attente" | "payee" | "echouee" | null;
+  /** The order can be paid now (card order, not paid, card payment on). */
+  canPay: boolean;
+}
+
+/** Signed form the payment page posts to CMI (POST /orders/{ref}/payment). */
+export interface PaymentForm {
+  url: string;
+  fields: Record<string, string>;
+  total: number;
+}
+
 export interface OrderView {
   reference: string;
   placedAt: string | null;
@@ -92,6 +110,7 @@ export interface OrderView {
   technicalVisitPrice: number;
   deliveryFee: number;
   total: number;
+  payment: OrderPayment;
   timeline: TimelineStep[];
 }
 

@@ -82,6 +82,8 @@ class AppServiceProvider extends ServiceProvider
 
             return $limits;
         });
+        // Customers coming back from CMI's payment page (the callback itself is not limited).
+        RateLimiter::for('cmi', fn (Request $request) => Limit::perMinute(60)->by((string) $request->ip()));
     }
 
     private static function isInternal(Request $request): bool

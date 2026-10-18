@@ -94,12 +94,20 @@ Copy `.env.prod.example` to `.env.prod` (never commit it) and fill every value:
 | `APP_KEY` | generate after the first build: `docker run --rm -e APP_ROLE=worker climatisation-maroc/php:prod php artisan key:generate --show` |
 | `APP_URL`, `FRONTEND_URL`, `NEXT_PUBLIC_SITE_URL` | Climatisation Maroc's public URL, `https://climatisationmaroc.com`. `APP_URL` is also the back office's address (`/admin` answers on both domains). `NEXT_PUBLIC_SITE_URL` becomes `SITE_URL` of `next` and `SITE_CM_URL` of Laravel |
 | `SITE_ARFRO_URL` | Arfro's public URL, default `https://arfro.com`; becomes `SITE_URL` of `next-arfro` and Laravel's `SITE_ARFRO_URL` (e-mail links) |
+
+**Each site keeps its own URL.** `NEXT_PUBLIC_SITE_URL` must be Climatisation Maroc's address, never
+Arfro's: it feeds the canonical links, `sitemap.xml`, `robots.txt`, `llms.txt` and JSON-LD of
+climatisationmaroc.com, and Laravel's e-mail and CMI return links. A URL on the other site's
+domain is refused and logged (`[site] SITE_URL … belongs to …` in the Next logs, `Site URL … belongs
+to …` in Laravel's): the site then falls back to its own production address. After a change,
+check `https://climatisationmaroc.com/robots.txt` and `https://arfro.com/robots.txt`: each names its
+own sitemap.
 | `SITE_CM_MAIL_FROM_NAME`, `SITE_ARFRO_MAIL_FROM_NAME` | sender name of each site's e-mails (defaults `Climatisation Maroc`, `Arfro`); both use `MAIL_FROM_ADDRESS` |
 | `APP_PORT` | port nginx listens on (behind the TLS terminator) |
 | `REVALIDATE_SECRET` | long random string (`openssl rand -hex 32`); compose passes it to both Laravel and Next.js |
 | `FRONTEND_INTERNAL_URL` | `http://next:3000` (keep). The compose file sets `SITE_CM_INTERNAL_URL=http://next:3000` and `SITE_ARFRO_INTERNAL_URL=http://next-arfro:3000` for revalidation |
-| `GTM_ID` (optional, per Next.js service) | Google Tag Manager container. arfro.com uses `GTM-W8BQPKPX` by default (`frontend/src/lib/site.ts`), Climatisation Maroc none; it loads in production builds only. Set an ID to override or `off` to disable |
-| `CLARITY_ID` (optional, per Next.js service) | Microsoft Clarity project. arfro.com uses `yx5c5sr7f7` by default, Climatisation Maroc none; production builds only. Set an ID to override or `off` to disable |
+| `GTM_ID` (optional, per Next.js service) | Google Tag Manager container. Each site has its own by default (`frontend/src/lib/site.ts`): Climatisation Maroc `GTM-M6CMD354`, arfro.com `GTM-W8BQPKPX`; it loads in production builds only. Set an ID to override or `off` to disable |
+| `CLARITY_ID` (optional, per Next.js service) | Microsoft Clarity project. Each site has its own by default: Climatisation Maroc `yzqjn5sv22`, arfro.com `yx5c5sr7f7`; production builds only. Set an ID to override or `off` to disable |
 | `NEXT_MEMORY`, `NEXT_ARFRO_MEMORY` | memory limits of the two Next.js containers (`1g`, `768m`) |
 | `DB_PASSWORD`, `DB_ROOT_PASSWORD` | strong random values (the MySQL container is created with them) |
 | `SESSION_SECURE_COOKIE` | `true` behind HTTPS (back-office login fails over plain HTTP when true) |

@@ -3,6 +3,7 @@
 namespace App\Support\Sites;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 /**
@@ -17,7 +18,7 @@ final class Sites
     /** @return Collection<string, Site> */
     public static function all(): Collection
     {
-        return collect((array) config('sites.sites'))->map(fn (array $config, string $key) => Site::fromConfig($key, $config));
+        return collect(self::keys())->mapWithKeys(fn (string $key) => [$key => self::get($key)]);
     }
 
     /** @return list<string> */
@@ -49,7 +50,36 @@ final class Sites
             throw new InvalidArgumentException("Unknown site [{$key}].");
         }
 
-        return Site::fromConfig($key, (array) config("sites.sites.{$key}"));
+        $config = (array) config("sites.sites.{$key}");
+        $config['url'] = self::safeUrl($key, (string) ($config['url'] ?? ''));
+
+        return Site::fromConfig($key, $config);
+    }
+
+    /**
+     * A site's URL, unless it is on another site's production domain (a deployment mistake, e.g.
+     * Arfro's URL given to Climatisation Maroc): then the site's own production URL, logged.
+     */
+    private static function safeUrl(string $key, string $url): string
+    {
+        $host = self::bareHost($url);
+        foreach ((array) config('sites.sites') as $other => $config) {
+            if ($other !== $key && $host !== null && $host === self::bareHost((string) ($config['production_url'] ?? ''))) {
+                $own = (string) config("sites.sites.{$key}.production_url", $url);
+                Log::error("Site URL {$url} of [{$key}] belongs to [{$other}]: using {$own}. Fix SITE_CM_URL / SITE_ARFRO_URL / NEXT_PUBLIC_SITE_URL.");
+
+                return $own;
+            }
+        }
+
+        return $url;
+    }
+
+    private static function bareHost(string $url): ?string
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return is_string($host) && $host !== '' ? (string) preg_replace('/^www\./', '', strtolower($host)) : null;
     }
 
     public static function current(): Site

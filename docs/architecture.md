@@ -1,7 +1,7 @@
 # Architecture
 
 Climatisation Maroc is the online store of Ariha Froid (Marrakech): French only (`fr-MA`), prices
-in Dhs, cash on delivery. The same code also serves a second storefront, Arfro (arfro.com): see
+in Dhs, payment on delivery or, when enabled per site, online by card (CMI). The same code also serves a second storefront, Arfro (arfro.com): see
 « Multi-site » below. The plan and the decisions behind it are in `docs/plan.md`; deliberate
 differences from the design files are in `docs/deviations.md`.
 
@@ -55,9 +55,48 @@ Laravel ──(after back-office changes)──► /api/revalidate of each Next.
   is set by `FILESYSTEM_DISK` (S3 drops in through env).
 - **Back office.** Filament resources in `app/Filament/` (French), roles with
   spatie/laravel-permission (`admin`, `gestionnaire`, `revendeur`), settings with
-  spatie/laravel-settings (`GeneralSettings`, `HomeSettings`).
+  spatie/laravel-settings (`GeneralSettings`, `HomeSettings`, `PaymentSettings`).
 - **Mail** is queued on Redis (order, lead, reseller decision and password reset mails) and caught
   by Mailpit in development.
+
+### Online payment (CMI)
+
+Payment on delivery is always offered. Card payment goes through the CMI gateway (Centre Monétique
+Interbancaire, « 3D Pay Hosting », `App\Support\Payments\Cmi`) when a site's « Paiement en
+ligne » settings turn it on and hold a ClientId and a store key (`GET /checkout/options` →
+`{onlinePayment}`).
+
+- **Flow.** `POST /orders` with `payment_method=carte` (e-mail required) creates the order with
+  `payment_status=en_attente`; the checkout goes to `/commande/paiement`, whose server asks
+  `POST /orders/{reference}/payment {t}` for the signed form (`TranType=PreAuth`, amount = the
+  order total computed at checkout, currency 504) and the browser posts it to CMI. CMI calls
+  `POST /payments/cmi/callback` server to server, then sends the browser to
+  `/api/v1/payments/cmi/retour` (okUrl and failUrl), which redirects to the confirmation page.
+- **Security.** Every message is signed with the store key (hash « ver3 », SHA-512, compared with
+  `hash_equals`); the key never leaves the server. **Only the callback marks an order paid**,
+  after checking the hash, the order, the amount and the currency, under a row lock; it answers
+  `ACTION=POSTAUTH` (capture) then, `APPROVED` for an acknowledged decline and `FAILURE` otherwise
+  (bad hash, amount or currency, cancelled order, a second transaction on a paid order). The
+  browser return never pays: it checks the hash before giving back the order's access token
+  (`?paiement=ok|echec`); an unsigned return goes to `/suivi-commande`. A verified decline marks
+  the payment `echouee`. Every callback is stored in `order_payments`: an allowlist of CMI fields
+  (code, response, transaction, amount, masked card…), only the `oid` when the hash is wrong.
+- **Raw body.** The hash is checked on the request body exactly as CMI sent it
+  (`Cmi::rawParams()`): Laravel's input is trimmed (Unicode spaces too), emptied to null and
+  renames dotted fields (`EXTRA.TRXDATE`), which would refuse genuine messages. Customer fields
+  sent to CMI are cut, then trimmed, with Unicode spaces turned into ASCII spaces.
+- **Never lose a capture.** A failing e-mail or audit write is reported, never turned into a 500:
+  CMI still gets `ACTION=POSTAUTH` for a paid order.
+- **E-mails.** A card order sends the shop and customer e-mails only once paid
+  (`OrderPlacer::notify()` from the callback); the back-office badge skips unpaid card orders.
+- **Site of a payment.** CMI sends no `X-Site`: the callback and the return find the order by
+  reference (`oid`) and run as the order's site (`Sites::runAs()`), with that site's settings and
+  URLs. The form's okUrl, failUrl and callbackUrl are built from the order site's public URL, so
+  CMI cannot reach a local stack.
+- `retour` (POST only) uses the `cmi` rate limit (60 per minute per IP); the callback has none,
+  so a genuine payment is never refused by a limit.
+- Test mode (`cmi_mode = test`) marks orders paid with CMI test cards: the settings page warns
+  against leaving it on the public site.
 
 ## Frontend
 
@@ -75,6 +114,10 @@ Laravel ──(after back-office changes)──► /api/revalidate of each Next.
   `src/app/api/` proxy forms (`/api/forms/*`), the basket quote and orders (`/api/cart`,
   `/api/orders`), reseller auth (`/api/auth/*`, the Sanctum token kept in the httpOnly `cm_token`
   cookie) and the quick order (`/api/pro/*`); they forward the visitor's IP in `X-Forwarded-For`.
+  The card payment page (`/commande/paiement`) fetches the signed CMI form on the server
+  (`getPaymentForm`) and renders it; the browser posts it straight to CMI (`CmiPaymentForm`,
+  auto-submitted). CMI then talks to Laravel directly (`/api/v1/payments/cmi/*`), not through
+  Next.js.
 - **Basket.** The `cm_cart` cookie holds `[{sku, qty}]` only (no prices); `cm_visit` the technical
   visit option. The basket and checkout pages re-quote through the API on every change.
 - **Compare.** Up to three variant SKUs in `localStorage` (`src/lib/compare.ts`) and in the URL
@@ -118,7 +161,9 @@ One database, one API, one back office and one queue serve two storefronts. Deci
 - **Settings.** Each site has its own settings groups: `GeneralSettings` / `HomeSettings` for
   Climatisation Maroc, `ArfroGeneralSettings` / `ArfroHomeSettings` (groups `general_arfro`,
   `home_arfro`) for Arfro; injecting the base class gives the current site's values
-  (`App\Support\Sites\SiteSettings`).
+  (`App\Support\Sites\SiteSettings`). Online payment too: `PaymentSettings` /
+  `ArfroPaymentSettings` (groups `payment`, `payment_arfro`; store key encrypted with `APP_KEY`),
+  off on both sites by default; Arfro needs its own CMI merchant account.
 - **Orders, leads, resellers** record their `site`; order references are numbered per prefix
   (`CM-2026-00001`, `AR-2026-00001`). Prices and reseller accounts are shared by both sites.
 - **Back office.** One panel for both sites. A user's `sites` limits the orders, leads, resellers
@@ -127,6 +172,15 @@ One database, one API, one back office and one queue serve two storefronts. Deci
   same nginx), so no cross-site setting lists the domains: the back-office session cookie is
   host-only (`SESSION_DOMAIN` empty, one login per domain), Sanctum uses bearer tokens (no
   stateful SPA domains), and CORS is never needed.
+
+## Per-site files
+
+`robots.txt`, `sitemap.xml` and `llms.txt` are rendered on request by each Next.js instance, with
+its own URL (`SITE_URL`) and the API data of its site (`X-Site`): nothing is fixed at build time,
+since one image serves both sites. `llms.txt` (`lib/seo/llms.ts`) is built from the site's name and
+description and the navigation API (published categories and pages, contact details). A
+`SITE_URL` on the other site's domain is refused (`resolveSiteUrl` in `lib/site.ts`,
+`Sites::get()` in Laravel).
 
 ## Caching and revalidation
 

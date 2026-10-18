@@ -242,3 +242,93 @@
     white-space: nowrap;
   }
 }
+
+/* Logic Technologies signature (components/layout/LogicSignature.tsx), from the agency's no-JS
+   snippet. The dark theme takes the colour of the footer text around it (blue footers). */
+@layer components {
+  .lt-sig {
+    --cyan: #00b8ec;
+    --ink: #111416;
+    --fg: #5b6670;
+    --strong: #111416;
+    --line: #e3e8eb;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font: 500 12px/1 "Urbanist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    letter-spacing: 0.01em;
+    color: var(--fg);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+  /* Black on a white pill (owner's request, 2026-10-18): readable on the blue footers. */
+  .lt-sig[data-theme="light"] {
+    --fg: #111416;
+    --line: #fff;
+    background: #fff;
+  }
+  .lt-sig[data-theme="dark"] {
+    --fg: currentColor;
+    --strong: #fff;
+    --line: color-mix(in srgb, currentColor 40%, transparent);
+    --ink: #fff;
+  }
+  .lt-sig:hover,
+  .lt-sig:focus-visible {
+    border-color: var(--cyan);
+    color: var(--strong);
+    outline: none;
+  }
+  .lt-sig__mark {
+    width: 16px;
+    height: 14px;
+    flex: none;
+  }
+  .lt-sig__mark .c {
+    fill: var(--cyan);
+  }
+  .lt-sig__mark .i {
+    fill: var(--ink);
+  }
+  .lt-sig__t {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .lt-sig__h {
+    width: 12px;
+    height: 12px;
+    fill: var(--cyan);
+    transform-origin: center;
+  }
+  .lt-sig:hover .lt-sig__h {
+    animation: lt-beat 0.9s ease-in-out infinite;
+  }
+  .lt-sig b {
+    font-weight: 700;
+    color: var(--strong);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lt-sig:hover .lt-sig__h {
+      animation: none;
+    }
+  }
+}
+@keyframes lt-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.25);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+}

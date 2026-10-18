@@ -3,20 +3,30 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Support\Sites\Sites;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Cash-on-delivery order. Lines are snapshots (name, SKU, unit price at order time).
+ * Order, paid on delivery or online by card (CMI). Lines are snapshots (name, SKU, unit price at order time).
  *
  * @property int $id
  * @property string $site
  * @property string $reference
  * @property OrderStatus $status
+ * @property PaymentMethod $payment_method
+ * @property PaymentStatus|null $payment_status
+ * @property Carbon|null $paid_at
+ * @property string|null $payment_transaction_id
+ * @property string $access_token
+ * @property string|null $email
+ * @property string|null $city_name
  * @property int $subtotal
  * @property int $total
  */
@@ -31,6 +41,9 @@ class Order extends Model
         return [
             'status' => OrderStatus::class,
             'status_changed_at' => 'datetime',
+            'payment_method' => PaymentMethod::class,
+            'payment_status' => PaymentStatus::class,
+            'paid_at' => 'datetime',
             'option_technical_visit' => 'boolean',
             'option_installation_quote' => 'boolean',
         ];
@@ -46,6 +59,12 @@ class Order extends Model
     public function history(): HasMany
     {
         return $this->hasMany(OrderStatusHistory::class)->orderBy('created_at');
+    }
+
+    /** @return HasMany<OrderPayment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class)->latest('id');
     }
 
     /** @return BelongsTo<City, $this> */

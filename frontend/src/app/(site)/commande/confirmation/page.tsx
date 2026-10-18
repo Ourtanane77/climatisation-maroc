@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AddressBlock, CardTitle, CashLine, CompactLines, Divider, PageTitle, SummaryRow, TotalRow } from "@/components/commerce/parts";
+import { AddressBlock, CardTitle, CompactLines, Divider, PageTitle, PaymentLine, SummaryRow, TotalRow } from "@/components/commerce/parts";
 import { ButtonLink } from "@/components/ui/Button";
 import { CheckIcon, MAT, MatIcon } from "@/components/ui/icons";
 import { getOrder } from "@/lib/commerce/server";
@@ -16,13 +16,32 @@ const STEPS = [
   ["Paiement à la réception", MAT.cash],
 ] as const;
 
-/** Thank-you page (design/Confirmation.dc.html), readable with the order's access token. */
+/** Third step of a card order, by payment status. */
+const CARD_STEP: Record<string, string> = {
+  payee: "Paiement reçu : rien à régler à la livraison",
+  en_attente: "Paiement par carte en attente",
+  echouee: "Paiement par carte à refaire",
+};
+
+/**
+ * Thank-you page (design/Confirmation.dc.html), readable with the order's access token. A card
+ * order also shows its payment: paid, being checked (just back from CMI), failed or still to pay,
+ * with a link back to the payment page while it can be paid.
+ */
 export default async function ConfirmationPage({ searchParams }: PageProps<"/commande/confirmation">) {
   const sp = await searchParams;
   const ref = typeof sp.ref === "string" ? sp.ref : "";
   const token = typeof sp.t === "string" ? sp.t : "";
   const order = await getOrder(ref, token);
   if (!order) notFound();
+
+  const card = order.payment.method === "carte";
+  const steps = STEPS.map(([title, d], i) =>
+    card && i === 2 ? ([CARD_STEP[order.payment.status ?? "en_attente"] ?? title, MAT.card] as const) : ([title, d] as const),
+  );
+  const payHref = `/commande/paiement?ref=${encodeURIComponent(order.reference)}&t=${encodeURIComponent(token)}`;
+  const backFromCmi = sp.paiement === "ok" || sp.paiement === "echec" ? sp.paiement : null;
+  const notice = !card || order.payment.status === "payee" ? null : order.payment.status === "echouee" || backFromCmi === "echec" ? "failed" : backFromCmi === "ok" ? "checking" : "pending";
 
   return (
     <div className="mx-auto flex max-w-[980px] flex-col gap-8 pt-10 md:gap-12">
@@ -45,10 +64,45 @@ export default async function ConfirmationPage({ searchParams }: PageProps<"/com
         </div>
       </section>
 
+      {notice && (
+        <section
+          role={notice === "failed" ? "alert" : "status"}
+          className="rounded-24 bg-tint-blue flex flex-col gap-4 px-5 py-6 md:flex-row md:items-center md:justify-between md:px-8"
+        >
+          <div className="flex items-start gap-4">
+            <span className="text-brand flex size-12 shrink-0 items-center justify-center rounded-full bg-white">
+              <MatIcon d={MAT.card} size={24} />
+            </span>
+            <p className="m-0 text-[17px] leading-normal">
+              {notice === "failed" ? (
+                <>
+                  <strong>Le paiement par carte n&apos;a pas abouti.</strong> Aucun montant n&apos;a été débité. Vous pouvez réessayer, ou nous
+                  écrire pour payer à la livraison.
+                </>
+              ) : notice === "checking" ? (
+                <>
+                  <strong>Paiement en cours de vérification.</strong> La confirmation du CMI arrive dans quelques instants : actualisez cette
+                  page.
+                </>
+              ) : (
+                <>
+                  <strong>Paiement en attente.</strong> Votre commande sera traitée dès réception du paiement par carte.
+                </>
+              )}
+            </p>
+          </div>
+          {order.payment.canPay && (
+            <ButtonLink href={payHref} variant="orange" className="shrink-0" icon={<MatIcon d={MAT.lock} size={20} />}>
+              {notice === "failed" ? "Réessayer le paiement" : "Payer maintenant"}
+            </ButtonLink>
+          )}
+        </section>
+      )}
+
       <section>
         <h2 className="m-0 mb-5 text-[32px] leading-[1.05] font-bold tracking-[-0.03em] md:text-[44px]">Et maintenant ?</h2>
         <ol className="m-0 grid list-none gap-4 p-0 xl:grid-cols-3">
-          {STEPS.map(([title, d], i) => (
+          {steps.map(([title, d], i) => (
             <li key={title} className="rounded-20 flex items-center gap-4 bg-white p-5">
               <span className="bg-tint-blue text-brand flex size-12 shrink-0 items-center justify-center rounded-full">
                 <MatIcon d={d} size={24} />
@@ -77,7 +131,7 @@ export default async function ConfirmationPage({ searchParams }: PageProps<"/com
           <CardTitle>Adresse de livraison</CardTitle>
           <AddressBlock name={order.customer.name} phone={order.customer.phone} address={order.address} city={order.city} />
           <Divider />
-          <CashLine />
+          <PaymentLine payment={order.payment} />
         </div>
       </section>
     </div>

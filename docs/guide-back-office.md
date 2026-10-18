@@ -129,8 +129,9 @@ génère automatiquement des versions optimisées. Sans photo, une illustration 
 
 ## Commandes
 
-**Ventes › Commandes** liste les commandes par statut (onglets). Le paiement se fait à la
-livraison.
+**Ventes › Commandes** liste les commandes par statut (onglets). Le paiement à la livraison est
+toujours proposé ; le paiement en ligne par carte bancaire (CMI) seulement s'il est activé (voir
+« Paiement en ligne par carte » ci-dessous).
 
 | Statut | Signification |
 |---|---|
@@ -149,6 +150,30 @@ enregistrée dans l'historique). Le client voit ces étapes sur la page « Suivi
 - « Imprimer le bon de commande » : bon A4 pour la préparation et la livraison.
 
 Une commande ne se crée pas depuis le back-office : elle vient toujours du site.
+
+### Commandes payées par carte
+
+La colonne **Paiement** de la liste indique le mode de paiement :
+
+| Affichage | Signification |
+|---|---|
+| À la livraison | le client paie à la réception |
+| Payée en ligne | le CMI a confirmé le paiement : rien à encaisser à la livraison |
+| Paiement en attente | le client a choisi la carte mais le paiement n'est pas (encore) confirmé, par exemple s'il a quitté la page du CMI |
+| Paiement échoué | le paiement a été refusé ; le client peut réessayer depuis sa page de confirmation |
+
+Les filtres **Paiement** et **Paiement en ligne** retrouvent ces commandes.
+
+- Une commande par carte **non payée** ne compte pas dans le nombre affiché à côté de
+  « Commandes » dans le menu, et **aucun e-mail** (ni à la boutique, ni au client) n'est envoyé
+  tant que le paiement n'est pas confirmé. Les e-mails partent dès que le CMI confirme.
+- Dans la fiche de la commande, « Paiement en ligne » donne la date du paiement et le numéro de
+  transaction CMI. La section repliée **« Messages CMI »** liste chaque message reçu du CMI : date,
+  code, réponse, montant et signature (« Valide » ou « Invalide »). Une signature invalide signifie
+  que le message ne vient pas du CMI, ou que la clé enregistrée ici n'est pas celle du back office
+  du CMI : la commande n'est pas marquée payée.
+- Le bon de commande imprimé indique « Payée en ligne par carte : rien à encaisser » pour une
+  commande payée, sinon le montant à encaisser à la livraison.
 
 ## Demandes
 
@@ -226,6 +251,35 @@ Chaque site a ses réglages et sa page d'accueil (« — Climatisation Maroc »,
 
 **Configuration › Page d’accueil** (gestionnaires du site) : bandeau principal (titre, sous-titre, image), produits mis en
 avant, marques affichées, produit vedette du menu déroulant de chaque gamme.
+
+### Paiement en ligne par carte
+
+**Configuration › Paiement en ligne — Climatisation Maroc** et **— Arfro** (administrateurs).
+Le paiement en ligne est désactivé par défaut. Le paiement à la livraison reste toujours proposé.
+
+Pour l'activer sur un site :
+
+1. Dans le back office du CMI, menu **Administration → Changer les clés du magasin**, définissez
+   la clé du magasin (clé de hachage) et notez-la.
+2. Dans « Paiement en ligne », saisissez :
+   - **Plate-forme** : « Production (paiements réels) », ou « Test (cartes de test CMI) » pour un
+     essai sur la plate-forme de test du CMI ;
+   - **Identifiant marchand (ClientId)** donné par le CMI (celui de Climatisation Maroc est déjà
+     rempli ; Arfro a besoin de son propre contrat CMI et de son propre identifiant) ;
+   - **Clé de hachage (clé du magasin)** : exactement la même clé que dans le back office du CMI.
+     Elle est enregistrée chiffrée et n'est plus jamais affichée ; laissez le champ vide pour
+     conserver la clé enregistrée.
+3. Cochez **« Proposer le paiement en ligne par carte bancaire (CMI) »** et enregistrez. La ligne
+   « État » confirme si le paiement par carte est proposé sur le site.
+
+Le client choisit alors à la commande entre « Paiement à la livraison » et « Carte bancaire » ;
+l'e-mail devient obligatoire pour payer par carte. Les adresses de retour et de notification sont
+envoyées automatiquement au CMI avec chaque paiement.
+
+Après l'activation, vérifiez avec un vrai paiement par carte : la commande doit passer à « Payée
+en ligne » et les e-mails partir. Contrôlez ensuite le relevé du CMI après 24 h : le paiement doit
+y apparaître avec le même montant. Si la clé change dans le back office du CMI, saisissez la
+nouvelle ici aussitôt, sinon les paiements ne sont plus confirmés.
 
 ## Redirections
 

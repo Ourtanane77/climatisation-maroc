@@ -186,3 +186,13 @@ product has an installation kit), so the installation section has one « + » pe
 « Tout ajouter »; the product H1 is the family name; « Demander un devis » is a text link under the
 promises; the listing's SEO heading reads « Bien choisir vos <catégorie> »; the promo filter is a
 single « En promotion » row.
+
+## Owner requests (2026-10-18)
+
+| Area | Design | Built | Why |
+|---|---|---|---|
+| Checkout payment (`/commande`) | One « Paiement à la livraison » card, cash on delivery only | Unchanged while card payment is off; when a site turns it on, a « Mode de paiement » card with two radio cards (« Paiement à la livraison », « Carte bancaire »), the submit reads « Confirmer et payer par carte » and the note under it announces the CMI page | Owner's request: optional online card payment through CMI, per site. |
+| Payment page (`/commande/paiement`) | — | New page: order reference, amount, CMI notice and a « Payer … par carte » button; the signed form is posted to CMI automatically (the button stays for browsers without JavaScript) | CMI « 3D Pay Hosting » needs the browser to post a signed form to its page. |
+| Confirmation page, card orders | Third step « Paiement à la réception », cash line in the address card | Third step and payment line follow the card payment (paid, pending, to be redone); a notice (failed, being checked, pending) with « Réessayer le paiement » / « Payer maintenant » while the order can be paid. Cash orders unchanged | The customer must see whether the card payment went through. |
+| Checkout e-mail | Optional | Required, with its own message, when « Carte bancaire » is chosen | CMI needs the customer's e-mail. |
+| Footer bottom row (both sites) | Copyright and legal links | Adds the agency signature « Conçu avec ♥ par Logic Technologies » after the legal links (server-rendered, no JavaScript; link with `utm_source` = the site's host; black text on a white pill, readable on both blue footers) | Owner's request: credit the agency that built the sites. |

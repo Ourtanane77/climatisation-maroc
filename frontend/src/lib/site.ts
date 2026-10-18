@@ -6,7 +6,8 @@ import "server-only";
  * runtime, never inlined at build time, so one image serves both:
  *   - SITE_KEY: cm | arfro (anything else = cm). Sent to Laravel as `X-Site` on every call.
  *   - SITE_URL: absolute base URL of this instance (canonical, Open Graph, sitemap, JSON-LD); falls
- *     back to NEXT_PUBLIC_SITE_URL, read through a dynamic lookup so Next does not inline it.
+ *     back to NEXT_PUBLIC_SITE_URL, read through a dynamic lookup so Next does not inline it. A URL on
+ *     the other storefront's domain is refused (resolveSiteUrl): one site never claims the other's.
  * Client components get what they need as props (logo, order prefix): this module is server-only
  * (types are imported with `import type`, which leaves no runtime import).
  */
@@ -47,6 +48,8 @@ export interface SiteConfig {
   description: string;
   /** Prefix of the order references the API issues for this storefront (CM-2026-00001). */
   orderPrefix: string;
+  /** Public address in production: fallback of SITE_URL, and the domain the other site may never use. */
+  productionUrl: string;
   themeColor: string;
   /** Google Tag Manager container (production only, see gtmId()); null = none. */
   gtm: string | null;
@@ -67,9 +70,10 @@ const SITES: Record<SiteKey, SiteConfig> = {
     defaultTitle: "Climatisation Maroc · Climatiseurs, chauffe-eau · Ariha Froid",
     description: SHOP_DESCRIPTION,
     orderPrefix: "CM",
+    productionUrl: "https://climatisationmaroc.com",
     themeColor: "#0B5CAD",
-    gtm: null,
-    clarity: null,
+    gtm: "GTM-M6CMD354",
+    clarity: "yzqjn5sv22",
   },
   arfro: {
     key: "arfro",
@@ -81,6 +85,7 @@ const SITES: Record<SiteKey, SiteConfig> = {
     // À réécrire: the shared neutral description.
     description: SHOP_DESCRIPTION,
     orderPrefix: "AR",
+    productionUrl: "https://arfro.com",
     themeColor: "#0B5CAD",
     gtm: "GTM-W8BQPKPX",
     clarity: "yx5c5sr7f7",
@@ -103,7 +108,35 @@ export const SITE_KEY: SiteKey = resolveSiteKey();
 export const SITE: SiteConfig = siteConfig(SITE_KEY);
 export const SITE_NAME = SITE.name;
 
-export const SITE_URL = (env["SITE_URL"] || env["NEXT_PUBLIC_SITE_URL"] || "http://localhost:8080").replace(/\/$/, "");
+/** Host without "www.", or null for a value that is not a URL. */
+function bareHost(url: string): string | null {
+  try {
+    return new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Base URL of a storefront: SITE_URL, else NEXT_PUBLIC_SITE_URL, else its production address in
+ * production (localhost in development). A configured URL on another storefront's domain is a
+ * deployment mistake (e.g. Arfro's URL given to Climatisation Maroc): it would make every canonical,
+ * the sitemap and robots.txt point to the other site, so it is refused and logged.
+ */
+export function resolveSiteUrl(key: SiteKey, vars: Record<string, string | undefined> = env): string {
+  const own = SITES[key];
+  const fallback = vars["NODE_ENV"] === "production" ? own.productionUrl : "http://localhost:8080";
+  const configured = (vars["SITE_URL"] || vars["NEXT_PUBLIC_SITE_URL"] || "").trim();
+  const host = configured ? bareHost(configured) : null;
+  const otherSite = Object.values(SITES).find((s) => s.key !== key && bareHost(s.productionUrl) === host);
+  if (configured && otherSite) {
+    console.error(`[site] SITE_URL ${configured} belongs to ${otherSite.name}; ${own.name} uses ${own.productionUrl}. Fix SITE_URL / NEXT_PUBLIC_SITE_URL.`);
+    return own.productionUrl;
+  }
+  return (configured || fallback).replace(/\/$/, "");
+}
+
+export const SITE_URL = resolveSiteUrl(SITE_KEY);
 
 /**
  * Tag Manager container of this instance: the runtime env GTM_ID when set (an ID, or « off »), else the

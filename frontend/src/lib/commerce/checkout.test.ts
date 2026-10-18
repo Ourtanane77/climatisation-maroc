@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PHONE_ERROR_CHECKOUT } from "@/lib/phone";
-import { CGV_ERROR, formMilliseconds, mapApiErrors, refusalToast, validateCheckout, type CheckoutValues } from "./checkout";
+import { CARD_EMAIL_ERROR, CGV_ERROR, formMilliseconds, mapApiErrors, refusalToast, validateCheckout, type CheckoutValues } from "./checkout";
 
 const valid: CheckoutValues = {
   name: "Yassine El Amrani",
@@ -29,6 +29,15 @@ describe("checkout rules (design/Commande.dc.html)", () => {
     const errors = validateCheckout({ ...valid, cgv: false });
     expect(errors).toEqual({ cgv: CGV_ERROR });
     expect(refusalToast(errors)).toBe("Acceptez les conditions générales de vente");
+  });
+
+  it("asks for the e-mail CMI needs for a card payment only", () => {
+    expect(validateCheckout({ ...valid, paymentMethod: "livraison" })).toEqual({});
+    const errors = validateCheckout({ ...valid, paymentMethod: "carte" });
+    expect(errors).toEqual({ email: CARD_EMAIL_ERROR });
+    expect(refusalToast(errors)).toBe("Indiquez votre e-mail pour payer par carte");
+    expect(validateCheckout({ ...valid, paymentMethod: "carte", email: "client@example.com" })).toEqual({});
+    expect(mapApiErrors({ payment_method: ["x"] })).toEqual({ paymentMethod: "x" });
   });
 
   it("accepts +212 numbers", () => {

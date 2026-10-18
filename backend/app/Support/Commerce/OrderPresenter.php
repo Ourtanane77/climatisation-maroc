@@ -10,6 +10,7 @@ use App\Models\OrderStatusHistory;
 use App\Rules\MoroccanPhone;
 use App\Support\Api\ImageUrl;
 use App\Support\Catalog\SiteCatalog;
+use App\Support\Payments\Cmi;
 use Illuminate\Support\Carbon;
 
 /**
@@ -48,6 +49,12 @@ class OrderPresenter
             'technicalVisitPrice' => (int) $order->technical_visit_price,
             'deliveryFee' => (int) $order->delivery_fee,
             'total' => (int) $order->total,
+            'payment' => [
+                // livraison | carte; status (card only): en_attente | payee | echouee.
+                'method' => $order->payment_method->value,
+                'status' => $order->payment_status?->value,
+                'canPay' => Cmi::payable($order),
+            ],
             'timeline' => self::timeline($order),
         ];
     }

@@ -9,25 +9,30 @@ import { toast } from "@/components/ui/Toast";
 import { clearCart, setTechnicalVisit } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
 import { formMilliseconds, mapApiErrors, refusalToast, validateCheckout, type CheckoutErrors, type CheckoutValues } from "@/lib/commerce/checkout";
-import type { City, Quote, ValidationErrorBody } from "@/lib/commerce/types";
+import type { City, PaymentMethodKey, Quote, ValidationErrorBody } from "@/lib/commerce/types";
 import { dh } from "@/lib/format";
 import { CardTitle, CompactLines, Divider, SummaryRow, TotalRow } from "./parts";
 
 /**
- * Checkout form and order summary (design/Commande.dc.html). Cash on delivery only. The page
- * checks the phone and the CGV box as drawn; the API re-validates and re-prices everything.
+ * Checkout form and order summary (design/Commande.dc.html). Payment on delivery; when the back
+ * office turned card payment on, the customer chooses between on delivery and card (CMI), and a
+ * card order goes on to /commande/paiement. The page checks the phone and the CGV box as drawn
+ * (and the e-mail CMI needs for a card); the API re-validates and re-prices everything.
  */
 export function CheckoutForm({
   quote,
   cities,
   initialVisit = false,
   cgvHref = null,
+  onlinePayment = false,
 }: {
   quote: Quote;
   cities: City[];
   initialVisit?: boolean;
   /** Linked only once the CGV page is published. */
   cgvHref?: string | null;
+  /** Card payment (CMI) offered on this storefront. */
+  onlinePayment?: boolean;
 }) {
   const router = useRouter();
   // When the form appeared, for the API's minimum form time (`_t`).
@@ -46,6 +51,7 @@ export function CheckoutForm({
     technicalVisit: initialVisit,
     installationQuote: false,
     cgv: false,
+    paymentMethod: "livraison",
   });
   const [tried, setTried] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
@@ -55,12 +61,14 @@ export function CheckoutForm({
   const lines = quote.lines.filter((l) => l.available);
   const visitPrice = quote.technicalVisit.price;
   const total = quote.subtotal + (v.technicalVisit ? visitPrice : 0);
+  const card = onlinePayment && v.paymentMethod === "carte";
 
-  const local = validateCheckout(v);
+  const local = validateCheckout({ ...v, paymentMethod: card ? "carte" : "livraison" });
   const errors: CheckoutErrors = {
     ...serverErrors,
     ...(tried || phoneTouched ? { phone: local.phone } : {}),
     ...(tried ? { cgv: local.cgv } : {}),
+    ...(tried && local.email ? { email: local.email } : {}),
   };
 
   function set<K extends keyof CheckoutValues>(key: K, value: CheckoutValues[K]) {
@@ -71,8 +79,8 @@ export function CheckoutForm({
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (sending) return;
-    const refused = validateCheckout(v);
-    if (refused.phone || refused.cgv) {
+    const refused = local;
+    if (refused.phone || refused.cgv || refused.email) {
       setTried(true);
       toast(refusalToast(refused) ?? "");
       return;
@@ -93,15 +101,21 @@ export function CheckoutForm({
           technical_visit: v.technicalVisit,
           installation_quote: v.installationQuote,
           cgv: v.cgv,
+          payment_method: card ? "carte" : "livraison",
           lines: lines.map((l) => ({ sku: l.sku, qty: l.qty })),
           website: (new FormData(e.currentTarget).get("website") as string | null) ?? "",
           _t: formMilliseconds(shownAt.current),
         }),
       });
-      const body = (await res.json().catch(() => ({}))) as ValidationErrorBody & { reference?: string; accessToken?: string };
+      const body = (await res.json().catch(() => ({}))) as ValidationErrorBody & {
+        reference?: string;
+        accessToken?: string;
+        paymentMethod?: PaymentMethodKey;
+      };
       if (res.status === 201 && body.reference && body.accessToken) {
         clearCart();
-        router.push(`/commande/confirmation?ref=${encodeURIComponent(body.reference)}&t=${encodeURIComponent(body.accessToken)}`);
+        const query = `ref=${encodeURIComponent(body.reference)}&t=${encodeURIComponent(body.accessToken)}`;
+        router.push(body.paymentMethod === "carte" ? `/commande/paiement?${query}` : `/commande/confirmation?${query}`);
         return;
       }
       if (res.status === 422) {
@@ -142,12 +156,12 @@ export function CheckoutForm({
                 onBlur={() => setPhoneTouched(v.phone.trim() !== "")}
               />
             </Field>
-            <Field label="E-mail" optional htmlFor="co-mail" error={errors.email} className="md:col-span-2">
+            <Field label="E-mail" optional={!card} htmlFor="co-mail" error={errors.email} className="md:col-span-2">
               <TextInput
                 id="co-mail"
                 type="email"
                 autoComplete="email"
-                placeholder="Pour recevoir le récapitulatif"
+                placeholder={card ? "Obligatoire pour le paiement par carte" : "Pour recevoir le récapitulatif"}
                 value={v.email}
                 invalid={!!errors.email}
                 onChange={(e) => set("email", e.target.value)}
@@ -191,14 +205,18 @@ export function CheckoutForm({
           </div>
         </div>
 
-        <div className="rounded-24 bg-tint-blue flex items-center gap-4 px-6 py-5">
-          <span className="text-brand flex size-12 shrink-0 items-center justify-center rounded-full bg-white">
-            <MatIcon d={MAT.cash} size={24} />
-          </span>
-          <p className="m-0 text-[17px] leading-normal">
-            <strong>Paiement à la livraison :</strong> vous réglez à la réception de votre commande.
-          </p>
-        </div>
+        {onlinePayment ? (
+          <PaymentChoice value={v.paymentMethod ?? "livraison"} onChange={(m) => set("paymentMethod", m)} error={errors.paymentMethod} />
+        ) : (
+          <div className="rounded-24 bg-tint-blue flex items-center gap-4 px-6 py-5">
+            <span className="text-brand flex size-12 shrink-0 items-center justify-center rounded-full bg-white">
+              <MatIcon d={MAT.cash} size={24} />
+            </span>
+            <p className="m-0 text-[17px] leading-normal">
+              <strong>Paiement à la livraison :</strong> vous réglez à la réception de votre commande.
+            </p>
+          </div>
+        )}
 
         <div className="rounded-24 box-border flex flex-col gap-1 bg-white p-5 md:p-8">
           <OptionToggle
@@ -264,9 +282,11 @@ export function CheckoutForm({
           disabled={sending}
           className="bg-accent hover:bg-accent-hover flex h-14 items-center justify-center rounded-full px-7 text-[16px] font-bold text-white transition-colors disabled:opacity-60"
         >
-          Confirmer la commande
+          {card ? "Confirmer et payer par carte" : "Confirmer la commande"}
         </button>
-        <span className="text-ink-2 text-center text-[14px]">Rien à payer maintenant : vous réglez à la livraison.</span>
+        <span className="text-ink-2 text-center text-[14px]">
+          {card ? "Vous allez être redirigé vers la page de paiement sécurisé du CMI." : "Rien à payer maintenant : vous réglez à la livraison."}
+        </span>
       </aside>
     </form>
   );
@@ -299,5 +319,56 @@ function OptionToggle({ checked, onChange, children }: { checked: boolean; onCha
       <Box on={checked} />
       {children}
     </button>
+  );
+}
+
+const PAYMENT_OPTIONS: { key: PaymentMethodKey; icon: string; title: string; text: string }[] = [
+  {
+    key: "livraison",
+    icon: MAT.cash,
+    title: "Paiement à la livraison",
+    text: "Rien à payer maintenant : nous vous appelons pour confirmer, vous réglez à la réception.",
+  },
+  {
+    key: "carte",
+    icon: MAT.card,
+    title: "Carte bancaire",
+    text: "Paiement en ligne sur la page sécurisée du CMI (Centre Monétique Interbancaire).",
+  },
+];
+
+/** Payment method, shown only when card payment is on: two radio cards. */
+function PaymentChoice({ value, onChange, error }: { value: PaymentMethodKey; onChange: (m: PaymentMethodKey) => void; error?: string }) {
+  return (
+    <div className="rounded-24 box-border flex flex-col gap-4 bg-white p-5 md:p-8">
+      <CardTitle>Mode de paiement</CardTitle>
+      <div role="radiogroup" aria-label="Mode de paiement" className="grid gap-3 md:grid-cols-2">
+        {PAYMENT_OPTIONS.map((o) => {
+          const on = value === o.key;
+          return (
+            <button
+              key={o.key}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => onChange(o.key)}
+              className={cn(
+                "rounded-20 flex items-start gap-4 border-[1.5px] p-4 text-left transition-colors",
+                on ? "border-brand bg-tint-blue" : "border-check hover:border-brand bg-white",
+              )}
+            >
+              <span className="text-brand flex size-12 shrink-0 items-center justify-center rounded-full bg-white">
+                <MatIcon d={o.icon} size={24} />
+              </span>
+              <span className="flex flex-col gap-1">
+                <strong className="text-[17px] leading-tight">{o.title}</strong>
+                <span className="text-ink-2 text-[15px] leading-snug">{o.text}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {error && <FieldError>{error}</FieldError>}
+    </div>
   );
 }

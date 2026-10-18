@@ -3,6 +3,7 @@ import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/compone
 import { SITE_NAME } from "@/lib/site";
 import type { SiteNavigation, Social } from "@/lib/types";
 import { Logo, type SiteLogo } from "../Logo";
+import { LogicSignature } from "../LogicSignature";
 import { ArfroFooterColumns } from "./ArfroFooterColumns";
 
 const socialIcon: Record<Social["name"], React.ReactNode> = {
@@ -72,15 +73,18 @@ export function ArfroFooter({ footer, logo }: { footer: SiteNavigation["footer"]
 
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-xs text-[#9fbcdd] md:text-[13px]">
           <span>{footer.copyright}</span>
-          {footer.legal.length > 0 && (
-            <nav aria-label="Informations légales" className="flex flex-wrap gap-x-5 gap-y-1">
-              {footer.legal.map((l) => (
-                <Link key={l.href} href={l.href} prefetch={false} className="inline-flex min-h-6 items-center text-[#9fbcdd] hover:text-white">
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
-          )}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {footer.legal.length > 0 && (
+              <nav aria-label="Informations légales" className="flex flex-wrap gap-x-5 gap-y-1">
+                {footer.legal.map((l) => (
+                  <Link key={l.href} href={l.href} prefetch={false} className="inline-flex min-h-6 items-center text-[#9fbcdd] hover:text-white">
+                    {l.label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+            <LogicSignature />
+          </div>
         </div>
       </div>
     </footer>

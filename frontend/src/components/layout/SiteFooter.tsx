@@ -3,6 +3,7 @@ import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/compone
 import { SITE_NAME } from "@/lib/site";
 import type { SiteNavigation, Social } from "@/lib/types";
 import { FooterColumns } from "./FooterColumns";
+import { LogicSignature } from "./LogicSignature";
 import { Logo, type SiteLogo } from "./Logo";
 
 const socialIcon: Record<Social["name"], React.ReactNode> = {
@@ -68,13 +69,16 @@ export function SiteFooter({ footer, logo, bottomPadding = 0 }: { footer: SiteNa
 
         <div className="text-footer-text flex flex-wrap items-center justify-between gap-x-6 gap-y-3 pb-8 text-sm">
           <span>{footer.copyright}</span>
-          <nav aria-label="Informations légales" className="flex flex-wrap gap-x-5 gap-y-2">
-            {footer.legal.map((l) => (
-              <Link key={l.href} href={l.href} prefetch={false} className="text-footer-text hover:text-tint-orange inline-flex min-h-6 items-center">
-                {l.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <nav aria-label="Informations légales" className="flex flex-wrap gap-x-5 gap-y-2">
+              {footer.legal.map((l) => (
+                <Link key={l.href} href={l.href} prefetch={false} className="text-footer-text hover:text-tint-orange inline-flex min-h-6 items-center">
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+            <LogicSignature />
+          </div>
         </div>
       </div>
     </footer>

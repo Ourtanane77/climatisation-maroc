@@ -3,6 +3,8 @@
 namespace App\Support\Commerce;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Mail\NewOrderShop;
 use App\Mail\OrderConfirmationCustomer;
 use App\Models\City;
@@ -16,19 +18,21 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Creates a cash-on-delivery order from validated checkout data: prices are recomputed on the
- * server, lines are snapshotted, the reference is allocated, and the e-mails are queued.
+ * Creates an order from validated checkout data: prices are recomputed on the server, lines are
+ * snapshotted, the reference is allocated, and the e-mails are queued. An order paid on delivery
+ * is notified at once; a card order once CMI confirms the payment (App\Support\Payments\Cmi).
  */
 class OrderPlacer
 {
     public function __construct(private CartPricer $pricer, private GeneralSettings $settings) {}
 
     /**
-     * @param  array{name: string, phone: string, email?: string|null, city: string, address: string, note?: string|null, technical_visit?: bool, installation_quote?: bool, lines: array<int, array{sku: string, qty: int}>}  $data
+     * @param  array{name: string, phone: string, email?: string|null, city: string, address: string, note?: string|null, technical_visit?: bool, installation_quote?: bool, payment_method?: string, lines: array<int, array{sku: string, qty: int}>}  $data
      */
     public function place(array $data, ?User $user, bool $reseller, ?string $ip): Order
     {
         $technicalVisit = (bool) ($data['technical_visit'] ?? false);
+        $payment = PaymentMethod::tryFrom((string) ($data['payment_method'] ?? '')) ?? PaymentMethod::Livraison;
         $quote = $this->pricer->quote($data['lines'], $reseller, $technicalVisit);
 
         $onRequest = array_values(array_filter($quote['lines'], fn (array $l) => $l['onRequest']));
@@ -49,7 +53,7 @@ class OrderPlacer
 
         $city = City::query()->where('slug', $data['city'])->orWhere('name', $data['city'])->first();
 
-        $order = DB::transaction(function () use ($data, $user, $reseller, $ip, $quote, $technicalVisit, $city) {
+        $order = DB::transaction(function () use ($data, $user, $reseller, $ip, $quote, $technicalVisit, $city, $payment) {
             $order = Order::query()->create([
                 'reference' => Order::nextReference(),
                 'access_token' => Str::random(48),
@@ -64,6 +68,8 @@ class OrderPlacer
                 'note' => $data['note'] ?? null ?: null,
                 'status' => OrderStatus::Nouvelle,
                 'status_changed_at' => now(),
+                'payment_method' => $payment,
+                'payment_status' => $payment === PaymentMethod::Carte ? PaymentStatus::EnAttente : null,
                 'option_technical_visit' => $technicalVisit,
                 'technical_visit_price' => $technicalVisit ? $quote['technicalVisit']['price'] : 0,
                 'option_installation_quote' => (bool) ($data['installation_quote'] ?? false),
@@ -89,6 +95,16 @@ class OrderPlacer
             return $order;
         });
 
+        if ($payment === PaymentMethod::Livraison) {
+            $this->notify($order);
+        }
+
+        return $order;
+    }
+
+    /** Queues the shop notification and the customer's confirmation (current site's settings). */
+    public function notify(Order $order): void
+    {
         $shopEmail = $this->settings->email ?: config('shop.notification_email');
         if ($shopEmail) {
             Mail::to($shopEmail)->queue(new NewOrderShop($order));
@@ -96,7 +112,5 @@ class OrderPlacer
         if ($order->email) {
             Mail::to($order->email)->queue(new OrderConfirmationCustomer($order));
         }
-
-        return $order;
     }
 }

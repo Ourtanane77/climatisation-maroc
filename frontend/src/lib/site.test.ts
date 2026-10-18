@@ -64,13 +64,13 @@ describe("site config", () => {
 });
 
 describe("Google Tag Manager", () => {
-  it("is Arfro's container in production, none for Climatisation Maroc", async () => {
+  it("is each site's own container in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     const arfro = await load({ SITE_KEY: "arfro" });
     expect(arfro.site.gtmId()).toBe("GTM-W8BQPKPX");
     const cm = await load({});
     vi.stubEnv("NODE_ENV", "production");
-    expect(cm.site.gtmId()).toBeNull();
+    expect(cm.site.gtmId()).toBe("GTM-M6CMD354");
   });
 
   it("stays off in development unless GTM_ID is set, and GTM_ID=off disables it", async () => {
@@ -84,13 +84,13 @@ describe("Google Tag Manager", () => {
     expect(site.gtmId()).toBeNull();
   });
 
-  it("adds Arfro's Clarity project in production, none for Climatisation Maroc", async () => {
+  it("adds each site's own Clarity project in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     const arfro = await load({ SITE_KEY: "arfro" });
     expect(arfro.site.clarityId()).toBe("yx5c5sr7f7");
     const cm = await load({});
     vi.stubEnv("NODE_ENV", "production");
-    expect(cm.site.clarityId()).toBeNull();
+    expect(cm.site.clarityId()).toBe("yzqjn5sv22");
     vi.stubEnv("CLARITY_ID", "off");
     expect(arfro.site.clarityId()).toBeNull();
     const { Clarity } = await import("@/components/analytics/Clarity");
@@ -192,5 +192,25 @@ describe("SEO per storefront", () => {
     const { redirectLegacy } = await import("./seo/legacy");
     await expect(redirectLegacy("/home/contact")).rejects.toThrow("NEXT_NOT_FOUND");
     expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("site URL", () => {
+  it("refuses the other storefront's domain and falls back to the site's own", async () => {
+    const { site } = await load({});
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(site.resolveSiteUrl("cm", { SITE_URL: "https://arfro.com", NODE_ENV: "production" })).toBe("https://climatisationmaroc.com");
+    expect(site.resolveSiteUrl("cm", { NEXT_PUBLIC_SITE_URL: "https://www.arfro.com/" })).toBe("https://climatisationmaroc.com");
+    expect(site.resolveSiteUrl("arfro", { SITE_URL: "https://climatisationmaroc.com" })).toBe("https://arfro.com");
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
+  });
+
+  it("keeps a configured URL of its own, and falls back by environment", async () => {
+    const { site } = await load({});
+    expect(site.resolveSiteUrl("cm", { SITE_URL: "https://www.climatisationmaroc.com/" })).toBe("https://www.climatisationmaroc.com");
+    expect(site.resolveSiteUrl("arfro", { SITE_URL: "http://arfro.localhost:8080" })).toBe("http://arfro.localhost:8080");
+    expect(site.resolveSiteUrl("arfro", { NODE_ENV: "production" })).toBe("https://arfro.com");
+    expect(site.resolveSiteUrl("cm", {})).toBe("http://localhost:8080");
   });
 });

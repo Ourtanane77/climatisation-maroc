@@ -11,8 +11,9 @@ Online store of Ariha Froid (HVAC distributor, Marrakech).
   `docs/deviations.md`.
 - **French only** (`lang="fr-MA"`).
 - **Money and payment.** Prices are in Dhs and formatted `5 700 Dhs` (fr-FR
-  grouping, non-breaking spaces). They are stored as integer centimes. There is
-  no online payment: orders are cash on delivery.
+  grouping, non-breaking spaces). They are stored as integer centimes. Payment
+  on delivery is always offered; online card payment through CMI is optional,
+  turned on per site in the back office.
 - **Catalogue model.** Products are **families with variants**
   (`ProductVariant` holds the SKU, power in BTU, colour, prices, stock and
   images). A simple product has a single variant.

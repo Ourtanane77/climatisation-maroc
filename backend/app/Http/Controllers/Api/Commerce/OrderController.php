@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Commerce;
 
+use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Models\Order;
@@ -10,37 +11,49 @@ use App\Support\Api\Audience;
 use App\Support\Commerce\CartPricer;
 use App\Support\Commerce\OrderPlacer;
 use App\Support\Commerce\OrderPresenter;
+use App\Support\Payments\Cmi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Checkout (cash on delivery), confirmation page data and public order tracking.
+ * Checkout (payment on delivery, or online by card when enabled), confirmation page data and
+ * public order tracking.
  */
 class OrderController extends Controller
 {
+    /** GET /checkout/options : payment methods offered on this storefront. */
+    public function options(): JsonResponse
+    {
+        return response()->json(['onlinePayment' => Cmi::available()]);
+    }
+
     /** POST /orders */
     public function store(Request $request, OrderPlacer $placer): JsonResponse
     {
         $this->guardAgainstBots($request);
+        $card = $request->input('payment_method') === PaymentMethod::Carte->value;
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'max:30', new MoroccanPhone],
-            'email' => ['nullable', 'email', 'max:190'],
+            // CMI needs the customer's e-mail for a card payment.
+            'email' => [$card ? 'required' : 'nullable', 'email', 'max:190'],
             'city' => ['required', 'string', Rule::in(City::query()->pluck('slug')->merge(City::query()->pluck('name'))->all())],
             'address' => ['required', 'string', 'max:255'],
             'note' => ['nullable', 'string', 'max:1000'],
             'technical_visit' => ['sometimes', 'boolean'],
             'installation_quote' => ['sometimes', 'boolean'],
             'cgv' => ['accepted'],
+            'payment_method' => ['sometimes', 'nullable', Rule::enum(PaymentMethod::class)],
             'lines' => ['required', 'array', 'min:1', 'max:100'],
             'lines.*.sku' => ['required', 'string', 'max:64'],
             'lines.*.qty' => ['required', 'integer', 'min:1', 'max:'.CartPricer::MAX_QTY],
         ], [
             'name.required' => 'Indiquez votre nom complet.',
             'phone.required' => 'Numéro incomplet : saisissez 10 chiffres, par exemple 06 12 34 56 78.',
+            'email.required' => 'Indiquez votre e-mail pour payer par carte.',
             'email.email' => 'Adresse e-mail invalide.',
             'city.required' => 'Choisissez votre ville.',
             'city.in' => 'Choisissez votre ville dans la liste.',
@@ -50,11 +63,18 @@ class OrderController extends Controller
             'lines.min' => 'Votre panier est vide.',
         ]);
 
+        if ($card && ! Cmi::available()) {
+            throw ValidationException::withMessages([
+                'payment_method' => 'Le paiement par carte est momentanément indisponible. Choisissez le paiement à la livraison.',
+            ]);
+        }
+
         $order = $placer->place($data, Audience::user(), Audience::isReseller(), $request->ip());
 
         return response()->json([
             'reference' => $order->reference,
             'accessToken' => $order->access_token,
+            'paymentMethod' => $order->payment_method->value,
         ], 201);
     }
 

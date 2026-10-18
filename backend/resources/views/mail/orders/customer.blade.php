@@ -27,13 +27,21 @@ Référence de commande : **{{ $order->reference }}**
 
 1. Nous vous appelons pour confirmer
 2. Livraison gratuite
+@if ($order->payment_status === \App\Enums\PaymentStatus::Payee)
+3. Paiement reçu : rien à régler à la livraison
+@else
 3. Paiement à la réception
+@endif
 
 <x-mail::button :url="$trackUrl" color="primary">
 Suivre ma commande
 </x-mail::button>
 
+@if ($order->payment_status === \App\Enums\PaymentStatus::Payee)
+Payée en ligne par carte bancaire : {{ $dh($order->total) }}.<br>
+@else
 Paiement à la livraison : vous réglez à la réception de votre commande.<br>
+@endif
 {{ $phone }}
 
 {{ config('app.name') }}

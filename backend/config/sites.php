@@ -6,6 +6,8 @@
 | answers requests without a header, console commands and the back office.
 |
 | order_prefix: order references are <prefix>-YYYY-NNNNN, numbered per prefix.
+| production_url: the site's public address; a configured `url` on another site's production domain
+| is refused (App\Support\Sites\Sites::get): one site never sends links to the other's domain.
 */
 
 return [
@@ -17,6 +19,7 @@ return [
             'url' => env('SITE_CM_URL', env('FRONTEND_URL', env('APP_URL'))),
             'frontend_internal_url' => env('SITE_CM_INTERNAL_URL', env('FRONTEND_INTERNAL_URL', 'http://next:3000')),
             'order_prefix' => 'CM',
+            'production_url' => 'https://climatisationmaroc.com',
             'mail_from_name' => env('SITE_CM_MAIL_FROM_NAME', 'Climatisation Maroc'),
         ],
         'arfro' => [
@@ -24,6 +27,7 @@ return [
             'url' => env('SITE_ARFRO_URL', 'https://arfro.com'),
             'frontend_internal_url' => env('SITE_ARFRO_INTERNAL_URL', 'http://next-arfro:3000'),
             'order_prefix' => 'AR',
+            'production_url' => 'https://arfro.com',
             'mail_from_name' => env('SITE_ARFRO_MAIL_FROM_NAME', 'Arfro'),
         ],
     ],

@@ -112,6 +112,22 @@ Owner's choices:
   resellers and content; administrators see both.
 - **Revalidation** reaches both Next.js instances after every change.
 
+### Online card payment (2026-10-18)
+
+This replaces « no online payment, cash on delivery only ». How it works: `docs/architecture.md`,
+« Online payment (CMI) ». Owner's choices:
+
+- **Payment on delivery stays, always offered.** Online card payment through the CMI gateway
+  (« 3D Pay Hosting ») is optional, turned on per site in the back office (« Paiement en ligne —
+  <site> », admins only), off by default.
+- **Per-site merchant accounts.** Climatisation Maroc's ClientId (600005142) is seeded; Arfro has
+  none and needs its own CMI registration. The store key is entered in the back office only
+  (encrypted with `APP_KEY`, never shown again).
+- **The checkout offers the choice** only when card payment is on; otherwise it looks as drawn.
+  The e-mail becomes required for a card payment (CMI needs it).
+- **A card order is processed once paid.** Its e-mails leave when CMI confirms the payment, and
+  it does not count in the back-office « new orders » badge before.
+
 ### Original proposals (phase 1)
 
 1. **Page count.** The index lists 32 unique files, not 31: 30 site pages plus
@@ -529,7 +545,12 @@ Money is stored as **integer centimes**, because some prices have decimals
   - option_technical_visit, technical_visit_price,
     option_installation_quote;
   - subtotal, total, user_id (reseller, nullable), pricing (public/pro),
-    ip, timestamps.
+    ip, timestamps;
+  - payment_method (livraison/carte), payment_status (card only:
+    en_attente/payee/echouee), paid_at, payment_transaction_id (2026-10-18).
+- `order_payments`: id, order_id, provider (cmi), proc_return_code, response,
+  transaction_id, amount, valid_hash, payload (json, without the hash),
+  created_at. Every CMI callback, kept for audit.
 - `order_lines`: id, order_id, variant_id (nullable), sku, name, label,
   unit_price, qty, line_total. These are snapshots taken at order time.
 - `order_status_history`: id, order_id, status, user_id, note, created_at.
@@ -632,8 +653,12 @@ must be ≥ 3000 (same unit on every form).
 | Method | Path | Notes |
 |---|---|---|
 | POST | `/cart/quote` | `{lines:[{sku,qty}], options:{technical_visit}}` → priced lines (public or pro by auth), invalid lines, subtotal, visit, total, suggestions. Prices are always recomputed on the server. |
-| POST | `/orders` | customer, address, options, `cgv:true`, lines → `{reference, access_token}`. Validates phone `^0[5-7]\d{8}$` (digits only), city in list, stock. Queues e-mails. |
-| GET | `/orders/{reference}?t=` | confirmation view (token) |
+| GET | `/checkout/options` | `{onlinePayment}`: card payment offered on this site (2026-10-18) |
+| POST | `/orders` | customer, address, options, `cgv:true`, `payment_method` (`livraison` default \| `carte`), lines → `{reference, accessToken, paymentMethod}`. Validates phone `^0[5-7]\d{8}$` (digits only), city in list, stock; e-mail required for `carte`; 422 on `payment_method` when card payment is off. Queues e-mails (a card order: once paid). |
+| GET | `/orders/{reference}?t=` | confirmation view (token); includes `payment: {method, status, canPay}` |
+| POST | `/orders/{reference}/payment` | `{t}` → `{url, fields, total}`: the signed CMI form; 404 bad token, 409 when the order cannot be paid (paid, cancelled, card off). `Cache-Control: no-store`. |
+| POST | `/payments/cmi/callback` | CMI, server to server; plain-text answer `ACTION=POSTAUTH` (paid, capture), `APPROVED` (decline recorded) or `FAILURE`. Hash checked on the raw body. Not rate limited. |
+| POST | `/payments/cmi/retour` | customer's browser back from CMI (okUrl, failUrl); hash checked, 303 to `/commande/confirmation?ref&t&paiement=ok\|echec`. Throttle `cmi`. |
 | POST | `/orders/track` | `{reference, phone}` → status, timeline, lines, address |
 
 ### Leads
@@ -674,7 +699,7 @@ must be ≥ 3000 (same unit on every form).
 All e-mails are queued on Redis and caught by Mailpit in development.
 
 - `NewOrderShop` and `OrderConfirmationCustomer` (only when an e-mail is
-  given).
+  given). For a card order, both leave only once CMI confirms the payment.
 - `NewLeadShop` for each lead type.
 - `LeadReceivedCustomer` (only when an e-mail is given).
 - `ResellerValidated` and `ResellerRefused`.

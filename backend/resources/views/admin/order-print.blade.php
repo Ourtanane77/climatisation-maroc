@@ -98,7 +98,11 @@
     @if ($order->option_installation_quote)
         <p><strong>Le client souhaite un devis de pose.</strong></p>
     @endif
+    @if ($order->payment_status === \App\Enums\PaymentStatus::Payee)
+    <div class="cod">Payée en ligne par carte : rien à encaisser.</div>
+    @else
     <div class="cod">Paiement à la livraison : {{ $dh($order->total) }} à encaisser.</div>
+    @endif
 
     <div class="sign">
         <div>Signature du livreur</div>
