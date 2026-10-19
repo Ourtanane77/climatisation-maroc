@@ -4,9 +4,11 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ContactForm } from "@/components/leads/ContactForm";
 import { H1, H2, IconTile } from "@/components/leads/ui";
 import { ButtonLink } from "@/components/ui/Button";
-import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/icons";
+import { FacebookIcon, InstagramIcon, PinterestIcon, ThreadsIcon, TikTokIcon, WhatsAppIcon, XIcon, YouTubeIcon } from "@/components/ui/icons";
 import { NEEDS, SI, findPhone } from "@/lib/leads/contacts";
+import { googleMapsEmbedSrc } from "@/lib/maps";
 import { getNavigation } from "@/lib/navigation";
+import { SITE_NAME } from "@/lib/site";
 import type { Social } from "@/lib/types";
 import { waLink } from "@/lib/whatsapp";
 import { storesSchema, JsonLd } from "@/lib/seo/jsonld";
@@ -23,9 +25,14 @@ const SOCIAL_STYLE: Record<Social["name"], { bg: string; icon: React.ReactNode }
   Facebook: { bg: "#1877F2", icon: <FacebookIcon size={20} /> },
   Instagram: { bg: "#E4405F", icon: <InstagramIcon size={20} /> },
   TikTok: { bg: "#1A1A1A", icon: <TikTokIcon size={20} /> },
+  YouTube: { bg: "#FF0000", icon: <YouTubeIcon size={20} /> },
+  X: { bg: "#1A1A1A", icon: <XIcon size={20} /> },
+  Threads: { bg: "#1A1A1A", icon: <ThreadsIcon size={20} /> },
+  Pinterest: { bg: "#E60023", icon: <PinterestIcon size={20} /> },
   WhatsApp: { bg: "#25D366", icon: <WhatsAppIcon size={20} /> },
 };
 
+/** Design map (OpenStreetMap), shown when Réglages has no Google Maps embed. */
 const MAP_SRC = "https://www.openstreetmap.org/export/embed.html?bbox=-8.07%2C31.59%2C-7.95%2C31.67&layer=mapnik";
 
 /** Contact et magasins (design: Contact.dc.html). */
@@ -35,6 +42,7 @@ export default async function ContactPage() {
   const fixe = findPhone(nav, "Fixe");
   const email = findPhone(nav, "E-mail");
   const needs = NEEDS.map((n) => ({ ...n, phone: findPhone(nav, n.label) })).filter((n) => n.phone);
+  const googleMap = googleMapsEmbedSrc(nav.mapEmbedUrl);
 
   return (
     <>
@@ -45,7 +53,7 @@ export default async function ContactPage() {
           <ButtonLink href={waLink(undefined, nav.whatsapp.number)} variant="whatsapp">
             Nous écrire sur WhatsApp
           </ButtonLink>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {socials.map((s) => (
               <a
                 key={s.name}
@@ -98,8 +106,19 @@ export default async function ContactPage() {
             </article>
           ))}
         </div>
-        <div className="rounded-24 bg-tint-blue-2 relative min-h-[360px] overflow-hidden xl:min-h-[480px]">
-          <iframe title="Carte de Marrakech avec nos deux magasins" src={MAP_SRC} loading="lazy" className="absolute inset-0 block size-full border-0" />
+        {/* 4:3 on mobile (never under 360 px), the height of the store cards from xl (min 480 px). */}
+        <div className="rounded-24 bg-tint-blue-2 relative aspect-[4/3] min-h-[360px] overflow-hidden xl:aspect-auto xl:min-h-[480px]">
+          {googleMap ? (
+            <iframe
+              title={`Plan d’accès — ${SITE_NAME}`}
+              src={googleMap}
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              className="absolute inset-0 block size-full border-0"
+            />
+          ) : (
+            <iframe title="Carte de Marrakech avec nos deux magasins" src={MAP_SRC} loading="lazy" className="absolute inset-0 block size-full border-0" />
+          )}
           <div className="rounded-18 absolute right-4 bottom-4 left-4 flex max-w-[420px] flex-col gap-2.5 bg-white px-4 py-3.5 shadow-[0_20px_40px_-24px_rgba(14,40,70,0.5)]">
             {stores.map((store, i) => (
               <a

@@ -17,7 +17,10 @@ use App\Settings\HomeSettings;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
 use App\Support\Catalog\SiteCatalog;
+use App\Support\Sites\MapEmbed;
 use App\Support\Sites\Sites;
+use App\Support\Sites\SocialLinks;
+use App\Support\Sites\WhatsAppNumbers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 
@@ -65,7 +68,11 @@ class NavigationController extends Controller
             'drawerLinks' => $this->drawerLinks(),
             'searchScopes' => ['Toutes', ...$roots->map(fn (Category $c) => $this->label($c))->all()],
             'whatsapp' => ['number' => $settings->whatsapp_number, 'display' => $settings->sales_phone],
+            // Floating WhatsApp button of every storefront page (Réglages « Contact »); null = no button.
+            'floatingWhatsapp' => WhatsAppNumbers::sanitize($settings->floating_whatsapp_number),
             'salesPhone' => ['label' => 'Ventes', 'display' => $settings->sales_phone, 'href' => self::tel($settings->sales_phone)],
+            // Contact page map (Réglages « Contact »): validated again, null when empty or not a Google Maps embed.
+            'mapEmbedUrl' => MapEmbed::sanitize($settings->map_embed_url),
             'footer' => [
                 'about' => $settings->about_footer,
                 'socials' => $this->socials($settings),
@@ -130,13 +137,7 @@ class NavigationController extends Controller
     /** @return list<array{name: string, href: string}> */
     private function socials(GeneralSettings $settings): array
     {
-        $names = ['facebook' => 'Facebook', 'instagram' => 'Instagram', 'tiktok' => 'TikTok'];
-        $socials = [];
-        foreach ($names as $key => $name) {
-            if (! empty($settings->socials[$key])) {
-                $socials[] = ['name' => $name, 'href' => $settings->socials[$key]];
-            }
-        }
+        $socials = SocialLinks::list($settings->socials);
         $socials[] = ['name' => 'WhatsApp', 'href' => 'https://wa.me/'.$settings->whatsapp_number];
 
         return $socials;

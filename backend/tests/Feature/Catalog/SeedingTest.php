@@ -51,7 +51,9 @@ it('keeps the old category ids for redirects', function () {
 it('publishes only pages that have real content', function () {
     expect(SectorPage::query()->where('is_published', true)->pluck('slug')->all())->toBe(['restaurants'])
         ->and(Article::query()->published()->count())->toBe(1)
-        ->and(Page::query()->where('kind', 'legal')->where('is_published', true)->count())->toBe(0)
+        // Legal pages: those still holding « [À compléter : …] » markers stay unpublished, on both sites.
+        ->and(Page::query()->visibleOn('cm')->where('kind', 'legal')->where('is_published', true)->orderBy('slug')->pluck('slug')->all())->toBe(['cgu', 'cgv', 'securite'])
+        ->and(Page::query()->visibleOn('arfro')->where('kind', 'legal')->where('is_published', true)->orderBy('slug')->pluck('slug')->all())->toBe(['cgu', 'cgv', 'securite'])
         ->and(Page::query()->whereIn('slug', ['a-propos', 'livraison-et-paiement'])->where('is_published', true)->count())->toBe(2);
 });
 

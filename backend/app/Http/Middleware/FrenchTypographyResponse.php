@@ -18,7 +18,7 @@ class FrenchTypographyResponse
     /** Keys whose values are identifiers, links or contact details, never prose. */
     private const SKIP = [
         'sku', 'skus', 'href', 'url', 'path', 'slug', 'src', 'srcset', 'srcSet', 'image', 'images', 'logo',
-        'email', 'phone', 'tel', 'telHref', 'whatsapp', 'value', 'key', 'id', 'token', 'reference', 'ref',
+        'email', 'phone', 'tel', 'telHref', 'whatsapp', 'floatingWhatsapp', 'value', 'key', 'id', 'token', 'reference', 'ref',
         'query', 'q', 'mapQuery', 'canonical', 'type', 'kind', 'template', 'icon', 'art', 'scene', 'bg',
         'colour', 'color', 'lastmod', 'date', 'publishedAt', 'updatedAt', 'createdAt', 'status', 'to',
         'renditions', 'datasheet', 'number', 'display', 'legacy', 'tone', 'caption_key',

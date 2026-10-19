@@ -40,6 +40,12 @@ export interface BrandLogo {
   aspect: number | null;
 }
 
+/** WhatsApp number in international format without "+" (212666854184), optional label. */
+export interface WhatsAppNumber {
+  number: string;
+  label: string | null;
+}
+
 export interface HomeData {
   hero: {
     title: string;
@@ -48,6 +54,8 @@ export interface HomeData {
     cta: Link | null;
   };
   whatsapp: string;
+  /** Numbers behind the hero « WhatsApp » button (Réglages); empty = `whatsapp`, 2+ = a menu. */
+  heroWhatsapp?: WhatsAppNumber[];
   bento: BentoTile[];
   newProducts: ProductCardData[];
   promotions: { brands: string[]; products: ProductCardData[] };

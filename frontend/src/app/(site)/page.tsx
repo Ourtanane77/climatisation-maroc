@@ -30,7 +30,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <HomeHero hero={home.hero} whatsapp={home.whatsapp} />
+      <HomeHero hero={home.hero} whatsapp={home.whatsapp} heroWhatsapp={home.heroWhatsapp} />
       {home.bento.length > 0 && <Bento tiles={home.bento} />}
 
       {home.newProducts.length > 0 && (

@@ -256,7 +256,10 @@ services:
 
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    # volatile-lru: when full, Redis drops the least recently used keys that have an expiry (cache
+    # entries, sessions), never queued jobs (no expiry). noeviction refused every write instead,
+    # which took the back office down (sessions) once the cache had filled it.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "${REDIS_MAXMEMORY:-256mb}", "--maxmemory-policy", "volatile-lru"]
     volumes: [redis_data:/data]
     restart: always
     logging: *logging

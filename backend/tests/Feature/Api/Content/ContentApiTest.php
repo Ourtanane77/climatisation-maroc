@@ -74,7 +74,9 @@ it('serves published pages and hides unpublished legal pages', function () {
         ->assertJsonCount(2, 'contact.stores');
 
     $this->getJson('/api/v1/pages/livraison-et-paiement')->assertOk()->assertJsonCount(4, 'faq');
-    $this->getJson('/api/v1/pages/cgv')->assertNotFound();
+    $this->getJson('/api/v1/pages/cgv')->assertOk()->assertJsonPath('kind', 'legal');
+    // Still holds « [À compléter : …] » markers (RC, ICE, host…): unpublished.
+    $this->getJson('/api/v1/pages/informations-legales')->assertNotFound();
 });
 
 it('lists only the other published legal pages, the CGV last', function () {
@@ -110,7 +112,7 @@ it('builds the plan du site from active categories and published pages only', fu
 
     expect(collect($response->json('ranges'))->pluck('href'))->toContain('/climatisation', '/cuivre-et-gaz')
         ->and($response->json('sectors'))->toBe([['title' => 'Restaurants et cafés', 'href' => '/solutions/restaurants']])
-        ->and(collect($response->json('pages'))->pluck('kind')->unique()->values()->all())->not->toContain(PageKind::Legal->value)
+        ->and(collect($response->json('pages'))->where('kind', PageKind::Legal->value)->pluck('href')->sort()->values()->all())->toBe(['/cgu', '/cgv', '/securite'])
         ->and($response->json('cities'))->toBe([])
         ->and(collect($response->json('articles'))->pluck('href')->all())->toBe(['/blog/quelle-puissance-de-climatiseur-pour-ma-piece']);
 });

@@ -22,7 +22,7 @@ export interface Store {
 }
 
 export interface Social {
-  name: "Facebook" | "Instagram" | "TikTok" | "WhatsApp";
+  name: "Facebook" | "Instagram" | "TikTok" | "YouTube" | "X" | "Threads" | "Pinterest" | "WhatsApp";
   href: string;
 }
 
@@ -64,6 +64,10 @@ export interface SiteNavigation {
   searchScopes: string[];
   whatsapp: { number: string; display: string };
   salesPhone: Phone;
+  /** Number of the floating WhatsApp button (Réglages), null = no button. */
+  floatingWhatsapp?: string | null;
+  /** Google Maps embed address of the contact page (Réglages), null = default map. */
+  mapEmbedUrl?: string | null;
   footer: {
     about: string;
     socials: Social[];

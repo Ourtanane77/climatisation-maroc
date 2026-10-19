@@ -236,7 +236,7 @@ export function DenseList({ items, pills }: { items: DenseItem[]; pills: { label
 
       {/* Below 1100px the selection becomes a bottom bar; the page keeps room for it. */}
       <style>{"@media (max-width: 1099px) { body { padding-bottom: 80px; } }"}</style>
-      <div className="shadow-bottom-bar site-gutter fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 bg-white py-3 xl:hidden">
+      <div data-bottom-bar className="shadow-bottom-bar site-gutter fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 bg-white py-3 xl:hidden">
         <div className="flex flex-col">
           <span className="text-ink-2 text-[13px]">{plural(articles, "article")} dans votre sélection</span>
           <strong className="text-[22px] font-extrabold">{dh(total)}</strong>

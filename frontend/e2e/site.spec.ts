@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 
 /** Unpublished and unknown pages answer 404 with the design's « Page introuvable ». */
 test("unpublished and unknown pages are not found", async ({ page }) => {
-  for (const path of ["/cgv", "/une-page-qui-n-existe-pas", "/produit/produit-inexistant", "/climatisation/type-inexistant"]) {
+  // /informations-legales stays unpublished until the owner fills its « [À compléter : …] » facts.
+  for (const path of ["/informations-legales", "/une-page-qui-n-existe-pas", "/produit/produit-inexistant", "/climatisation/type-inexistant"]) {
     const response = await page.goto(path);
     expect(response?.status(), path).toBe(404);
   }

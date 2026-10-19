@@ -1,4 +1,5 @@
 import { AccountPill } from "@/components/layout/AccountBar";
+import { FloatingWhatsApp } from "@/components/layout/FloatingWhatsApp";
 import { PromoBar } from "@/components/layout/PromoBar";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -44,6 +45,8 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       {arfro ? <ArfroFooter footer={nav.footer} logo={logo} /> : <SiteFooter footer={nav.footer} logo={logo} />}
+      {/* Réglages « Contact »: only when the site has a number; never on the checkout (its own layout). */}
+      <FloatingWhatsApp number={nav.floatingWhatsapp} />
       <ToastHost />
       <JsonLd data={[organizationSchema(nav.footer, logo.src), websiteSchema()]} />
     </>

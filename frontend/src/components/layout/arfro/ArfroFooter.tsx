@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/icons";
+import { FacebookIcon, InstagramIcon, PinterestIcon, ThreadsIcon, TikTokIcon, WhatsAppIcon, XIcon, YouTubeIcon } from "@/components/ui/icons";
 import { SITE_NAME } from "@/lib/site";
 import type { SiteNavigation, Social } from "@/lib/types";
 import { Logo, type SiteLogo } from "../Logo";
@@ -10,6 +10,10 @@ const socialIcon: Record<Social["name"], React.ReactNode> = {
   Facebook: <FacebookIcon size={18} />,
   Instagram: <InstagramIcon size={18} />,
   TikTok: <TikTokIcon size={18} />,
+  YouTube: <YouTubeIcon size={18} />,
+  X: <XIcon size={18} />,
+  Threads: <ThreadsIcon size={18} />,
+  Pinterest: <PinterestIcon size={18} />,
   WhatsApp: <WhatsAppIcon size={18} />,
 };
 
@@ -29,7 +33,7 @@ export function ArfroFooter({ footer, logo }: { footer: SiteNavigation["footer"]
             <Logo logo={logo} height={40} white className="hidden self-start md:block" />
             <p className="m-0 text-sm leading-[1.6] text-pretty md:text-[15px]">{footer.about}</p>
             {footer.socials.length > 0 && (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {footer.socials.map((s) => (
                   <a
                     key={s.name}

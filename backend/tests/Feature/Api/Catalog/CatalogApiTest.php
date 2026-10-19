@@ -21,15 +21,18 @@ it('builds the navigation from the category tree and settings', function () {
 });
 
 it('links only published legal pages in the footer', function () {
-    expect($this->getJson('/api/v1/navigation')->json('footer.legal'))->toBe([
-        ['label' => "Service apr\u{00E8}s-vente", 'href' => '/services/service-apres-vente'],
-    ]);
+    // Informations légales and Confidentialité wait for the owner's « [À compléter : …] » facts.
+    expect(collect($this->getJson('/api/v1/navigation')->json('footer.legal'))->pluck('href')->all())
+        ->toBe(['/cgu', '/cgv', '/securite', '/services/service-apres-vente']);
 
     // Saved like the back office does (model events flush the API cache).
-    Page::query()->where('slug', 'cgv')->firstOrFail()->update(['is_published' => true]);
+    Page::query()->visibleOn('cm')->where('slug', 'informations-legales')->firstOrFail()->update(['is_published' => true]);
+    Page::query()->visibleOn('cm')->where('slug', 'cgu')->firstOrFail()->update(['is_published' => false]);
 
     expect($this->getJson('/api/v1/navigation')->json('footer.legal.0'))
-        ->toBe(['label' => "Conditions g\u{00E9}n\u{00E9}rales de vente", 'href' => '/cgv']);
+        ->toBe(['label' => "Conditions g\u{00E9}n\u{00E9}rales de vente", 'href' => '/cgv'])
+        ->and(collect($this->getJson('/api/v1/navigation')->json('footer.legal'))->pluck('href')->all())
+        ->toBe(['/cgv', '/informations-legales', '/securite', '/services/service-apres-vente']);
 });
 
 it('returns a range landing page with tiles, power chips, brands and published guides only', function () {

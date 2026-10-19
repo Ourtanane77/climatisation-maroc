@@ -40,6 +40,7 @@ export function CompareTray() {
   return (
     <section
       aria-label="Comparateur"
+      data-bottom-bar
       className="bg-ink animate-rise fixed bottom-3 left-1/2 z-35 flex w-[calc(100%-24px)] max-w-[980px] -translate-x-1/2 items-center gap-3 rounded-[20px] py-2.5 pr-2.5 pl-4 text-white shadow-[0_24px_50px_-20px_rgba(0,0,0,0.5)] md:bottom-6 md:w-[calc(100%-48px)] md:rounded-full md:pl-6"
     >
       <strong className="shrink-0 text-[15px]">

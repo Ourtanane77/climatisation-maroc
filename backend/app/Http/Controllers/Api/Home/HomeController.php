@@ -14,6 +14,7 @@ use App\Settings\HomeSettings;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
 use App\Support\Catalog\SiteCatalog;
+use App\Support\Sites\WhatsAppNumbers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -48,6 +49,8 @@ class HomeController extends Controller
                     : null,
             ],
             'whatsapp' => $general->whatsapp_number,
+            // Hero « WhatsApp » button (Réglages « Contact »): valid numbers only; empty = `whatsapp`.
+            'heroWhatsapp' => WhatsAppNumbers::list($general->hero_whatsapp_numbers),
             'bento' => $this->bento(),
             'newProducts' => array_map(
                 fn (array $card) => ['badge' => ['text' => 'Nouveau', 'tone' => 'brand']] + $card,

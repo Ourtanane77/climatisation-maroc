@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { HERO_IMAGE, designPhoto } from "@/lib/home/assets";
 import type { HomeData } from "@/lib/home/types";
 import { waLink } from "@/lib/whatsapp";
+import { HeroWhatsAppMenu } from "./HeroWhatsAppMenu";
 import { PowerFinder } from "./PowerFinder";
 
 const REASSURE = [
@@ -13,13 +14,17 @@ const REASSURE = [
   { label: "Marques officielles", d: MAT.verified },
 ];
 
+const WA_CLASS = "pr-6 pl-[18px] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#1EBE5A] hover:brightness-100";
+
 /**
  * Home hero (design/Accueil.dc.html): full-bleed blue band with the hero photo and its shade,
  * H1, subtitle, CTAs; the power finder bar overlapping its bottom edge; the reassurance strip.
  */
-export function HomeHero({ hero, whatsapp }: Pick<HomeData, "hero" | "whatsapp">) {
+export function HomeHero({ hero, whatsapp, heroWhatsapp }: Pick<HomeData, "hero" | "whatsapp" | "heroWhatsapp">) {
   // Photo set in "Page d'accueil", else the design's hero photo when present.
   const photo = hero.image ? { src: hero.image } : designPhoto(HERO_IMAGE);
+  // Réglages « Contact »: no number = the main WhatsApp number, one = a direct link, 2+ = a menu.
+  const numbers = heroWhatsapp ?? [];
   return (
     <section aria-labelledby="h1" className="relative">
       <div className="bg-brand bleed relative flex min-h-[560px] items-center overflow-hidden text-white md:min-h-[520px] xl:min-h-[580px]">
@@ -55,14 +60,13 @@ export function HomeHero({ hero, whatsapp }: Pick<HomeData, "hero" | "whatsapp">
                   {hero.cta.label}
                 </ButtonLink>
               )}
-              <ButtonLink
-                href={waLink(undefined, whatsapp)}
-                variant="whatsapp"
-                icon={<WhatsAppIcon size={22} />}
-                className="pr-6 pl-[18px] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[#1EBE5A] hover:brightness-100"
-              >
-                WhatsApp
-              </ButtonLink>
+              {numbers.length > 1 ? (
+                <HeroWhatsAppMenu numbers={numbers} className={WA_CLASS} />
+              ) : (
+                <ButtonLink href={waLink(undefined, numbers[0]?.number ?? whatsapp)} variant="whatsapp" icon={<WhatsAppIcon size={22} />} className={WA_CLASS}>
+                  WhatsApp
+                </ButtonLink>
+              )}
             </div>
           </div>
         </div>

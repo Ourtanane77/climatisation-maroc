@@ -55,6 +55,8 @@ export interface SiteConfig {
   gtm: string | null;
   /** Microsoft Clarity project (production only, see clarityId()); null = none. */
   clarity: string | null;
+  /** Meta (Facebook) Pixel (production only, see metaPixelId()); null = none. */
+  metaPixel: string | null;
 }
 
 /** Neutral shop description (no site name in it): shared until each site gets its own text. */
@@ -74,6 +76,7 @@ const SITES: Record<SiteKey, SiteConfig> = {
     themeColor: "#0B5CAD",
     gtm: "GTM-M6CMD354",
     clarity: "yzqjn5sv22",
+    metaPixel: "1103989458680997",
   },
   arfro: {
     key: "arfro",
@@ -89,6 +92,7 @@ const SITES: Record<SiteKey, SiteConfig> = {
     themeColor: "#0B5CAD",
     gtm: "GTM-W8BQPKPX",
     clarity: "yx5c5sr7f7",
+    metaPixel: null,
   },
 };
 
@@ -149,6 +153,11 @@ export function gtmId(site: SiteConfig = SITE): string | null {
 /** Clarity project of this instance: runtime env CLARITY_ID (an ID, or « off »), else the site's own. */
 export function clarityId(site: SiteConfig = SITE): string | null {
   return trackerId("CLARITY_ID", site.clarity);
+}
+
+/** Meta Pixel of this instance: runtime env META_PIXEL_ID (an ID, or « off »), else the site's own. */
+export function metaPixelId(site: SiteConfig = SITE): string | null {
+  return trackerId("META_PIXEL_ID", site.metaPixel);
 }
 
 /** A tracker ID: the env override when set (« off » disables), else the site's ID in production. */

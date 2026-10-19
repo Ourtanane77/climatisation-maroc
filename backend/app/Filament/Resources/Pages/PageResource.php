@@ -62,7 +62,7 @@ class PageResource extends Resource
                         TextInput::make('updated_label')->label('Mention « Dernière mise à jour »')->placeholder('6 octobre 2026'),
                         Textarea::make('intro')->label('Introduction')->rows(3)->columnSpanFull(),
                         Toggle::make('is_published')->label('Publiée')
-                            ->helperText('Les pages légales restent dépubliées tant que le texte juridique n’est pas saisi.'),
+                            ->helperText('Une page légale reste dépubliée tant qu’il reste un « [À compléter : …] » dans son texte.'),
                         SiteFields::visibility(Page::class),
                     ]),
                     ContentBlocks::page(),

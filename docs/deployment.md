@@ -108,6 +108,7 @@ own sitemap.
 | `FRONTEND_INTERNAL_URL` | `http://next:3000` (keep). The compose file sets `SITE_CM_INTERNAL_URL=http://next:3000` and `SITE_ARFRO_INTERNAL_URL=http://next-arfro:3000` for revalidation |
 | `GTM_ID` (optional, per Next.js service) | Google Tag Manager container. Each site has its own by default (`frontend/src/lib/site.ts`): Climatisation Maroc `GTM-M6CMD354`, arfro.com `GTM-W8BQPKPX`; it loads in production builds only. Set an ID to override or `off` to disable |
 | `CLARITY_ID` (optional, per Next.js service) | Microsoft Clarity project. Each site has its own by default: Climatisation Maroc `yzqjn5sv22`, arfro.com `yx5c5sr7f7`; production builds only. Set an ID to override or `off` to disable |
+| `META_PIXEL_ID` (optional, per Next.js service) | Meta (Facebook) Pixel. Climatisation Maroc `1103989458680997` by default, arfro.com none; production builds only (a PageView on every page, client navigations included). Set an ID to override or `off` to disable |
 | `NEXT_MEMORY`, `NEXT_ARFRO_MEMORY` | memory limits of the two Next.js containers (`1g`, `768m`) |
 | `DB_PASSWORD`, `DB_ROOT_PASSWORD` | strong random values (the MySQL container is created with them) |
 | `SESSION_SECURE_COOKIE` | `true` behind HTTPS (back-office login fails over plain HTTP when true) |
@@ -230,7 +231,12 @@ docker cp "$(docker compose -f docker-compose.prod.yml ps -q php)":/var/www/back
 rsync -a ./backups-copy/ backup-host:/srv/climatisation-maroc/
 ```
 
-Redis holds only cache, queue and sessions: it needs no backup.
+Redis holds only cache, queue and sessions: it needs no backup. It is capped at
+`REDIS_MAXMEMORY` (default `256mb`) with the `volatile-lru` policy: when full it drops expiring
+keys (cache, sessions), never queued jobs. The scheduler prunes the API cache's tag index hourly
+(`cache:prune-stale-tags`). If the back office ever shows « OOM command not allowed » in the
+`php` logs, empty the cache database (1); sessions and the queue (database 0) are untouched:
+`docker exec <redis container> redis-cli -n 1 FLUSHDB`.
 
 ### Restore
 

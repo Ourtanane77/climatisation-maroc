@@ -34,6 +34,10 @@ if [ "${APP_ROLE:-app}" = "app" ]; then
   # or .env in development run `make cache`. Tests never read these caches (phpunit.xml).
   php artisan optimize
   php artisan filament:optimize
+  # A new release may change API output or settings (settings migrations fire no save event):
+  # drop the cached API answers. Only the cache store (Redis database 1); sessions and queued
+  # jobs live in database 0 and are kept.
+  php artisan cache:clear
   # A new release: queue workers finish their current job and restart on the new code.
   php artisan queue:restart
 fi

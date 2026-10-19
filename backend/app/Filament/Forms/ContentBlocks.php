@@ -63,7 +63,8 @@ class ContentBlocks
             ->blocks([
                 Block::make('article')->label('Article numéroté (page légale)')->icon('heroicon-o-scale')->schema([
                     TextInput::make('title')->label('Titre')->required(),
-                    Textarea::make('text')->label('Texte')->rows(6)->required(),
+                    Textarea::make('text')->label('Texte')->rows(10)->autosize()->required()
+                        ->helperText('Texte brut. Une ligne vide sépare deux paragraphes ; un simple retour à la ligne est conservé (listes « – … »). Remplacez chaque « [À compléter : …] » avant de publier.'),
                 ]),
                 self::paragraph(),
                 Block::make('services')->label('Cartes de services')->icon('heroicon-o-squares-2x2')->schema([

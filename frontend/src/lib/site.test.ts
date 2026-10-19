@@ -114,6 +114,28 @@ describe("Google Tag Manager", () => {
   });
 });
 
+describe("Meta Pixel", () => {
+  it("is Climatisation Maroc's pixel in production, none for Arfro", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const cm = await load({});
+    vi.stubEnv("NODE_ENV", "production");
+    expect(cm.site.metaPixelId()).toBe("1103989458680997");
+    const arfro = await load({ SITE_KEY: "arfro" });
+    vi.stubEnv("NODE_ENV", "production");
+    expect(arfro.site.metaPixelId()).toBeNull();
+    vi.stubEnv("NODE_ENV", "development");
+    expect(cm.site.metaPixelId()).toBeNull();
+  });
+
+  it("renders nothing for a malformed ID, and never shadows window.fbq", async () => {
+    const { MetaPixel, MetaPixelNoScript, META_PIXEL_SCRIPT_ID } = await import("@/components/analytics/MetaPixel");
+    expect(MetaPixel({ id: "1');alert(1);//" })).toBeNull();
+    expect(MetaPixelNoScript({ id: null })).toBeNull();
+    expect(MetaPixel({ id: "1103989458680997" })).not.toBeNull();
+    expect(["fbq", "_fbq"]).not.toContain(META_PIXEL_SCRIPT_ID);
+  });
+});
+
 describe("API calls name the storefront", () => {
   it("sends X-Site on every apiGet", async () => {
     await load({ SITE_KEY: "arfro" });

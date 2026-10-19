@@ -10,6 +10,8 @@ use App\Models\Page;
 use App\Models\ProductVariant;
 use App\Models\SectorPage;
 use App\Models\ServicePage;
+use App\Support\Sites\Sites;
+use Database\Seeders\Data\LegalPages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
@@ -361,29 +363,11 @@ class ContentSeeder extends Seeder
             ['Puis-je commander par téléphone ?', 'Oui, au 0666-602599 ou sur WhatsApp, du lundi au samedi de 9h à 19h.'],
         ]);
 
-        // Legal pages: article headings from the design; the legal text itself is not written yet,
-        // so the pages stay unpublished (decision of 2026-10-06).
-        $legal = [
-            ['cgv', 'Conditions générales de vente', ['Objet', 'Produits et disponibilité', 'Commandes', 'Prix', 'Paiement à la livraison', 'Livraison', 'Installation et visite technique', 'Rétractation et retours', 'Garantie', 'Service après-vente', 'Données personnelles', 'Droit applicable et litiges']],
-            ['cgu', 'Conditions générales d’utilisation', ['Objet', 'Accès au site', 'Compte professionnel', 'Propriété intellectuelle', 'Responsabilité', 'Liens externes', 'Modification des conditions']],
-            ['informations-legales', 'Informations légales', ['Éditeur du site', 'Hébergement', 'Directeur de la publication', 'Contact']],
-            ['securite', 'Sécurité', ['Protection des données', 'Paiement', 'Comptes et mots de passe', 'Signaler un problème']],
-            ['confidentialite', 'Politique de confidentialité', ['Données collectées', 'Utilisation des données', 'Durée de conservation', 'Partage des données', 'Cookies', 'Vos droits', 'Contact']],
-        ];
-        foreach ($legal as $position => [$slug, $title, $articles]) {
-            $page = Page::query()->visibleOn(self::SITE)->firstOrNew(['slug' => $slug]);
-            $page->fill([
-                'title' => $title,
-                'kind' => PageKind::Legal,
-                'intro' => 'Les présentes conditions s\'appliquent aux commandes passées sur Climatisation Maroc, boutique en ligne de la société Ariha Froid, Marrakech.',
-                'position' => $position,
-            ]);
-            if (! $page->exists) {
-                $page->body = array_map(fn (string $t) => ['type' => 'article', 'data' => ['title' => $t, 'text' => '[TEXTE JURIDIQUE]']], $articles);
-                $page->is_published = false;
-            }
-            $page->save();
-            $page->seo()->updateOrCreate([], ['title' => $title, 'h1' => $title]);
+        // Legal pages, one set per site (2026-10-19): written only when missing or still holding the
+        // design placeholder, never over text edited in the back office. Pages with an
+        // « [À compléter : …] » marker (RC, ICE, host, CNDP…) stay unpublished.
+        foreach (Sites::keys() as $site) {
+            LegalPages::write($site);
         }
     }
 

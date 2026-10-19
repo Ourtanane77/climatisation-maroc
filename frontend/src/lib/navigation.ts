@@ -156,14 +156,15 @@ export const DESIGN_NAVIGATION: SiteNavigation = {
   searchScopes: ["Toutes", "Climatisation", "Chauffe-eau", "Ventilation", "Gaines", "Cuivre et gaz", "Pièces de rechange", "Froid"],
   whatsapp: { number: "212666854184", display: "0666-854184" },
   salesPhone: { label: "Ventes", display: "0666-854184", href: tel("0666-854184") },
+  mapEmbedUrl: null,
   footer: {
     about:
       "Climatisation Maroc est un site e-commerce spécialisé dans la vente des systèmes de climatisation, avec livraison gratuite sur tout le Maroc. Le site est une propriété de la société Ariha Froid, fournisseur de climatisation et de froid à Marrakech depuis 2008, pour les professionnels comme les particuliers.",
-    // URLs given by the client on 2026-10-06 (the design links them to "#"); editable in Réglages.
+    // URLs given by the client on 2026-10-19 (the design links them to "#"); editable in Réglages.
     socials: [
-      { name: "Facebook", href: "https://web.facebook.com/maroc.climatisation" },
-      { name: "Instagram", href: "https://www.instagram.com/arihafroid_climatisation/" },
-      { name: "TikTok", href: "https://www.tiktok.com/@arihafroid_climatisation" },
+      { name: "Facebook", href: "https://www.facebook.com/climatisationmaroc" },
+      { name: "Instagram", href: "https://www.instagram.com/climatisationmaroc" },
+      { name: "TikTok", href: "https://www.tiktok.com/@climatisationmaroc" },
       { name: "WhatsApp", href: "https://wa.me/212666854184" },
     ],
     columns: [

@@ -236,6 +236,37 @@ lorsque son texte définitif est prêt.
 
 Chaque contenu a un onglet ou une section SEO (titre, description, titre H1).
 
+### Pages légales (CGV, CGU, informations légales, sécurité, confidentialité)
+
+Chaque site a ses propres pages légales, à son nom : ouvrez **Contenu > Pages légales et
+statiques** et filtrez par **Site** pour voir celles de Climatisation Maroc ou celles d'Arfro. Les
+deux séries ont les mêmes adresses (`/cgv`, `/cgu`…) ; la colonne **Sites** indique à quel site
+appartient chaque page. Ne cochez pas les deux sites sur une même page : son texte cite le nom
+d'un seul site.
+
+Le texte est rédigé par articles numérotés (bloc « Article numéroté ») : un titre et un texte
+brut. Une ligne vide sépare deux paragraphes ; un simple retour à la ligne est conservé, pour les
+listes (« – … »). Le sommaire et la numérotation « Article 1, 2… » sont automatiques. Pensez à
+mettre à jour la mention **Dernière mise à jour** quand vous modifiez un texte.
+
+Les textes du 19 octobre 2026 sont déjà en place sur les deux sites :
+
+- **publiées** : CGV, CGU, Sécurité ;
+- **en attente** : Informations légales et Politique de confidentialité. Elles contiennent des
+  champs **« [À compléter : … ] »** que seule la société peut fournir : forme juridique et
+  capital, siège social, numéros RC, ICE, IF et patente, hébergeur (nom, adresse, téléphone),
+  directeur de la publication, numéro de déclaration CNDP.
+
+Pour publier une page en attente : remplacez chaque « [À compléter : … ] » par la vraie
+information (crochets compris), vérifiez qu'il n'en reste aucun, puis cochez **Publiée** et
+enregistrez. Faites-le sur la page de chaque site. La page apparaît alors dans le pied de page,
+le plan du site et le bloc « Autres pages légales ». Une page légale dépubliée disparaît de ces
+emplacements ; à la commande, la mention des CGV n'est un lien que lorsque la page CGV est
+publiée.
+
+Les coordonnées (téléphones, e-mail, adresses) ne sont pas recopiées dans les pages légales :
+elles renvoient à la page Contact, alimentée par les **Réglages** de chaque site.
+
 ## Réglages et page d'accueil
 
 Chaque site a ses réglages et sa page d'accueil (« — Climatisation Maroc », « — Arfro »).
@@ -243,11 +274,41 @@ Chaque site a ses réglages et sa page d'accueil (« — Climatisation Maroc »,
 **Configuration › Réglages** (administrateurs) :
 
 - Bandeau promotionnel (texte et lien en haut de page) ;
-- Contact : téléphones par service, e-mail, numéro WhatsApp, horaires ;
+- Contact : téléphones par service, e-mail, numéros WhatsApp (principal, bouton de la page
+  d'accueil, bouton flottant), horaires, carte Google Maps de la page Contact (voir ci-dessous) ;
 - Magasins (nom et adresse) ;
-- Réseaux sociaux (Facebook, Instagram, TikTok) ;
+- Réseaux sociaux : Facebook, Instagram, TikTok, YouTube, X, Threads, Pinterest. Collez l'adresse
+  complète de la page (https://…). Seuls les réseaux remplis apparaissent, dans cet ordre, dans le
+  pied de page et sur la page Contact ; laissez un champ vide pour masquer l'icône. Chaque site a
+  ses propres comptes ;
 - Commande : prix de la visite technique ;
 - Pied de page : texte de présentation.
+
+**Carte Google Maps (page Contact).** Pour changer la carte affichée sur la page Contact :
+
+1. Dans Google Maps, ouvrez la fiche du magasin puis cliquez sur **Partager** ;
+2. Choisissez l'onglet **Intégrer une carte** ;
+3. Dans le code proposé (`<iframe src="…" …>`), copiez **seulement** l'adresse placée entre les
+   guillemets après `src=`. Elle commence par `https://www.google.com/maps/embed?pb=` ;
+4. Collez-la dans le champ « Carte Google Maps (page Contact) » et enregistrez.
+
+Une autre adresse (lien « Partager » simple, code iframe complet…) est refusée. Si le champ est
+vide, la page Contact affiche la carte de Marrakech par défaut.
+
+**Numéros WhatsApp (section Contact).** Tous les numéros s'écrivent au format international, sans
+« + » ni espace : `212666854184` pour 0666 85 41 84 (10 à 15 chiffres, sinon l'enregistrement est
+refusé).
+
+- **Numéro WhatsApp** : le numéro principal (pied de page, page Contact, devis…).
+- **Numéros WhatsApp du bouton de la page d’accueil** : le bouton vert « WhatsApp » du bandeau
+  principal. Laissé vide, il ouvre le numéro principal ; avec un seul numéro, il ouvre ce numéro ;
+  avec deux numéros ou plus, il ouvre un petit menu avec un lien par numéro (le numéro est affiché
+  sous la forme 0666 85 41 84, précédé du libellé s'il est rempli, par exemple « Ventes »). Utilisez
+  les flèches pour changer l'ordre. Sur Arfro, la page d'accueil n'a pas ce bouton : le champ y est
+  sans effet.
+- **Bouton WhatsApp flottant** : le bouton rond vert en bas à droite de toutes les pages du site
+  (sauf les pages de commande, pour ne pas distraire pendant le paiement). Laissez le champ vide
+  pour le masquer.
 
 **Configuration › Page d’accueil** (gestionnaires du site) : bandeau principal (titre, sous-titre, image), produits mis en
 avant, marques affichées, produit vedette du menu déroulant de chaque gamme.

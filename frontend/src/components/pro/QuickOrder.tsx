@@ -448,7 +448,7 @@ export function QuickOrder({ frequent, whatsappNumber }: { frequent: QuickItem[]
         </aside>
       </section>
 
-      <div className="shadow-bottom-bar fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:hidden">
+      <div data-bottom-bar className="shadow-bottom-bar fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:hidden">
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="text-ink-2 text-[13px]">
             {plural(valid.length, "ligne")} · {plural(articles, "article")}

@@ -101,7 +101,7 @@ export function LegalArticles({ intro, articles, children }: { intro: string | n
               .map(withoutPlaceholders) // "[TEXTE JURIDIQUE]" is never shown
               .filter((para): para is string => !!para)
               .map((para, j) => (
-                <p key={j} className="text-ink-2 m-0 text-lg leading-[1.75]">
+                <p key={j} className="text-ink-2 m-0 text-lg leading-[1.75] whitespace-pre-line">
                   {para}
                 </p>
               ))}

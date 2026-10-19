@@ -58,7 +58,7 @@ it('never lists unpublished or inactive records', function () {
     $paths = sitemapPaths();
 
     expect($paths)->not->toContain('/produit/lg-dual-inverter', '/gaines', '/gaines/flexibles-souples',
-        '/produit/flexible-souple-esbo-10-m', '/marques/vivo', $draft->url(), $sector->url(), '/cgv', '/cgu');
+        '/produit/flexible-souple-esbo-10-m', '/marques/vivo', $draft->url(), $sector->url(), '/informations-legales', '/confidentialite');
     // Pages of kind "other" back fixed routes and are listed once, by their route.
     expect(array_count_values($paths)['/espace-professionnel'])->toBe(1);
 });
@@ -98,10 +98,11 @@ it('sends old category, brand and shortcut URLs to their new pages', function ()
 });
 
 it('waits for unpublished pages with a temporary redirect home', function () {
+    // Saved like the back office does (model events clear the API cache).
+    Page::query()->where('slug', 'cgv')->update(['is_published' => false]);
     legacy('/home/conditionsgeneralesdevente')->assertJson(['to' => '/', 'status' => 302]);
 
-    // Saved like the back office does (model events clear the API cache).
-    Page::query()->where('slug', 'cgv')->firstOrFail()->update(['is_published' => true]);
+    Page::query()->visibleOn('cm')->where('slug', 'cgv')->firstOrFail()->update(['is_published' => true]);
     legacy('/home/conditionsgeneralesdevente')->assertJson(['to' => '/cgv', 'status' => 301]);
 });
 

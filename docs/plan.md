@@ -174,6 +174,11 @@ This replaces « no online payment, cash on delivery only ». How it works: `doc
    `[DÉLAI PAR VILLE]`, `[CONDITIONS DE RETOUR]`, `[PHOTO MAGASIN]`.
    - **Seeded exactly as placeholders and editable in the back office.**
      Legal text is never invented.
+   - **2026-10-19 (owner's request): the legal pages get real texts on both sites**
+     (`Database\Seeders\Data\LegalPages`), written from how the shop works. Company facts
+     not in the repository (RC, ICE, IF, patente, capital, head office, host, director of
+     publication, CNDP number) are « [À compléter : …] » markers; a page holding one stays
+     unpublished (Informations légales, Confidentialité).
 6. **Pages the design implies but did not draw, which need copy.**
    - Other sectors (only a name and tagline exist).
    - 8 of 9 blog articles (title, category and reading time only).
@@ -835,8 +840,8 @@ cards.
 - Sectors: 8 sectors with taglines and scenes. Restaurants et cafés gets its
   full content.
 - Services: 3 with full content.
-- Pages: À propos, Livraison et paiement, and the 5 legal pages (article
-  headings plus placeholders).
+- Pages: À propos, Livraison et paiement, and the 5 legal pages per site (texts of
+  2026-10-19; CGV, CGU and Sécurité published, the two others waiting for the owner's facts).
 - FAQs: everything listed in the inventory.
 
 **Settings and reference data**

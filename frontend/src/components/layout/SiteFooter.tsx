@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/icons";
+import { FacebookIcon, InstagramIcon, PinterestIcon, ThreadsIcon, TikTokIcon, WhatsAppIcon, XIcon, YouTubeIcon } from "@/components/ui/icons";
 import { SITE_NAME } from "@/lib/site";
 import type { SiteNavigation, Social } from "@/lib/types";
 import { FooterColumns } from "./FooterColumns";
@@ -10,6 +10,10 @@ const socialIcon: Record<Social["name"], React.ReactNode> = {
   Facebook: <FacebookIcon size={20} />,
   Instagram: <InstagramIcon size={20} />,
   TikTok: <TikTokIcon size={20} />,
+  YouTube: <YouTubeIcon size={20} />,
+  X: <XIcon size={20} />,
+  Threads: <ThreadsIcon size={20} />,
+  Pinterest: <PinterestIcon size={20} />,
   WhatsApp: <WhatsAppIcon size={20} />,
 };
 
@@ -24,7 +28,7 @@ export function SiteFooter({ footer, logo, bottomPadding = 0 }: { footer: SiteNa
           <div className="flex max-w-[420px] flex-col gap-5">
             <Logo logo={logo} height={48} white className="self-start" />
             <p className="text-footer-text-2 m-0 text-[15px] leading-6 text-pretty">{footer.about}</p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {footer.socials.map((s) => (
                 <a
                   key={s.name}

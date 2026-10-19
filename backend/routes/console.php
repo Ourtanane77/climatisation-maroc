@@ -10,3 +10,8 @@ if (config('backup.enabled')) {
         ->withoutOverlapping()
         ->onOneServer();
 }
+
+// The API cache is tagged (App\Support\Api\ApiCache): Redis keeps an index of every entry per tag,
+// which only shrinks when stale entries are pruned. Without this the index grows until Redis is
+// full (maxmemory) and every write fails, sessions included (back office down).
+Schedule::command('cache:prune-stale-tags')->hourly()->withoutOverlapping()->onOneServer();

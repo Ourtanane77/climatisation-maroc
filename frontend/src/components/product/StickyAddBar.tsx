@@ -7,7 +7,10 @@ import { useIsArfro } from "@/lib/site-context";
 import { useAddSelected } from "./ProductBuyBox";
 import { useProduct } from "./ProductContext";
 
-/** Bottom add-to-cart bar, shown past 140 px of scroll when the selected variant can be ordered. */
+/**
+ * Bottom add-to-cart bar, shown past 140 px of scroll when the selected variant can be ordered.
+ * `data-bottom-bar` lifts the floating WhatsApp button above it (layout/FloatingWhatsApp).
+ */
 export function StickyAddBar() {
   const { product, variant } = useProduct();
   const { added, add } = useAddSelected();
@@ -28,7 +31,7 @@ export function StickyAddBar() {
   if (arfro) {
     // Arfro: white bar with a hairline, grey thumbnail well, ink price and the blue pill.
     return (
-      <div className="site-gutter border-border fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t bg-white/95 py-3 backdrop-blur md:gap-4">
+      <div data-bottom-bar className="site-gutter border-border fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t bg-white/95 py-3 backdrop-blur md:gap-4">
         <span aria-hidden className="rounded-12 bg-bg hidden size-12 shrink-0 items-center justify-center p-1.5 md:flex">
           {image?.thumb ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -51,7 +54,7 @@ export function StickyAddBar() {
   }
 
   return (
-    <div className="shadow-bottom-bar site-gutter fixed inset-x-0 bottom-0 z-30 flex items-center gap-4 bg-white py-3">
+    <div data-bottom-bar className="shadow-bottom-bar site-gutter fixed inset-x-0 bottom-0 z-30 flex items-center gap-4 bg-white py-3">
       <span aria-hidden className="hidden h-11 w-16 shrink-0 items-center justify-center md:flex">
         {image?.thumb ? (
           // eslint-disable-next-line @next/next/no-img-element
