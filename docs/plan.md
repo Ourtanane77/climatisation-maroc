@@ -128,6 +128,18 @@ This replaces « no online payment, cash on delivery only ». How it works: `doc
 - **A card order is processed once paid.** Its e-mails leave when CMI confirms the payment, and
   it does not count in the back-office « new orders » badge before.
 
+### Arfro redesign (2026-10-27)
+
+arfro.com gets its own premium editorial design, from the owner's brief « ARFRO — Reimagining
+climate comfort in Morocco » (condensed in `docs/arfro-creative-brief.md`, with the decisions taken
+when the work started: existing photos and back-office slots only, no AI images, only real services,
+projects and testimonials hidden until real). Building blocks, tokens, motion and accessibility
+rules: `docs/arfro-design-system.md`. Scope: home (13 sections, edited in « Accueil — Arfro »),
+navigation and footer, category and product pages, professional journey. Climatisation Maroc keeps
+its design; every Arfro rule is scoped to `[data-site="arfro"]` and GSAP loads only on Arfro pages.
+Built differences from the earlier Arfro restyle: `docs/deviations.md`, « Owner requests
+(2026-10-27) ».
+
 ### Original proposals (phase 1)
 
 1. **Page count.** The index lists 32 unique files, not 31: 30 site pages plus
@@ -631,7 +643,7 @@ must be ≥ 3000 (same unit on every form).
 | GET | `/navigation` | header ranges, mega menus, drawer, footer columns, legal links, settings (phones, stores, socials, promo bar) |
 | GET | `/home` | hero, power tiers, bento, new products, promo families, ducts rail, supplies rail, brands, pro block |
 | GET | `/categories/{path}` | category plus children, siblings, parent, guides, FAQ, SEO, template |
-| GET | `/categories/{path}/products` | `?brand[]&power[]&tech[]&fluid[]&colour[]&price=&promo=1&sort=price_asc\|price_desc\|name\|relevance&page=&per_page=&q=` → `{data, facets:{key:[{value,label,count}]}, meta}` |
+| GET | `/categories/{path}/products` | `?brand[]&power[]&tech[]&fluid[]&colour[]&price=&promo=1&sort=price_asc\|price_desc\|name\|relevance&page=&per_page=&q=` → `{data, facets:{key:[{value,label,count}]}, meta}`; default sort `relevance` = brand order (category « Ordre des marques », then `brands.position`), then catalogue order (owner request 2026-10-27) |
 | GET | `/products/{slug}` | family, variants, images, specs, highlights, accessories, same-range products, FAQ, brand, breadcrumb, SEO |
 | GET | `/products/compare?skus=` | max 3, normalised spec rows |
 | GET | `/brands` | list |

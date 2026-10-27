@@ -9,6 +9,7 @@ use App\Filament\Resources\SectorPages\Pages\CreateSectorPage;
 use App\Filament\Resources\SectorPages\Pages\EditSectorPage;
 use App\Filament\Resources\SectorPages\Pages\ListSectorPages;
 use App\Models\SectorPage;
+use App\Support\Frontend\Revalidator;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -126,6 +127,7 @@ class SectorPageResource extends Resource
     {
         return $table
             ->reorderable('position')
+            ->afterReordering(fn () => Revalidator::changed()) // one query, no model events
             ->defaultSort('position')
             ->columns([
                 TextColumn::make('name')->label('Secteur')->weight('bold')->description(fn (SectorPage $r) => $r->tagline),

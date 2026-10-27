@@ -7,6 +7,10 @@ import { getSectors } from "@/lib/content/api";
 import { PROJECT_STEPS, PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import { telHref } from "@/lib/phone";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_KEY } from "@/lib/site";
+import { waLink } from "@/lib/whatsapp";
+import { ArfroSolutionsHub } from "@/components/arfro/pro/ArfroSolutions";
+import { contactPhone } from "@/components/arfro/pro/parts";
 
 export const metadata: Metadata = seoMetadata({
   title: "Climatisation professionnelle au Maroc · Ariha Froid",
@@ -20,6 +24,20 @@ export const metadata: Metadata = seoMetadata({
 export default async function SolutionsPage() {
   const { data: sectors, contact } = await getSectors();
   const phone = phoneFor(contact, PROJECTS_PHONE_LABEL);
+
+  if (SITE_KEY === "arfro") {
+    return (
+      <>
+        <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Solutions professionnelles" }]} />
+        <ArfroSolutionsHub
+          sectors={sectors.map(withSectorPhoto)}
+          phone={contactPhone(contact, PROJECTS_PHONE_LABEL)}
+          hours={contact.hours}
+          whatsappHref={waLink("Bonjour, je souhaite parler d’un projet professionnel.", contact.whatsapp)}
+        />
+      </>
+    );
+  }
 
   return (
     <>

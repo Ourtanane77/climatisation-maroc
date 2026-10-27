@@ -86,6 +86,23 @@ it('skips empty and non-web social links', function () {
     ]);
 });
 
+it('shows LinkedIn after Pinterest and before WhatsApp once its address is filled, and hides it while empty', function () {
+    // No address is seeded: the owner pastes it in Réglages — Arfro.
+    expect(socialsOf('general_arfro'))->not->toHaveKey('linkedin');
+    $this->getJson('/api/v1/navigation', ['X-Site' => 'arfro'])->assertJsonMissing(['name' => 'LinkedIn']);
+
+    $arfro = new ArfroGeneralSettings;
+    $arfro->socials = [...$arfro->socials, 'linkedin' => 'https://www.linkedin.com/company/exemple'];
+    $arfro->save();
+
+    $names = collect($this->getJson('/api/v1/navigation', ['X-Site' => 'arfro'])->json('footer.socials'))->pluck('name')->all();
+    expect(array_slice($names, -3))->toBe(['Pinterest', 'LinkedIn', 'WhatsApp']);
+
+    $arfro->socials = [...$arfro->socials, 'linkedin' => ''];
+    $arfro->save();
+    $this->getJson('/api/v1/navigation', ['X-Site' => 'arfro'])->assertJsonMissing(['name' => 'LinkedIn']);
+});
+
 it('outputs each site\'s map and never an invalid one', function () {
     $arfro = new ArfroGeneralSettings;
     $arfro->map_embed_url = '<iframe src="https://evil.example/"></iframe>';

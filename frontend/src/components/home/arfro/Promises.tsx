@@ -1,4 +1,5 @@
 import type { Phone } from "@/lib/types";
+import { Reveal } from "./motion";
 
 const ICON = {
   width: 28,
@@ -14,7 +15,7 @@ const ICON = {
 /**
  * Promises strip at the bottom of the Arfro home (Main.dc.html): the facts the site already states
  * (free delivery, cash on delivery, installation on quote) and the « Conseil » phone of the
- * settings.
+ * settings. The promises rise in one after the other; the icons hop on hover (globals.css « Arfro home motion »).
  */
 export function Promises({ phone }: { phone: Phone | null }) {
   const items = [
@@ -61,20 +62,22 @@ export function Promises({ phone }: { phone: Phone | null }) {
   ];
 
   return (
-    <section aria-label="Nos engagements" className="pt-9 md:pt-[72px]">
-      <ul className="border-border m-0 grid list-none grid-cols-2 gap-x-3 gap-y-5 p-0 md:grid-cols-4 md:gap-4 md:border-t md:pt-10">
-        {items.map((it) => (
-          <li key={it.title} className="flex flex-col gap-2 md:flex-row md:items-start md:gap-3.5">
-            <svg aria-hidden {...ICON} className="size-[26px] shrink-0 md:size-7">
-              {it.icon}
-            </svg>
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-extrabold md:text-base">{it.title}</span>
-              <span className="text-muted text-[13px] md:text-sm">{it.text}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <Reveal group>
+      <section aria-label="Nos engagements" className="pt-9 md:pt-[72px]">
+        <ul className="am-stagger border-border m-0 grid list-none grid-cols-2 gap-x-3 gap-y-5 p-0 md:grid-cols-4 md:gap-4 md:border-t md:pt-10">
+          {items.map((it) => (
+            <li key={it.title} className="am-hop flex flex-col gap-2 md:flex-row md:items-start md:gap-3.5">
+              <svg aria-hidden {...ICON} className="size-[26px] shrink-0 md:size-7">
+                {it.icon}
+              </svg>
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-extrabold md:text-base">{it.title}</span>
+                <span className="text-muted text-[13px] md:text-sm">{it.text}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </Reveal>
   );
 }

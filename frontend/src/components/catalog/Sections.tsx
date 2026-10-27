@@ -49,59 +49,6 @@ export function PageIntro({ title, intro, dense = false }: { title: string; intr
   );
 }
 
-/**
- * Arfro category hero (Categorie.dc.html): rounded grey panel with the H1 (48/800), the intro, the
- * sibling pills (active one ink) and the category's cut-out picture on the right.
- */
-export function CategoryHero({
-  title,
-  intro,
-  pills = [],
-  pillsLabel = "Types",
-  visual,
-  children,
-}: {
-  title: string;
-  intro?: string | null;
-  pills?: { label: string; href: string; active: boolean }[];
-  pillsLabel?: string;
-  visual?: React.ReactNode;
-  children?: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-24 bg-bg flex flex-wrap items-center gap-6 overflow-hidden px-6 py-8 md:gap-10 md:px-14 md:py-12">
-      <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-4">
-        <h1 className="m-0 text-[34px] leading-[1.05] font-extrabold tracking-[-0.025em] md:text-[48px]">{title}</h1>
-        {intro && <p className="text-muted m-0 max-w-[560px] text-base leading-[1.55] md:text-[17px]">{intro}</p>}
-        {pills.length > 1 && (
-          <nav aria-label={pillsLabel} className="flex flex-wrap gap-2 pt-2">
-            {pills.map((p) => (
-              <Link
-                key={p.href}
-                href={p.href}
-                scroll={false}
-                aria-current={p.active ? "page" : undefined}
-                className={cn(
-                  "flex h-11 items-center rounded-full px-[18px] text-sm font-bold whitespace-nowrap",
-                  p.active ? "bg-ink text-white hover:text-white" : "text-ink hover:text-brand bg-white",
-                )}
-              >
-                {p.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-        {children}
-      </div>
-      {visual && (
-        <div aria-hidden className="flex min-w-0 flex-[0_1_460px] items-center justify-center [&_img]:max-h-[160px] md:[&_img]:max-h-[320px]">
-          {visual}
-        </div>
-      )}
-    </section>
-  );
-}
-
 /** "Choisir un type de …": coloured tiles with the drawing at the bottom. */
 export function TypeTiles({ tiles }: { tiles: CategoryTile[] }) {
   const artWidth: Record<string, string> = { gainable: "100%", cassette: "52%", console: "38%" };

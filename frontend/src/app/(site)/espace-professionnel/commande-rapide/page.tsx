@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { ArfroQuickOrderHeading } from "@/components/arfro/pro/ArfroQuickOrderHeading";
 import { LogoutButton } from "@/components/layout/AccountBar";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { H1 } from "@/components/leads/ui";
@@ -10,6 +11,7 @@ import { getNavigation } from "@/lib/navigation";
 import { getReseller } from "@/lib/pro/session";
 import type { QuickItem } from "@/lib/pro/types";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_KEY } from "@/lib/site";
 
 export const metadata: Metadata = seoMetadata({ title: "Commande rapide · Espace professionnel", noindex: true });
 
@@ -24,6 +26,17 @@ export default async function QuickOrderPage() {
   const frequent = await apiGet<{ data: QuickItem[] }>("/pro/frequent-refs", { token })
     .then((r) => r.data)
     .catch(() => []);
+
+  if (SITE_KEY === "arfro") {
+    // Same gate and data as above; only the page heading takes the Arfro editorial language.
+    return (
+      <>
+        <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Espace professionnel", href: "/espace-professionnel" }, { label: "Commande rapide" }]} />
+        <ArfroQuickOrderHeading account={reseller.company ?? reseller.name} logout={<LogoutButton className="text-arfro-blue flex min-h-11 items-center font-bold underline" />} />
+        <QuickOrder frequent={frequent} whatsappNumber={nav.whatsapp.number} />
+      </>
+    );
+  }
 
   return (
     <>

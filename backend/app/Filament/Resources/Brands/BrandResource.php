@@ -7,6 +7,7 @@ use App\Filament\Forms\Fields;
 use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Brands\Pages\ManageBrands;
 use App\Models\Brand;
+use App\Support\Frontend\Revalidator;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -85,7 +86,10 @@ class BrandResource extends Resource
     {
         return $table
             ->reorderable('position')
+            // Drag and drop updates the rows in one query, without model events.
+            ->afterReordering(fn () => Revalidator::changed())
             ->defaultSort('position')
+            ->description('L’ordre de cette liste (glisser-déposer après « Classer les enregistrements ») est l’ordre des produits sur les pages catégorie (tri « Pertinence ») et des marques dans les filtres, sauf si la catégorie a son propre ordre.')
             ->columns([
                 ImageColumn::make('logo')->label('')->disk('public')->imageHeight(32),
                 TextColumn::make('name')->label('Nom')->searchable()->weight('bold'),

@@ -8,6 +8,9 @@ import { getService } from "@/lib/content/api";
 import { PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import { waLink } from "@/lib/whatsapp";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_KEY } from "@/lib/site";
+import { ArfroServicePage } from "@/components/arfro/pro/ArfroServices";
+import { contactPhone } from "@/components/arfro/pro/parts";
 
 export async function generateMetadata({ params }: PageProps<"/services/[slug]">): Promise<Metadata> {
   const { slug } = await params;
@@ -25,6 +28,20 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
   const { slug } = await params;
   const service = await getService(slug);
   const h1 = service.seo.h1 ?? service.name;
+
+  if (SITE_KEY === "arfro") {
+    return (
+      <>
+        <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Services", href: "/services" }, { label: service.name }]} />
+        <ArfroServicePage
+          service={service}
+          h1={h1}
+          phone={contactPhone(service.contact, PROJECTS_PHONE_LABEL)}
+          whatsappHref={waLink(service.whatsappText ?? undefined, service.contact.whatsapp)}
+        />
+      </>
+    );
+  }
 
   return (
     <>

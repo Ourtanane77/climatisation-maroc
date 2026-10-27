@@ -19,6 +19,9 @@ import { PROJECT_STEPS, PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/cop
 import { telHref } from "@/lib/phone";
 import { waLink } from "@/lib/whatsapp";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_KEY } from "@/lib/site";
+import { ArfroSectorPage } from "@/components/arfro/pro/ArfroSolutions";
+import { contactPhone } from "@/components/arfro/pro/parts";
 
 export async function generateMetadata({ params }: PageProps<"/solutions/[slug]">): Promise<Metadata> {
   const { slug } = await params;
@@ -39,6 +42,22 @@ export default async function SectorPage({ params }: PageProps<"/solutions/[slug
   const h1 = sector.seo.h1 ?? sector.name;
   const wa = waLink(sector.whatsappText ?? undefined, sector.contact.whatsapp);
   const heroImage = withSectorPhoto(sector).image;
+
+  if (SITE_KEY === "arfro") {
+    return (
+      <>
+        <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Solutions professionnelles", href: "/solutions" }, { label: sector.name }]} />
+        <ArfroSectorPage
+          sector={{ ...sector, others: sector.others.map(withSectorPhoto) }}
+          h1={h1}
+          heroImage={heroImage}
+          cities={cities.data.map((c) => c.name)}
+          phone={contactPhone(sector.contact, PROJECTS_PHONE_LABEL)}
+          whatsappHref={wa}
+        />
+      </>
+    );
+  }
 
   return (
     <>

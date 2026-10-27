@@ -9,7 +9,9 @@ use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
+use App\Models\Brand;
 use App\Models\Category;
+use App\Support\Frontend\Revalidator;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -82,6 +84,14 @@ class CategoryResource extends Resource
                         Select::make('icon')->label('Icône')->options(Fields::ICON_KEYS),
                         FileUpload::make('image')->label('Image')->image()->disk('public')->directory('categories'),
                     ]),
+                    Section::make('Ordre des marques')->collapsible()
+                        ->description('Ordre des produits de la liste (tri par défaut « Pertinence ») et des marques du filtre.')
+                        ->schema([
+                            Select::make('brand_order')->label('Marques, dans l’ordre d’affichage')
+                                ->multiple()->reorderable()->searchable()
+                                ->options(fn () => Brand::query()->orderBy('position')->orderBy('name')->pluck('name', 'id')->all())
+                                ->helperText('Laisser vide pour suivre l’ordre général des marques (Catalogue › Marques). Les marques non listées suivent, dans l’ordre général.'),
+                        ]),
                     Section::make('Publication')->columns(4)->schema([
                         Toggle::make('is_active')->label('Active')->default(true),
                         Toggle::make('is_quote_only')->label('Sur devis uniquement'),
@@ -106,6 +116,8 @@ class CategoryResource extends Resource
     {
         return $table
             ->reorderable('position')
+            // Drag and drop updates the rows in one query, without model events.
+            ->afterReordering(fn () => Revalidator::changed())
             ->defaultSort('position')
             ->paginated(false)
             ->columns([

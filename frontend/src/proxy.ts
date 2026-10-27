@@ -7,8 +7,27 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 const LEGACY = /^\/(produit\/(details|service|marque)|home)(\/|$)/i;
 
+/**
+ * arfro.com's home is a route of its own (app/(site)/accueil-arfro), served at « / » by a rewrite,
+ * so each storefront's home bundles only its own client components. The internal path itself is
+ * never a public URL. SITE_KEY is read at runtime like src/lib/site.ts (server-only, not imported).
+ */
+const ARFRO_HOME = "/accueil-arfro";
+const env: Record<string, string | undefined> = process.env;
+const isArfro = () => env["SITE_KEY"]?.trim().toLowerCase() === "arfro";
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname === ARFRO_HOME || pathname === `${ARFRO_HOME}/`) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url, 308);
+  }
+  if (pathname === "/" && isArfro()) {
+    const url = request.nextUrl.clone();
+    url.pathname = ARFRO_HOME;
+    return NextResponse.rewrite(url);
+  }
   if (pathname === pathname.toLowerCase() || LEGACY.test(pathname)) return NextResponse.next();
   const url = request.nextUrl.clone();
   url.pathname = pathname.toLowerCase();

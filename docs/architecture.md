@@ -131,6 +131,15 @@ ligne » settings turn it on and hold a ClientId and a store key (`GET /checkout
   design tokens for arfro (`[data-site="arfro"]`), and client components branch with `useIsArfro()`
   (`src/lib/site-context.tsx`), server components with `SITE_KEY`. Climatisation Maroc keeps the
   original design; arfro.com has its own (docs/deviations.md, « Arfro restyle »).
+- **Per-site bundles.** Turbopack bundles every client component a route segment imports, rendered
+  or not, so routes shared by both sites must not import the other site's client code statically:
+  arfro.com's home is its own route (`app/(site)/accueil-arfro`, served at « / » by a rewrite in
+  `src/proxy.ts`; the internal path redirects to « / »), the page chrome lives in
+  `components/layout/chrome/` (one module per site), and site-specific client components shared
+  routes import go through `next/dynamic` client modules (`@/components/arfro/motion`,
+  `components/layout/chrome/cm-client.tsx`). `next/dynamic` called from a server component does
+  not split anything. Fonts: one self-hosted file per site (`public/fonts`, `@font-face` in
+  `globals.css`), only the active site's preloaded (`app/layout.tsx`).
 
 ## Multi-site
 

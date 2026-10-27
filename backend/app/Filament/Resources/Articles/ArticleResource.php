@@ -10,6 +10,7 @@ use App\Filament\Resources\Articles\Pages\CreateArticle;
 use App\Filament\Resources\Articles\Pages\EditArticle;
 use App\Filament\Resources\Articles\Pages\ListArticles;
 use App\Models\Article;
+use App\Support\Frontend\Revalidator;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -97,6 +98,7 @@ class ArticleResource extends Resource
         return $table
             ->defaultSort('position')
             ->reorderable('position')
+            ->afterReordering(fn () => Revalidator::changed()) // one query, no model events
             ->columns([
                 TextColumn::make('title')->label('Titre')->searchable()->weight('bold')->wrap(),
                 TextColumn::make('category.name')->label('Catégorie')->badge(),

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree, Manrope } from "next/font/google";
 import { connection } from "next/server";
+import { preload } from "react-dom";
 import { Clarity } from "@/components/analytics/Clarity";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
 import { MetaPixel, MetaPixelNoScript } from "@/components/analytics/MetaPixel";
@@ -8,22 +8,17 @@ import { SITE, SITE_KEY, SITE_NAME, SITE_URL, clarityId, gtmId, metaPixelId } fr
 import { SiteKeyProvider } from "@/lib/site-context";
 import "./globals.css";
 
-const figtree = Figtree({
-  variable: "--font-figtree",
-  // French (é è à ç œ « ») is fully covered by the latin subset: one preloaded file, not two.
-  // Figtree is a variable font, so no weight list is needed (one file serves 400–800).
-  subsets: ["latin"],
-  display: "swap",
-});
-
-// arfro.com's typeface (its look follows LG/Samsung storefronts). Not preloaded: Climatisation Maroc
-// never uses it, and next/font options must be literals (no per-site preload).
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
-});
+/**
+ * One typeface per storefront, self-hosted (public/fonts, latin subset: covers French, é è à ç œ « »;
+ * variable fonts, one file per family). The @font-face rules and their metric-matched fallbacks
+ * (size-adjust, ascent/descent overrides: no layout shift when the font swaps in) are at the top of
+ * globals.css. Only the active site's file is preloaded: next/font options are build-time literals,
+ * so with next/font both sites preloaded Figtree and Arfro's Manrope arrived late (CLS 0.28).
+ */
+const SITE_FONT: Record<typeof SITE_KEY, string> = {
+  cm: "/fonts/figtree-latin-f7aa2171.woff2",
+  arfro: "/fonts/manrope-latin-a343f882.woff2",
+};
 
 /** Per storefront (SITE_KEY, SITE_URL), read at runtime: one build serves both sites. */
 export function generateMetadata(): Metadata {
@@ -57,9 +52,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
   const gtm = gtmId();
   const pixel = metaPixelId();
+  preload(SITE_FONT[SITE_KEY], { as: "font", type: "font/woff2", crossOrigin: "anonymous", fetchPriority: "high" });
   return (
     // data-site switches the design tokens per storefront (globals.css).
-    <html lang="fr-MA" data-site={SITE_KEY} className={`${figtree.variable} ${manrope.variable}`}>
+    <html lang="fr-MA" data-site={SITE_KEY}>
       <body>
         <GoogleTagManagerNoScript id={gtm} />
         <MetaPixelNoScript id={pixel} />

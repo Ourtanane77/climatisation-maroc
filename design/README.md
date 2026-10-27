@@ -21,7 +21,9 @@ The site serves trimmed, resized copies from `frontend/public/brand/<site>/`: `l
 (header), `logo-white.png` (footer, on the brand blue), `icon.png` (512 px), `apple-icon.png`
 (180 px) and `favicon-32.png`. Climatisation Maroc's icons are the round « AF » mark cut from its
 logo. They are wired in `frontend/src/lib/site.ts`. After replacing a logo, regenerate the copies
-at the same sizes (logos 180 px high, transparent margins trimmed).
+at the same sizes (logos 180 px high, transparent margins trimmed). Arfro also has `logo-76.png` and `logo-white-76.png`
+(76 px high, palette PNG, made from the 180 px files with sharp) for the on-screen header, drawer
+and footer logos; regenerate them too.
 
 ## `uploads/`
 

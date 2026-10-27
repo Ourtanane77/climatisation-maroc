@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { ArfroFormPage, ResellerPerks } from "@/components/arfro/pro/ArfroFormPage";
+import { ContactAside } from "@/components/arfro/pro/parts";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ResellerForm } from "@/components/leads/ResellerForm";
 import { CallbackCard, PageIntro } from "@/components/leads/ui";
@@ -8,6 +10,7 @@ import { getCityNames } from "@/lib/leads/data";
 import { getNavigation, publishedLegalHref } from "@/lib/navigation";
 import { waLink } from "@/lib/whatsapp";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_KEY } from "@/lib/site";
 
 export const metadata: Metadata = seoMetadata({
   title: "Devenir revendeur",
@@ -19,6 +22,30 @@ export const metadata: Metadata = seoMetadata({
 export default async function ResellerPage() {
   const [nav, cities] = await Promise.all([getNavigation(), getCityNames()]);
   const wa = waLink("Bonjour, je souhaite ouvrir un compte revendeur.", nav.whatsapp.number);
+
+  if (SITE_KEY === "arfro") {
+    // Same form (fields, validation, POST /api/forms/reseller); Arfro heading, frame and aside.
+    return (
+      <>
+        <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Espace professionnel", href: "/espace-professionnel" }, { label: "Devenir revendeur" }]} />
+        <ArfroFormPage
+          eyebrow="ARFRO Business · Compte professionnel"
+          title="Devenir revendeur"
+          lead="Ouvrez votre compte professionnel pour accéder aux tarifs revendeur, au stock et à la commande rapide."
+        >
+          <ResellerForm
+            cities={cities}
+            cgvHref={publishedLegalHref(nav, "/cgv")}
+            aside={
+              <ContactAside title="Une question avant de commencer ?" phone={projectsPhone(nav)} hours={nav.footer.hours} whatsappHref={wa}>
+                <ResellerPerks />
+              </ContactAside>
+            }
+          />
+        </ArfroFormPage>
+      </>
+    );
+  }
 
   return (
     <>

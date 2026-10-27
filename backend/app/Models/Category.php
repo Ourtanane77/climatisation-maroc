@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property string $path
  * @property CategoryTemplate $template
  * @property bool $is_active
+ * @property list<int|string>|null $brand_order Brand ids in listing order; empty = general brand order
  */
 class Category extends Model implements HasPublicUrl
 {
@@ -41,6 +42,7 @@ class Category extends Model implements HasPublicUrl
             'template' => CategoryTemplate::class,
             'is_active' => 'boolean',
             'is_quote_only' => 'boolean',
+            'brand_order' => 'array',
         ];
     }
 
@@ -57,6 +59,16 @@ class Category extends Model implements HasPublicUrl
                 $category->children->each->save();
             }
         });
+    }
+
+    /**
+     * Brand ids of the « Ordre des marques » override, in order (empty: the general brand order).
+     *
+     * @return list<int>
+     */
+    public function brandOrder(): array
+    {
+        return array_values(array_unique(array_map(intval(...), array_filter((array) $this->brand_order, is_numeric(...)))));
     }
 
     /** @return BelongsTo<Category, $this> */

@@ -12,7 +12,9 @@ describe("listing URLs", () => {
     expect(q.get("power")).toBe("12000");
     expect(q.get("sort")).toBe("name");
     expect(q.get("page")).toBe("2");
-    expect(new URLSearchParams(listingApiQuery({})).get("sort")).toBe("price_asc");
+    expect(new URLSearchParams(listingApiQuery({})).get("sort")).toBe("relevance");
+    expect(new URLSearchParams(listingApiQuery({ tri: "prix-croissant" })).get("sort")).toBe("price_asc");
+    expect(new URLSearchParams(listingApiQuery({ tri: "inconnu" })).get("sort")).toBe("relevance");
   });
 
   it("toggles a facet value and resets the page", () => {

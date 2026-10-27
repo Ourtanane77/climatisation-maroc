@@ -59,6 +59,16 @@ class ManageHomeSettings extends SettingsPage
 
     public function form(Schema $schema): Schema
     {
+        return $schema->components($this->homeComponents());
+    }
+
+    /**
+     * Sections of the form shared by every site (hero, product rails, brands, mega menu).
+     *
+     * @return list<Section>
+     */
+    protected function homeComponents(): array
+    {
         $site = static::siteKey();
         // Products shown on the site, plus those already chosen (so a product hidden since stays valid).
         $products = function () use ($site) {
@@ -73,7 +83,7 @@ class ManageHomeSettings extends SettingsPage
         $productSelect = fn (string $field, string $label) => Select::make($field)->label($label)->options($products)->multiple()->searchable()
             ->helperText('L’ordre de sélection est l’ordre d’affichage.');
 
-        return $schema->components([
+        return [
             Section::make('Bandeau principal')->columns(2)->schema([
                 TextInput::make('hero_title')->label('Titre')->required()->columnSpanFull(),
                 TextInput::make('hero_subtitle')->label('Sous-titre')->columnSpanFull(),
@@ -99,6 +109,6 @@ class ManageHomeSettings extends SettingsPage
                         ->all()
                 ),
             ]),
-        ]);
+        ];
     }
 }

@@ -5,6 +5,10 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { getServices } from "@/lib/content/api";
 import { PROJECTS_PHONE_LABEL, phoneFor } from "@/lib/content/copy";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_KEY } from "@/lib/site";
+import { waLink } from "@/lib/whatsapp";
+import { ArfroServicesHub } from "@/components/arfro/pro/ArfroServices";
+import { contactPhone } from "@/components/arfro/pro/parts";
 
 export const metadata: Metadata = seoMetadata({ title: "Services", path: "/services" });
 
@@ -14,6 +18,21 @@ export const metadata: Metadata = seoMetadata({ title: "Services", path: "/servi
  */
 export default async function ServicesPage() {
   const { data: services, contact } = await getServices();
+
+  if (SITE_KEY === "arfro") {
+    return (
+      <>
+        <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Services" }]} />
+        <ArfroServicesHub
+          services={services}
+          advice={contactPhone(contact, "Conseil")}
+          projects={contactPhone(contact, PROJECTS_PHONE_LABEL)}
+          hours={contact.hours}
+          whatsappHref={waLink("Bonjour, j’ai une question sur vos services.", contact.whatsapp)}
+        />
+      </>
+    );
+  }
 
   return (
     <>

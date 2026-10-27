@@ -16,6 +16,7 @@ final class SocialLinks
         'x' => 'X',
         'threads' => 'Threads',
         'pinterest' => 'Pinterest',
+        'linkedin' => 'LinkedIn',
     ];
 
     /**

@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { FacebookIcon, InstagramIcon, PinterestIcon, ThreadsIcon, TikTokIcon, WhatsAppIcon, XIcon, YouTubeIcon } from "@/components/ui/icons";
+import { FacebookIcon, InstagramIcon, LinkedInIcon, PinterestIcon, ThreadsIcon, TikTokIcon, WhatsAppIcon, XIcon, YouTubeIcon } from "@/components/ui/icons";
 import { SITE_NAME } from "@/lib/site";
 import type { SiteNavigation, Social } from "@/lib/types";
+import { BottomBarSpacer } from "./BottomBarSpacer";
 import { FooterColumns } from "./FooterColumns";
 import { LogicSignature } from "./LogicSignature";
 import { Logo, type SiteLogo } from "./Logo";
@@ -14,6 +15,7 @@ const socialIcon: Record<Social["name"], React.ReactNode> = {
   X: <XIcon size={20} />,
   Threads: <ThreadsIcon size={20} />,
   Pinterest: <PinterestIcon size={20} />,
+  LinkedIn: <LinkedInIcon size={20} />,
   WhatsApp: <WhatsAppIcon size={20} />,
 };
 
@@ -85,6 +87,7 @@ export function SiteFooter({ footer, logo, bottomPadding = 0 }: { footer: SiteNa
           </div>
         </div>
       </div>
+      <BottomBarSpacer />
     </footer>
   );
 }

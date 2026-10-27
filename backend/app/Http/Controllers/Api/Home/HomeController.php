@@ -9,11 +9,13 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\SectorPage;
+use App\Settings\ArfroHomeSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\HomeSettings;
 use App\Support\Api\Audience;
 use App\Support\Api\ImageUrl;
 use App\Support\Catalog\SiteCatalog;
+use App\Support\Home\ArfroHomeContent;
 use App\Support\Sites\WhatsAppNumbers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,7 +24,8 @@ use Illuminate\Support\Collection;
 /**
  * GET /home: everything the home page (design/Accueil.dc.html) shows below the header, driven by
  * the "Page d'accueil" settings and the live catalogue. Only published products and active
- * categories and brands are returned.
+ * categories and brands are returned. On arfro.com, `arfro` adds the editorial home sections
+ * (App\Support\Home\ArfroHomeContent).
  */
 class HomeController extends Controller
 {
@@ -38,6 +41,8 @@ class HomeController extends Controller
         $promotions = $chosen->concat($others)->take(8)
             ->map(fn (Product $p) => (new ProductCardResource($p))->toArray($request))
             ->values()->all();
+
+        $brands = $this->brands($home->brand_ids);
 
         return response()->json([
             'hero' => [
@@ -64,8 +69,12 @@ class HomeController extends Controller
             ],
             'ducts' => $this->ducts($home->ducts_product_ids),
             'supplies' => $this->cards($home->supplies_product_ids, $request),
-            'brands' => $this->brands($home->brand_ids),
+            'brands' => $brands,
             'pro' => ['phone' => $this->phone($general, 'Projets et revendeurs')],
+            // arfro.com only: the editorial home sections (owner's brief of 2026-10-27).
+            ...($home instanceof ArfroHomeSettings
+                ? ['arfro' => ArfroHomeContent::payload($home, $general, $request, $brands)]
+                : []),
         ]);
     }
 

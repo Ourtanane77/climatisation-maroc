@@ -4,7 +4,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ContactForm } from "@/components/leads/ContactForm";
 import { H1, H2, IconTile } from "@/components/leads/ui";
 import { ButtonLink } from "@/components/ui/Button";
-import { FacebookIcon, InstagramIcon, PinterestIcon, ThreadsIcon, TikTokIcon, WhatsAppIcon, XIcon, YouTubeIcon } from "@/components/ui/icons";
+import { FacebookIcon, InstagramIcon, LinkedInIcon, PinterestIcon, ThreadsIcon, TikTokIcon, WhatsAppIcon, XIcon, YouTubeIcon } from "@/components/ui/icons";
 import { NEEDS, SI, findPhone } from "@/lib/leads/contacts";
 import { googleMapsEmbedSrc } from "@/lib/maps";
 import { getNavigation } from "@/lib/navigation";
@@ -29,6 +29,7 @@ const SOCIAL_STYLE: Record<Social["name"], { bg: string; icon: React.ReactNode }
   X: { bg: "#1A1A1A", icon: <XIcon size={20} /> },
   Threads: { bg: "#1A1A1A", icon: <ThreadsIcon size={20} /> },
   Pinterest: { bg: "#E60023", icon: <PinterestIcon size={20} /> },
+  LinkedIn: { bg: "#0A66C2", icon: <LinkedInIcon size={20} /> },
   WhatsApp: { bg: "#25D366", icon: <WhatsAppIcon size={20} /> },
 };
 

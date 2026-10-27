@@ -1,15 +1,18 @@
 import Link from "next/link";
 import type { SiteNavigation } from "@/lib/types";
 
-/** arfro.com promo strip: dark ink bar, centred text and an underlined white link (from settings). */
+/**
+ * arfro.com promo strip (from the settings): a quiet Deep Navy line above the header, centred text
+ * and an underlined link. Phones: the text alone, linked to the offer. A labelled `aside` landmark,
+ * so its link is never content outside landmarks.
+ */
 export function ArfroPromoStrip({ promo }: { promo: SiteNavigation["promoBar"] }) {
   if (!promo?.text) return null;
   return (
-    <div className="bg-ink text-xs font-semibold text-white md:text-[13px]">
-      <div className="site-gutter flex flex-wrap items-center justify-center gap-x-4 gap-y-1 py-2 text-center md:py-2.5">
-        {/* Phones: the text alone on one line (Mobile.dc.html), linked to the offer. */}
+    <aside aria-label="Promotion" className="bg-arfro-navy font-arfro text-xs font-semibold tracking-[0.01em] text-white/90 md:text-[13px]">
+      <div className="site-gutter flex flex-wrap items-center justify-center gap-x-4 gap-y-1 py-2 text-center">
         {promo.link ? (
-          <Link href={promo.link.href} className="inline-flex min-h-6 items-center text-white hover:text-white md:hidden">
+          <Link href={promo.link.href} className="inline-flex min-h-6 items-center text-white/90 hover:text-white md:hidden">
             {promo.text}
           </Link>
         ) : (
@@ -19,12 +22,12 @@ export function ArfroPromoStrip({ promo }: { promo: SiteNavigation["promoBar"] }
         {promo.link && (
           <Link
             href={promo.link.href}
-            className="hidden min-h-6 items-center text-white underline underline-offset-[3px] hover:text-white hover:decoration-2 md:inline-flex"
+            className="text-arfro-sky hover:text-arfro-sky hidden min-h-6 items-center underline decoration-1 underline-offset-[3px] hover:decoration-2 md:inline-flex"
           >
             {promo.link.label}
           </Link>
         )}
       </div>
-    </div>
+    </aside>
   );
 }

@@ -17,8 +17,13 @@ const nextConfig: NextConfig = {
   },
   // Design photos are requested with ?v=<mtime> (src/lib/design-assets.ts): a replaced photo gets a
   // new URL, so they can be cached for a year. /brand keeps the default (the logo URL has no version).
+  // The self-hosted fonts (public/fonts, app/layout.tsx) carry a content hash in their file name.
   async headers() {
-    return [{ source: "/design/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] }];
+    const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    return [
+      { source: "/design/:path*", headers: immutable },
+      { source: "/fonts/:path*", headers: immutable },
+    ];
   },
   // Docker dev (webpack + polling, see docker-compose.yml): poll every 1.5 s and skip folders that
   // are not source code, otherwise the watcher keeps the CPU busy and every page renders slowly.

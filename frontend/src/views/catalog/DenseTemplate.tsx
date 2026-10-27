@@ -1,6 +1,6 @@
 import { DenseList } from "@/components/catalog/DenseList";
-import { CategoryVisual } from "@/components/catalog/CategoryVisual";
-import { CategoryHero, PageIntro } from "@/components/catalog/Sections";
+import { ArfroCategoryHeader } from "@/components/arfro/listing/ArfroCategoryHeader";
+import { PageIntro } from "@/components/catalog/Sections";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { apiGet } from "@/lib/api";
 import { getToken } from "@/lib/auth";
@@ -23,16 +23,17 @@ export default async function DenseTemplate({ category }: { category: CategoryDa
   ];
 
   if (SITE_KEY === "arfro") {
-    // Arfro: the sub-category pills move into the grey hero panel.
+    // Arfro: the sub-categories become the tab row of the editorial header.
     return (
       <>
         <Breadcrumb items={category.breadcrumb} />
-        <CategoryHero
+        <ArfroCategoryHeader
           title={category.h1}
           intro={category.intro}
-          pills={pills}
-          pillsLabel="Sous-catégories"
-          visual={<CategoryVisual href={category.href} sizes="(min-width: 760px) 460px, 90vw" className="block h-auto w-full max-w-[460px] object-contain" />}
+          breadcrumb={category.breadcrumb}
+          href={category.href}
+          nav={pills}
+          navLabel="Sous-catégories"
         />
         <DenseList items={data} pills={[]} />
       </>

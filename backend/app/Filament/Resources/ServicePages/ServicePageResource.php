@@ -9,6 +9,7 @@ use App\Filament\Resources\ServicePages\Pages\CreateServicePage;
 use App\Filament\Resources\ServicePages\Pages\EditServicePage;
 use App\Filament\Resources\ServicePages\Pages\ListServicePages;
 use App\Models\ServicePage;
+use App\Support\Frontend\Revalidator;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -93,6 +94,7 @@ class ServicePageResource extends Resource
     {
         return $table
             ->reorderable('position')
+            ->afterReordering(fn () => Revalidator::changed()) // one query, no model events
             ->defaultSort('position')
             ->columns([
                 TextColumn::make('name')->label('Service')->weight('bold'),

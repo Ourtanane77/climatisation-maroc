@@ -1,4 +1,5 @@
 import type { ArtKey, Link, Phone, ProductCardData } from "@/lib/types";
+import type { ArfroHomeData } from "./arfro";
 
 /** GET /api/v1/home (backend HomeController). Money in centimes. */
 
@@ -47,6 +48,8 @@ export interface WhatsAppNumber {
 }
 
 export interface HomeData {
+  /** arfro.com only: the editorial home sections (lib/home/arfro.ts). */
+  arfro?: ArfroHomeData;
   hero: {
     title: string;
     subtitle: string | null;

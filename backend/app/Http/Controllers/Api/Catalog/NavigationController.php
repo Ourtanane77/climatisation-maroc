@@ -39,7 +39,7 @@ class NavigationController extends Controller
         $roots = Category::query()->where(SiteCatalog::publicCategories(...))->roots()->orderBy('position')->with(['children' => fn ($q) => $q->where(SiteCatalog::publicCategories(...))])->get();
         $ranges = $roots->reject(fn (Category $c) => $c->is_quote_only);
 
-        return response()->json([
+        $data = [
             'promoBar' => $settings->promo_bar_text ? [
                 'text' => $settings->promo_bar_text,
                 'link' => $settings->promo_bar_link_url
@@ -90,7 +90,35 @@ class NavigationController extends Controller
                 'legal' => $this->legal(),
                 'copyright' => "\u{00A9} ".now()->year." Ariha Froid \u{00B7} ".Sites::current()->name,
             ],
-        ]);
+        ];
+
+        // Arfro's navigation (docs/arfro-creative-brief.md « Navigation »): extra published entries
+        // under their own key, so Climatisation Maroc's output stays the same.
+        if (Sites::currentKey() === 'arfro') {
+            $data['arfro'] = $this->arfro($roots);
+        }
+
+        return response()->json($data);
+    }
+
+    /**
+     * Published service and sector pages, the blog and the quote-only ranges (Froid…), for Arfro's
+     * « Services », « Solutions professionnelles » and « Conseils » menus. Unpublished pages are absent.
+     *
+     * @param  Collection<int, Category>  $roots
+     * @return array{services: list<array{label: string, href: string}>, solutions: list<array{label: string, href: string}>, blog: array{label: string, href: string}|null, quoteRanges: list<array{label: string, href: string}>}
+     */
+    private function arfro(Collection $roots): array
+    {
+        $links = fn (Collection $pages): array => $pages->map(fn (ServicePage|SectorPage $p) => ['label' => (string) $p->name, 'href' => $p->url()])->values()->all();
+
+        return [
+            'services' => $links(ServicePage::query()->where(SiteCatalog::published(...))->orderBy('position')->get()),
+            'solutions' => $links(SectorPage::query()->where(SiteCatalog::published(...))->orderBy('position')->get()),
+            'blog' => Article::query()->where(SiteCatalog::published(...))->exists() ? ['label' => 'Conseils', 'href' => '/blog'] : null,
+            'quoteRanges' => $roots->filter(fn (Category $c) => $c->is_quote_only)
+                ->map(fn (Category $c) => ['label' => (string) $c->siteText('name'), 'href' => $c->url()])->values()->all(),
+        ];
     }
 
     private function label(Category $c): string

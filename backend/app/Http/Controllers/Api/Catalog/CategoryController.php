@@ -56,7 +56,7 @@ class CategoryController extends Controller
             ])->values(),
             'powers' => $this->powers($category, $families),
             'popular' => ProductCardResource::collection($this->popular($families))->resolve(),
-            'brands' => $this->brands($families),
+            'brands' => $this->brands($families, $category),
             'guides' => $category->articles()->where(SiteCatalog::published(...))->get()->map(fn (Article $a) => [
                 'title' => $a->title,
                 'href' => $a->url(),
@@ -88,15 +88,15 @@ class CategoryController extends Controller
         }
 
         $filters = Listing::filtersFrom($request->query());
-        $sort = in_array($request->query('sort'), Listing::SORTS, true) ? (string) $request->query('sort') : 'price_asc';
-        $matching = Listing::sort(Listing::filter($all, $filters), $sort);
+        $sort = in_array($request->query('sort'), Listing::SORTS, true) ? (string) $request->query('sort') : Listing::DEFAULT_SORT;
+        $matching = Listing::sort(Listing::filter($all, $filters), $sort, $category);
         $perPage = max(1, min(48, (int) $request->query('per_page', 12)));
         $lastPage = max(1, (int) ceil($matching->count() / $perPage));
         $page = max(1, min($lastPage, (int) $request->query('page', 1)));
 
         return response()->json([
             'data' => ProductCardResource::collection($matching->forPage($page, $perPage)->values())->resolve(),
-            'facets' => Listing::facets($all, $filters),
+            'facets' => Listing::facets($all, $filters, $category),
             'meta' => [
                 'total' => $matching->count(),
                 // Families in the category before filtering: the page shows filters and sort from 2.
@@ -206,11 +206,11 @@ class CategoryController extends Controller
      * @param  Collection<int, Product>  $families
      * @return list<array<string, mixed>>
      */
-    private function brands(Collection $families): array
+    private function brands(Collection $families, Category $category): array
     {
         return $families->pluck('brand')->filter()->unique('id')
             ->filter(fn (Brand $b) => $b->is_active)
-            ->sortBy('position')
+            ->sortBy(Listing::brandRank($category))
             ->map(fn (Brand $b) => [
                 'name' => $b->name,
                 'slug' => $b->slug,

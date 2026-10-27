@@ -4,48 +4,53 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import type { SiteNavigation } from "@/lib/types";
-import { currentFor } from "../SiteHeader";
-
-const PRO_HREF = "/espace-professionnel";
+import { PhoneIcon } from "./icons";
+import { PRO_HREF, currentFor, utilityLinks } from "./nav";
 
 /**
- * arfro.com utility bar (≥1024px, above the sticky header): « Particuliers » / « Professionnels »
- * on the left (the pro area underlined while inside it), service links and the sales phone on the right.
+ * arfro.com utility row (≥1024px, 36px): « Particuliers » / « Professionnels » on the left (the pro
+ * area marked while inside it), order tracking, quote, contact, reseller, promotions and the sales
+ * phone on the right. It is the top row of ArfroHeader (`embedded`) so it follows the header states
+ * (transparent over the home hero); rendered alone it outputs nothing (the site layout still
+ * mounts it before the header).
  */
-export function ArfroUtilityBar({ nav }: { nav: SiteNavigation }) {
+export function ArfroUtilityBar({ nav, embedded = false }: { nav: SiteNavigation; embedded?: boolean }) {
   const pathname = usePathname();
+  if (!embedded) return null;
   const pro = pathname === PRO_HREF || pathname.startsWith(`${PRO_HREF}/`);
   const spaces = [
     { label: "Particuliers", href: "/", active: !pro },
     { label: "Professionnels", href: PRO_HREF, active: pro },
   ];
-  const services = [{ label: "Suivre ma commande", href: "/suivi-commande" }, ...nav.rightLinks];
+  const links = [...utilityLinks(nav), nav.promotions];
 
   return (
-    <div className="border-border hidden border-b text-[13px] lg:block">
-      <div className="site-gutter flex h-10 items-center justify-between gap-4">
-        <nav aria-label="Espaces" className="-ml-3 flex h-full gap-1">
-          {spaces.map((s) => (
-            <Link
-              key={s.href}
-              href={s.href}
-              aria-current={s.active ? "true" : undefined}
-              className={cn(
-                "flex h-full items-center border-b-2 px-3",
-                s.active ? "border-ink text-ink hover:text-ink font-bold" : "text-muted hover:text-ink border-transparent font-semibold",
-              )}
-            >
-              {s.label}
-            </Link>
+    <div className="hidden text-[12.5px] lg:block">
+      <div className="site-gutter flex h-9 items-center justify-between gap-6 shadow-[inset_0_-1px_0_var(--hdr-line)]">
+        <nav aria-label="Espaces" className="-ml-2 flex h-full items-center">
+          {spaces.map((s, i) => (
+            <span key={s.href} className="flex h-full items-center">
+              {i > 0 && <span aria-hidden className="h-3 w-px bg-(--hdr-line)" />}
+              <Link
+                href={s.href}
+                aria-current={s.active ? "true" : undefined}
+                className={cn(
+                  "flex h-full items-center px-2 tracking-[0.02em]",
+                  s.active ? "font-bold text-(--hdr-fg) hover:text-(--hdr-fg)" : "font-semibold text-(--hdr-muted) hover:text-(--hdr-fg)",
+                )}
+              >
+                {s.label}
+              </Link>
+            </span>
           ))}
         </nav>
-        <nav aria-label="Services" className="flex h-full items-center gap-[22px]">
-          {services.map((l) => (
+        <nav aria-label="Services" className="flex h-full items-center gap-5 xl:gap-6">
+          {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               aria-current={currentFor(pathname, l.href)}
-              className="text-muted hover:text-ink aria-[current=page]:text-ink flex h-full items-center font-semibold"
+              className="flex h-full items-center font-semibold text-(--hdr-muted) hover:text-(--hdr-fg) aria-[current]:text-(--hdr-fg)"
             >
               {l.label}
             </Link>
@@ -53,21 +58,9 @@ export function ArfroUtilityBar({ nav }: { nav: SiteNavigation }) {
           <a
             href={nav.salesPhone.href}
             aria-label={`Appeler le ${nav.salesPhone.display}`}
-            className="text-ink hover:text-ink flex h-full items-center gap-1.5 font-bold"
+            className="flex h-full items-center gap-1.5 font-bold text-(--hdr-fg) hover:text-(--hdr-fg)"
           >
-            <svg
-              aria-hidden
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />
-            </svg>
+            <PhoneIcon size={14} />
             {nav.salesPhone.display}
           </a>
         </nav>

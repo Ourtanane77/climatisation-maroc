@@ -7,6 +7,7 @@ use App\Filament\Forms\Fields;
 use App\Filament\Forms\SiteFields;
 use App\Filament\Resources\ArticleCategories\Pages\ManageArticleCategories;
 use App\Models\ArticleCategory;
+use App\Support\Frontend\Revalidator;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -58,6 +59,7 @@ class ArticleCategoryResource extends Resource
     {
         return $table
             ->reorderable('position')
+            ->afterReordering(fn () => Revalidator::changed()) // one query, no model events
             ->defaultSort('position')
             ->columns([
                 TextColumn::make('name')->label('Nom')->weight('bold'),

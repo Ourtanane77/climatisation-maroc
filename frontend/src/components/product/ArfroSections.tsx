@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { groupSpecs, keyFacts } from "@/components/arfro/pdp/data";
+import { ARFRO_PDP_H2, PDP_SPLIT, PdpEyebrow } from "@/components/arfro/pdp/styles";
 import { ProductArt } from "@/components/catalog/ProductArt";
 import { toast } from "@/components/ui/Toast";
 import { addToCart } from "@/lib/cart/store";
@@ -13,15 +15,14 @@ import { useProduct } from "./ProductContext";
 import { specRows } from "./SpecTable";
 
 /**
- * Arfro product page sections (Produit.dc.html): section tab bar, highlight tiles, two-column
- * spec list and the « Pour l'installation » accessory rows. Client components (selected variant).
+ * Arfro product page sections: section tab bar, advantages, key figures, grouped specifications
+ * with the documentation, « Pour l'installation » accessory rows. Client components (they follow
+ * the selected variant). Everything comes from the product's data; a section without data is left out.
  */
 
-/** Shared H2 of the Arfro product sections (30/800). */
-const ARFRO_H2 = "m-0 mb-5 text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] md:text-[30px]";
-
 /**
- * Tab bar anchoring to the sections; the tab of the section in view is marked current.
+ * Tab bar anchoring to the sections (sticky under the header on wide screens); the tab of the
+ * section in view is marked current.
  */
 export function SectionTabs({ tabs }: { tabs: { id: string; label: string }[] }) {
   const [current, setCurrent] = useState(tabs[0]?.id);
@@ -42,11 +43,8 @@ export function SectionTabs({ tabs }: { tabs: { id: string; label: string }[] })
 
   if (tabs.length < 2) return null;
   return (
-    <nav
-      aria-label="Sections du produit"
-      className="border-border -mx-4 mt-14 [scrollbar-width:none] overflow-x-auto border-b px-4 md:mx-0 md:mt-[72px] md:px-0"
-    >
-      <ul className="m-0 flex list-none gap-6 p-0 md:gap-8">
+    <nav aria-label="Sections du produit" className="border-arfro-line -mx-4 mt-14 scrollbar-none overflow-x-auto border-b px-4 md:mx-0 md:mt-20 md:px-0">
+      <ul className="m-0 flex list-none gap-7 p-0 md:gap-10">
         {tabs.map((t) => (
           <li key={t.id}>
             <a
@@ -54,8 +52,10 @@ export function SectionTabs({ tabs }: { tabs: { id: string; label: string }[] })
               aria-current={current === t.id ? "true" : undefined}
               onClick={() => setCurrent(t.id)}
               className={cn(
-                "flex min-h-11 items-center py-4 text-[15px] font-bold whitespace-nowrap md:text-base",
-                current === t.id ? "text-ink hover:text-ink shadow-[inset_0_-3px_0_var(--color-ink)]" : "text-muted hover:text-ink",
+                "flex min-h-12 items-center py-4 text-[15px] font-bold whitespace-nowrap transition-colors duration-300",
+                current === t.id
+                  ? "text-arfro-graphite hover:text-arfro-graphite shadow-[inset_0_-2px_0_var(--color-arfro-blue)]"
+                  : "text-arfro-muted hover:text-arfro-graphite",
               )}
             >
               {t.label}
@@ -67,79 +67,136 @@ export function SectionTabs({ tabs }: { tabs: { id: string; label: string }[] })
   );
 }
 
-/** Highlights as grey tiles with a blue round icon, then the description. */
+/** « Points forts »: the product's highlights as a hairline grid, then its description. */
 export function ArfroHighlights({ id, items, description }: { id: string; items: { title: string; icon: string }[]; description: string | null }) {
   if (!items.length && !description) return null;
   return (
-    <section id={id} aria-label="Présentation" className="flex scroll-mt-24 flex-col gap-8 pt-10 md:pt-14">
+    <section id={id} aria-labelledby={`${id}-title`} className={cn(PDP_SPLIT, "scroll-mt-28 pt-14 md:pt-20")}>
+      <div className="flex flex-col gap-5">
+        <div>
+          <PdpEyebrow>Présentation</PdpEyebrow>
+          <h2 id={`${id}-title`} className={ARFRO_PDP_H2}>
+            Points forts
+          </h2>
+        </div>
+        {description && <p className="text-arfro-graphite/80 m-0 max-w-[60ch] text-[17px] leading-[1.7] whitespace-pre-line">{description}</p>}
+      </div>
       {items.length > 0 && (
-        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-3 md:gap-4 xl:grid-cols-5">
+        <ul className="border-arfro-line m-0 grid list-none grid-cols-1 border-t p-0 sm:grid-cols-2">
           {items.map((item) => {
             const [a, b] = iconPaths(item.icon);
             return (
-              <li key={item.title} className="rounded-18 bg-bg flex min-h-[150px] flex-col gap-4 px-5 py-6 md:px-[22px] md:py-7">
-                <span className="bg-brand flex size-11 shrink-0 items-center justify-center rounded-full">
-                  <svg
-                    aria-hidden
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#FFFFFF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d={a} />
-                    <path d={b} />
-                  </svg>
-                </span>
-                <h3 className="m-0 text-base leading-[1.25] font-extrabold md:text-[17px]">{item.title}</h3>
+              <li key={item.title} className="border-arfro-line flex items-center gap-4 border-b py-5 sm:odd:pr-6 sm:even:border-l sm:even:pl-6">
+                <svg
+                  aria-hidden
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--color-arfro-blue)"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="shrink-0"
+                >
+                  <path d={a} />
+                  <path d={b} stroke="var(--color-arfro-electric)" />
+                </svg>
+                <h3 className="m-0 text-[17px] leading-[1.3] font-bold">{item.title}</h3>
               </li>
             );
           })}
         </ul>
       )}
-      {description && <p className="text-ink-2 m-0 max-w-[860px] text-base leading-[1.7] whitespace-pre-line md:text-lg">{description}</p>}
     </section>
   );
 }
 
-/** « Caractéristiques »: two-column dl with hairlines, rows of the selected variant. */
+/**
+ * « En bref »: the selected variant's headline figures (power, surface, technology, fluid…) read
+ * from its spec rows, on a Deep Navy band. Left out when the product has fewer than two.
+ */
+export function ArfroKeyFacts({ id }: { id: string }) {
+  const { product, variant } = useProduct();
+  const facts = keyFacts(specRows(product, variant));
+  if (facts.length < 2) return null;
+  return (
+    <section id={id} aria-labelledby={`${id}-title`} className="bleed bg-arfro-navy mt-14 scroll-mt-28 text-white md:mt-20">
+      <div className="site-gutter py-12 md:py-16">
+        <PdpEyebrow onDark>En bref</PdpEyebrow>
+        <h2 id={`${id}-title`} className={cn(ARFRO_PDP_H2, "mb-8 md:mb-10")}>
+          {variant.name}
+        </h2>
+        <dl className="border-arfro-line-dark m-0 grid grid-cols-2 border-t md:grid-cols-4">
+          {facts.map((f) => (
+            <div
+              key={f.label}
+              className="border-arfro-line-dark flex flex-col-reverse gap-2 border-b py-6 pr-4 md:border-r md:border-b-0 md:px-6 md:first:pl-0 md:last:border-r-0"
+            >
+              <dt className="text-arfro-on-navy text-[13px] font-semibold tracking-[0.06em] uppercase">{f.label}</dt>
+              <dd className="font-arfro m-0 text-[clamp(20px,2.2vw,30px)] leading-[1.15] font-extrabold tracking-[-0.02em]">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+/** « Caractéristiques »: rows of the selected variant in groups, and the datasheet when there is one. */
 export function ArfroSpecs({ id }: { id: string }) {
   const { product, variant } = useProduct();
-  const rows = specRows(product, variant);
+  const groups = groupSpecs(specRows(product, variant));
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="min-w-0 flex-[1_1_520px] scroll-mt-24">
-      <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
-        <h2 id={`${id}-title`} className={cn(ARFRO_H2, "mb-0")}>
-          Caractéristiques
-        </h2>
+    <section id={id} aria-labelledby={`${id}-title`} className={cn(PDP_SPLIT, "scroll-mt-28 pt-14 md:pt-20")}>
+      <div className="flex flex-col gap-6">
+        <div>
+          <PdpEyebrow>Fiche technique</PdpEyebrow>
+          <h2 id={`${id}-title`} className={ARFRO_PDP_H2}>
+            Caractéristiques
+          </h2>
+        </div>
+        {product.variants.length > 1 && <p className="text-arfro-muted m-0 text-[15px]">Valeurs pour {variant.label ?? variant.sku}.</p>}
         {product.datasheet && (
           <a
             href={product.datasheet}
             target="_blank"
             rel="noopener"
-            className="border-ink text-ink hover:bg-ink flex h-11 items-center rounded-full border-[1.5px] px-5 text-sm font-bold hover:text-white"
+            className="rounded-arfro-md border-arfro-line hover:border-arfro-blue group flex max-w-[420px] items-center gap-4 border p-4 transition-colors duration-300"
           >
-            Télécharger la fiche technique
+            <span aria-hidden className="bg-arfro-ice text-arfro-blue rounded-arfro-sm flex size-12 shrink-0 items-center justify-center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z M14 3v5h5 M12 11v6 M9 14l3 3 3-3" />
+              </svg>
+            </span>
+            <span className="flex flex-col">
+              <span className="text-arfro-graphite text-[15px] font-bold">Télécharger la fiche technique</span>
+              <span className="text-arfro-muted text-[13px]">Documentation du fabricant</span>
+            </span>
           </a>
         )}
       </div>
-      <dl className="border-border m-0 grid grid-cols-2 border-t">
-        {rows.map((r) => (
-          <div key={r.label} className="contents">
-            <dt className="border-border text-muted border-b py-4 pr-4 text-[15px]">{r.label}</dt>
-            <dd className="border-border m-0 border-b py-4 text-[15px] font-bold">{r.value}</dd>
+      <div className="flex min-w-0 flex-col gap-8">
+        {groups.map((g) => (
+          <div key={g.title}>
+            <h3 className="text-arfro-muted m-0 mb-2 text-[13px] font-bold tracking-[0.14em] uppercase">{g.title}</h3>
+            <dl className="border-arfro-line m-0 border-t">
+              {g.rows.map((r) => (
+                <div key={r.label} className="border-arfro-line grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-4 border-b py-4">
+                  <dt className="text-arfro-muted text-[15px]">{r.label}</dt>
+                  <dd className="m-0 text-[15px] font-semibold">{r.value}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         ))}
-      </dl>
+      </div>
     </section>
   );
 }
 
 /** « Pour l'installation »: accessory rows, each with its own + button (adds one to the basket). */
-export function ArfroInstall({ id, accessories }: { id: string; accessories: AccessoryData[] }) {
+export function ArfroInstall({ accessories }: { accessories: AccessoryData[] }) {
   const [added, setAdded] = useState<string | null>(null);
   if (!accessories.length) return null;
 
@@ -150,46 +207,51 @@ export function ArfroInstall({ id, accessories }: { id: string; accessories: Acc
   }
 
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="min-w-0 flex-[1_1_420px] scroll-mt-24">
-      <h2 id={`${id}-title`} className={ARFRO_H2}>
-        Pour l&apos;installation
-      </h2>
-      <ul className="m-0 flex list-none flex-col gap-3 p-0">
-        {accessories.map((a) => (
-          <li key={a.sku} className="rounded-20 border-border flex items-center gap-4 border p-3.5">
-            <span className="rounded-14 bg-bg flex size-[76px] shrink-0 items-center justify-center p-2">
-              {a.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.image} alt="" loading="lazy" className="block max-h-full max-w-full object-contain mix-blend-multiply" />
-              ) : (
-                <ProductArt art={a.art} className="h-auto w-full" />
-              )}
-            </span>
-            <span className="flex min-w-0 flex-1 flex-col gap-1">
-              <Link href={a.href} className="text-ink hover:text-brand font-extrabold">
-                {a.name}
-              </Link>
-              {publicRef(a.sku) && <span className="text-muted text-[13px]">Réf. {a.sku}</span>}
-              <span className="text-[15px] font-bold">{priceText(a.price)}</span>
-            </span>
-            {a.orderable ? (
-              <button
-                type="button"
-                onClick={() => add(a)}
-                aria-label={`Ajouter ${a.name} au panier`}
-                className={cn(
-                  "flex size-11 shrink-0 items-center justify-center rounded-full border-[1.5px] text-xl font-extrabold",
-                  added === a.sku ? "border-brand bg-brand text-white" : "border-brand text-brand hover:bg-tint-blue bg-white",
-                )}
-              >
-                {added === a.sku ? "✓" : "+"}
-              </button>
+    <ul className="border-arfro-line m-0 flex list-none flex-col border-t p-0">
+      {accessories.map((a) => (
+        <li key={a.sku} className="border-arfro-line flex items-center gap-4 border-b py-4">
+          <span className="rounded-arfro-sm flex size-[72px] shrink-0 items-center justify-center bg-white p-2">
+            {a.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={a.image}
+                alt=""
+                width={56}
+                height={56}
+                loading="lazy"
+                decoding="async"
+                className="block max-h-full max-w-full object-contain mix-blend-multiply"
+              />
             ) : (
-              <span className="text-promo shrink-0 text-[13px] font-bold">Indisponible</span>
+              <ProductArt art={a.art} className="h-auto w-full" />
             )}
-          </li>
-        ))}
-      </ul>
-    </section>
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <Link href={a.href} className="text-arfro-graphite hover:text-arfro-blue font-bold">
+              {a.name}
+            </Link>
+            {publicRef(a.sku) && <span className="text-arfro-muted text-[13px]">Réf. {a.sku}</span>}
+            <span className="text-[15px] font-semibold">{priceText(a.price)}</span>
+          </span>
+          {a.orderable ? (
+            <button
+              type="button"
+              onClick={() => add(a)}
+              aria-label={`Ajouter ${a.name} au panier`}
+              className={cn(
+                "rounded-arfro-sm flex size-11 shrink-0 items-center justify-center border text-xl font-bold transition-colors duration-300",
+                added === a.sku
+                  ? "border-arfro-blue bg-arfro-blue text-white"
+                  : "border-arfro-blue text-arfro-blue hover:bg-arfro-blue bg-white hover:text-white",
+              )}
+            >
+              {added === a.sku ? "✓" : "+"}
+            </button>
+          ) : (
+            <span className="text-promo shrink-0 text-[13px] font-bold">Indisponible</span>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }

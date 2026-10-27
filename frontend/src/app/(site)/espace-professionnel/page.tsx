@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArfroProLanding } from "@/components/arfro/pro/ArfroProLanding";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { H1, H2, IconTile, Timeline } from "@/components/leads/ui";
 import { ButtonLink } from "@/components/ui/Button";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { MAT, MatIcon } from "@/components/ui/icons";
 import { apiGet } from "@/lib/api";
+import { getSectors } from "@/lib/content/api";
 import { dh } from "@/lib/format";
 import { PRO_PERKS, SI, projectsPhone } from "@/lib/leads/contacts";
 import { getNavigation } from "@/lib/navigation";
+import { getReseller } from "@/lib/pro/session";
 import type { ProLanding } from "@/lib/pro/types";
 import { seoMetadata } from "@/lib/seo/metadata";
+import { SITE_KEY } from "@/lib/site";
+import { waLink } from "@/lib/whatsapp";
 
 export const metadata: Metadata = seoMetadata({
   title: "Espace professionnel",
@@ -55,6 +60,27 @@ export default async function ProPage() {
   const [nav, landing] = await Promise.all([getNavigation(), getLanding()]);
   const phone = projectsPhone(nav);
   const previewTotal = landing.preview.reduce((sum, r) => sum + r.total, 0);
+
+  if (SITE_KEY === "arfro") {
+    // Arfro « ARFRO Business » journey (docs/arfro-creative-brief.md). The session only switches the
+    // calls to action (same server-side check as the layout's account pill); /solutions is linked
+    // only when a sector page is published on this site.
+    const [reseller, sectors] = await Promise.all([getReseller().catch(() => null), getSectors().catch(() => null)]);
+    return (
+      <>
+        <Breadcrumb items={[{ label: "Accueil", href: "/" }, { label: "Espace professionnel" }]} />
+        <ArfroProLanding
+          phone={phone}
+          hours={nav.footer.hours}
+          whatsappHref={waLink("Bonjour, je suis un professionnel et je souhaite des informations.", nav.whatsapp.number)}
+          signedIn={reseller !== null}
+          catalogueHref={nav.ranges[0]?.href ?? null}
+          sectorsHref={sectors && sectors.data.length > 0 ? "/solutions" : null}
+          landing={landing}
+        />
+      </>
+    );
+  }
 
   return (
     <>

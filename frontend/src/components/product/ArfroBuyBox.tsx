@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { surfaceRow } from "@/components/arfro/pdp/data";
 import { QtyStepper } from "@/components/ui/QtyStepper";
 import { setTechnicalVisit } from "@/lib/cart/store";
 import { cn } from "@/lib/cn";
@@ -11,20 +12,19 @@ import { useAddSelected } from "./ProductBuyBox";
 import { useProduct } from "./ProductContext";
 import { StockAlertForm } from "./StockAlertForm";
 
-/** "jusqu'à 15 m²" from the variant's « Surface conseillée » row, when it has one. */
-function surfaceOf(specs: { label: string; value: string }[]): string | null {
-  return specs.find((s) => /^surface/i.test(s.label))?.value ?? null;
-}
-
 const PROMISES = [
   { text: "Livraison gratuite au Maroc", d: "M1 3h15v13H1zM16 8h4l3 3v5h-7z M5.5 16.5a2 2 0 1 0 0 4a2 2 0 1 0 0-4 M18.5 16.5a2 2 0 1 0 0 4a2 2 0 1 0 0-4" },
   { text: "Paiement à la livraison", d: "M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z M12 9.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5" },
 ];
 
+const STOCK_TONE = { en_stock: "bg-success", sur_commande: "bg-arfro-blue", rupture: "bg-promo" } as const;
+
 /**
- * Arfro buy column (Produit.dc.html): brand logo and « Distributeur officiel » pill, H1 44/800,
- * short description, variant cards (radios), grey buy panel (price, stock, technical visit,
- * quantity, add to cart, WhatsApp), promise rows. Same behaviours as ProductBuyBox.
+ * Arfro buy column: manufacturer (logo, « Distributeur officiel »), H1 family name, short
+ * description and reference, capacity selector (radio rows with the recommended surface and the
+ * price), Soft Ice purchase panel (server price, struck regular price, availability, technical
+ * visit, quantity, add to cart, WhatsApp, quote for « Prix sur demande »), promises. Same
+ * behaviours as ProductBuyBox: prices are those of the API (pro price for a signed-in reseller).
  */
 export function ArfroBuyBox() {
   const { product, variant, selectVariant } = useProduct();
@@ -43,50 +43,56 @@ export function ArfroBuyBox() {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-[22px]">
-      {product.brand && (
-        <div className="flex items-center gap-3">
-          <Link href={product.brand.href} aria-label={`Marque ${product.brand.name}`} className="flex min-h-11 items-center">
-            {product.brand.logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.brand.logo}
-                alt={product.brand.name}
-                width={Math.round(30 * (product.brand.logoAspect ?? 2))}
-                height={30}
-                fetchPriority="low"
-                decoding="async"
-                className="block h-[30px] w-auto object-contain"
-              />
-            ) : (
-              <span className="text-ink text-xl font-extrabold tracking-[-0.02em]">{product.brand.name}</span>
+    <div className="text-arfro-graphite flex min-w-0 flex-col gap-7">
+      <div className="flex flex-col gap-4">
+        {product.brand && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link href={product.brand.href} aria-label={`Marque ${product.brand.name}`} className="flex min-h-11 items-center">
+              {product.brand.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={product.brand.logo}
+                  alt={product.brand.name}
+                  width={Math.round(28 * (product.brand.logoAspect ?? 2))}
+                  height={28}
+                  fetchPriority="low"
+                  decoding="async"
+                  className="block h-7 w-auto object-contain"
+                />
+              ) : (
+                <span className="text-lg font-extrabold tracking-[-0.01em]">{product.brand.name}</span>
+              )}
+            </Link>
+            {product.brand.official && (
+              <span className="text-arfro-blue border-arfro-line border-l pl-4 text-[12px] font-bold tracking-[0.14em] uppercase">Distributeur officiel</span>
             )}
-          </Link>
-          {product.brand.official && (
-            <span className="bg-tint-blue text-brand flex h-7 items-center rounded-full px-3 text-xs font-extrabold">Distributeur officiel</span>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      <div className="flex flex-col gap-2.5">
-        <h1 className="m-0 text-[34px] leading-[1.05] font-extrabold tracking-[-0.025em] md:text-[44px]">{product.name}</h1>
-        {product.shortDescription && <p className="text-muted m-0 text-base md:text-[17px]">{product.shortDescription}</p>}
-        {publicRef(variant.sku) && <span className="text-muted text-sm">Réf. {variant.sku}</span>}
+        <h1 className="font-arfro m-0 text-[clamp(32px,4vw,52px)] leading-[1.04] font-extrabold tracking-[-0.03em] text-balance">{product.name}</h1>
+        {product.shortDescription && <p className="text-arfro-muted m-0 max-w-[52ch] text-[17px] leading-[1.55]">{product.shortDescription}</p>}
+        {publicRef(variant.sku) && (
+          <p className="text-arfro-muted m-0 text-sm">
+            Modèle <span className="text-arfro-graphite font-semibold">{variant.sku}</span>
+          </p>
+        )}
       </div>
 
       {multi && (
         <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
-          <legend className="p-0 pb-3 text-[15px] font-extrabold">{product.selectorLabel}</legend>
-          <div className="grid grid-cols-2 gap-2.5">
+          <legend className="p-0 pb-3 text-[13px] font-bold tracking-[0.14em] uppercase">{product.selectorLabel}</legend>
+          <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
             {product.variants.map((v) => {
               const on = v.sku === variant.sku;
-              const surface = surfaceOf(v.specs);
+              const surface = surfaceRow(v.specs);
               return (
                 <label
                   key={v.sku}
                   className={cn(
-                    "rounded-18 flex min-h-11 cursor-pointer items-start gap-2.5 px-3.5 py-3.5 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--color-brand)] sm:items-center sm:gap-3 sm:px-4 lg:items-start xl:items-center",
-                    on ? "border-brand bg-tint-select border-2" : "border-border hover:border-control border-[1.5px] bg-white",
+                    "rounded-arfro-sm flex min-h-[60px] cursor-pointer items-center gap-3 border px-4 py-3 transition-colors duration-300 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--color-arfro-blue)]",
+                    on
+                      ? "border-arfro-blue bg-arfro-ice shadow-[inset_0_0_0_1px_var(--color-arfro-blue)]"
+                      : "border-arfro-line hover:border-arfro-graphite/40 bg-white",
                   )}
                 >
                   <input
@@ -95,14 +101,13 @@ export function ArfroBuyBox() {
                     value={v.sku}
                     checked={on}
                     onChange={() => selectVariant(v.sku)}
-                    className="accent-brand m-0 mt-0.5 size-5 shrink-0 focus-visible:outline-none sm:mt-0 lg:mt-0.5 xl:mt-0"
+                    className="accent-arfro-blue m-0 size-[18px] shrink-0 focus-visible:outline-none"
                   />
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="text-base font-extrabold">{v.label ?? v.sku}</span>
-                    {surface && <span className="text-muted text-[13px]">{surface}</span>}
-                    <span className="pt-1 text-[15px] font-extrabold whitespace-nowrap sm:hidden lg:inline xl:hidden">{priceText(v.price)}</span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="text-[15px] font-extrabold">{v.label ?? v.sku}</span>
+                    {surface && <span className="text-arfro-muted text-[13px]">{surface}</span>}
                   </span>
-                  <span className="hidden text-[15px] font-extrabold whitespace-nowrap sm:inline lg:hidden xl:inline">{priceText(v.price)}</span>
+                  <span className="text-[14px] font-bold whitespace-nowrap">{priceText(v.price)}</span>
                 </label>
               );
             })}
@@ -110,27 +115,17 @@ export function ArfroBuyBox() {
         </fieldset>
       )}
 
-      <div className="rounded-18 bg-bg flex flex-col gap-4 p-5 md:p-6">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className={cn("leading-[1.1] font-extrabold tracking-[-0.02em]", onRequest ? "text-[28px]" : "text-[34px] md:text-[38px]")}>
-            {priceText(variant.price)}
-          </span>
-          {discounted && <s className="text-muted text-[17px]">{dh(variant.regularPrice!)}</s>}
-          {!onRequest && variant.orderable && (
-            <span className={cn("ml-auto flex items-center gap-1.5 text-sm font-extrabold", variant.stock === "en_stock" ? "text-success" : "text-brand")}>
-              <svg
-                aria-hidden
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="m5 12 5 5L20 7" />
-              </svg>
+      <div className="rounded-arfro-md bg-arfro-ice flex flex-col gap-5 p-5 md:p-7">
+        <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className={cn("font-arfro leading-none font-extrabold tracking-[-0.03em]", onRequest ? "text-[28px]" : "text-[36px] md:text-[42px]")}>
+              {priceText(variant.price)}
+            </span>
+            {discounted && <s className="text-arfro-muted text-[17px]">{dh(variant.regularPrice!)}</s>}
+          </div>
+          {!onRequest && (
+            <span className="flex items-center gap-2 text-sm font-bold">
+              <span aria-hidden className={cn("size-2 rounded-full", STOCK_TONE[variant.stock] ?? "bg-arfro-blue")} />
               {variant.stockLabel}
             </span>
           )}
@@ -140,7 +135,7 @@ export function ArfroBuyBox() {
           // « Prix sur demande »: never added to the basket, the quote form gets the reference.
           <Link
             href={priceRequestHref(variant.sku)}
-            className="bg-brand flex h-[54px] items-center justify-center rounded-full px-6 text-base font-extrabold text-white hover:text-white hover:brightness-[0.94]"
+            className="bg-arfro-blue hover:bg-arfro-blue-hover rounded-arfro-sm flex h-[54px] items-center justify-center px-6 text-base font-bold text-white transition-colors duration-300 hover:text-white"
           >
             Demander un prix
           </Link>
@@ -148,7 +143,7 @@ export function ArfroBuyBox() {
           <>
             {offersVisit && (
               <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[15px] font-semibold">
-                <input type="checkbox" checked={visit} onChange={(e) => setVisit(e.target.checked)} className="accent-brand m-0 size-5 shrink-0" />
+                <input type="checkbox" checked={visit} onChange={(e) => setVisit(e.target.checked)} className="accent-arfro-blue m-0 size-5 shrink-0" />
                 Visite technique avant installation ({dh(product.technicalVisitPrice)})
               </label>
             )}
@@ -157,7 +152,7 @@ export function ArfroBuyBox() {
               <button
                 type="button"
                 onClick={addSelected}
-                className="bg-brand hover:bg-brand-hover h-[54px] flex-[1_1_160px] rounded-full px-4 text-[15px] font-extrabold whitespace-nowrap text-white sm:px-6 sm:text-base"
+                className="bg-arfro-blue hover:bg-arfro-blue-hover rounded-arfro-sm h-14 flex-[1_1_160px] px-4 text-[15px] font-bold whitespace-nowrap text-white transition-colors duration-300 sm:px-6 sm:text-base"
               >
                 {added ? "Ajouté au panier" : "Ajouter au panier"}
               </button>
@@ -171,7 +166,7 @@ export function ArfroBuyBox() {
           href={waProductLink(variant.name, variant.sku)}
           target="_blank"
           rel="noopener"
-          className="border-ink text-ink hover:bg-ink box-border flex h-[50px] items-center justify-center gap-2 rounded-full border-[1.5px] text-[15px] font-bold hover:text-white"
+          className="border-arfro-graphite/30 text-arfro-graphite hover:border-arfro-graphite rounded-arfro-sm flex h-[50px] items-center justify-center gap-2 border bg-white text-[15px] font-bold transition-colors duration-300"
         >
           <svg
             aria-hidden
@@ -190,7 +185,7 @@ export function ArfroBuyBox() {
         </a>
       </div>
 
-      <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 text-sm font-bold min-[400px]:grid-cols-2">
+      <ul className="border-arfro-line m-0 grid list-none grid-cols-1 gap-3 border-t p-0 pt-5 text-sm font-semibold min-[400px]:grid-cols-2">
         {PROMISES.map((p) => (
           <li key={p.text} className="flex items-center gap-2.5">
             <svg
@@ -199,8 +194,8 @@ export function ArfroBuyBox() {
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="var(--color-brand)"
-              strokeWidth="1.8"
+              stroke="var(--color-arfro-blue)"
+              strokeWidth="1.6"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -210,9 +205,9 @@ export function ArfroBuyBox() {
           </li>
         ))}
       </ul>
-      <p className="text-ink-2 m-0 -mt-2 text-sm">
+      <p className="text-arfro-muted m-0 -mt-3 text-sm">
         Pose par nos techniciens sur devis :{" "}
-        <Link href="/demander-un-devis" className="text-brand font-bold underline">
+        <Link href="/demander-un-devis" className="text-arfro-blue font-bold underline underline-offset-2">
           demander un devis
         </Link>
       </p>

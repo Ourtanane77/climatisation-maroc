@@ -22,12 +22,24 @@ export interface SiteLogo {
   /** Intrinsic size of both files (same artwork), for the width/height attributes. */
   width: number;
   height: number;
+  /**
+   * Optional small copies (76 px high, 2× the largest on-screen size) used by the on-screen logos;
+   * `src` / `white` stay the 180 px files (JSON-LD, Open Graph). Same artwork and ratio.
+   */
+  small?: { src: string; white: string };
 }
 
-function brand(key: SiteKey, alt: string, width: number): Pick<SiteConfig, "logo" | "icons"> {
+function brand(key: SiteKey, alt: string, width: number, small = false): Pick<SiteConfig, "logo" | "icons"> {
   const dir = `/brand/${key}`;
   return {
-    logo: { src: `${dir}/logo.png`, white: `${dir}/logo-white.png`, alt, width, height: 180 },
+    logo: {
+      src: `${dir}/logo.png`,
+      white: `${dir}/logo-white.png`,
+      alt,
+      width,
+      height: 180,
+      ...(small ? { small: { src: `${dir}/logo-76.png`, white: `${dir}/logo-white-76.png` } } : {}),
+    },
     icons: { favicon: `${dir}/favicon-32.png`, icon: `${dir}/icon.png`, apple: `${dir}/apple-icon.png` },
   };
 }
@@ -82,7 +94,7 @@ const SITES: Record<SiteKey, SiteConfig> = {
     key: "arfro",
     name: "Arfro",
     owner: "Ariha Froid",
-    ...brand("arfro", "Arfro by Ariha Froid", 632),
+    ...brand("arfro", "Arfro by Ariha Froid", 632, true),
     // À réécrire: the cm title with the site name substituted.
     defaultTitle: "Arfro · Climatiseurs, chauffe-eau · Ariha Froid",
     // À réécrire: the shared neutral description.

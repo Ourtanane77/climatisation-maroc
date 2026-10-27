@@ -159,8 +159,8 @@ await check("Revalidation endpoint refuses without secret", async () => {
   return "403";
 });
 
-await check("Unpublished page is not served (/cgv)", async () => {
-  const { res } = await get("/cgv");
+await check("Unpublished page is not served (/confidentialite)", async () => {
+  const { res } = await get("/confidentialite");
   expect(
     res.status === 404,
     `status ${res.status} (stale front-office cache? see docs/architecture.md)`,

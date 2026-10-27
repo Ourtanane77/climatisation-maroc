@@ -22,7 +22,7 @@ export interface Store {
 }
 
 export interface Social {
-  name: "Facebook" | "Instagram" | "TikTok" | "YouTube" | "X" | "Threads" | "Pinterest" | "WhatsApp";
+  name: "Facebook" | "Instagram" | "TikTok" | "YouTube" | "X" | "Threads" | "Pinterest" | "LinkedIn" | "WhatsApp";
   href: string;
 }
 

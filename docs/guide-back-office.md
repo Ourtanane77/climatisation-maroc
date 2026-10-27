@@ -127,6 +127,22 @@ génère automatiquement des versions optimisées. Sans photo, une illustration 
 - **Catalogue › Marques** : nom, logo, présentation, « distributeur officiel » et, pour la page
   de marque, les technologies mises en avant.
 
+### Ordre des marques
+
+Sur les pages catégorie, les produits sont rangés par défaut (tri « Pertinence ») marque par
+marque, puis dans l'ordre du catalogue. Le même ordre sert au filtre « Marque », au bloc
+« Marques » des pages catégorie et aux marques du menu déroulant. Le visiteur peut toujours
+choisir « Prix croissant », « Prix décroissant » ou « Nom ».
+
+- **Ordre général** : dans **Catalogue › Marques**, cliquez sur « Classer les enregistrements »
+  (icône en haut de la liste), glissez-déposez les marques, puis cliquez sur « Fin du classement
+  des enregistrements ». L'ordre est enregistré tout de suite et s'applique aux deux sites.
+- **Ordre propre à une catégorie** : ouvrez la catégorie (**Catalogue › Catégories**), section
+  « Ordre des marques ». Choisissez les marques dans l'ordre voulu (vous pouvez les déplacer
+  ensuite), puis « Enregistrer ». Les marques non listées viennent après, dans l'ordre général.
+  Laissez le champ vide pour suivre l'ordre général des marques. Exemple : « Climatiseurs
+  muraux » (Clim mural) suit LG, Carrier, Fitco, CIAT.
+
 ## Commandes
 
 **Ventes › Commandes** liste les commandes par statut (onglets). Le paiement à la livraison est
@@ -277,7 +293,7 @@ Chaque site a ses réglages et sa page d'accueil (« — Climatisation Maroc »,
 - Contact : téléphones par service, e-mail, numéros WhatsApp (principal, bouton de la page
   d'accueil, bouton flottant), horaires, carte Google Maps de la page Contact (voir ci-dessous) ;
 - Magasins (nom et adresse) ;
-- Réseaux sociaux : Facebook, Instagram, TikTok, YouTube, X, Threads, Pinterest. Collez l'adresse
+- Réseaux sociaux : Facebook, Instagram, TikTok, YouTube, X, Threads, Pinterest, LinkedIn. Collez l'adresse
   complète de la page (https://…). Seuls les réseaux remplis apparaissent, dans cet ordre, dans le
   pied de page et sur la page Contact ; laissez un champ vide pour masquer l'icône. Chaque site a
   ses propres comptes ;
@@ -312,6 +328,85 @@ refusé).
 
 **Configuration › Page d’accueil** (gestionnaires du site) : bandeau principal (titre, sous-titre, image), produits mis en
 avant, marques affichées, produit vedette du menu déroulant de chaque gamme.
+
+### Page d'accueil d'Arfro
+
+**Configuration › Page d’accueil — Arfro** a un onglet par section de la page d'accueil
+d'arfro.com, dans l'ordre de la page : Bandeau, Manifeste, Espaces, Technologie, Produits,
+Services (ARFRO Care), Conseiller, Réalisations, Professionnels (ARFRO Business), Marques,
+Confiance, Témoignages, Conseils (journal), Final. Le dernier onglet, **Produits et menus**, garde
+les réglages communs aux deux sites (marques affichées, produit vedette des menus…). Climatisation
+Maroc n'est pas concerné par ces onglets.
+
+Dans chaque onglet :
+
+- **Afficher cette section** : décochez pour masquer la section.
+- **Surtitre** (petit texte en capitales, facultatif), **Titre** et **Texte**. Une section sans
+  titre n'est pas affichée (sauf Témoignages, dont le titre est facultatif).
+- **Boutons** : un bouton n'apparaît que si son texte **et** son lien sont remplis. Le lien est
+  un chemin du site (`/contact`, `/climatisation/mural`, `/produit/lg-dual-inverter`), une adresse
+  `https://…`, `tel:` ou `mailto:`. Deux raccourcis : `{telephone}` (appel au numéro « Conseil »
+  de Réglages — Arfro) et `{whatsapp}` (le numéro WhatsApp principal). Un lien vers une page qui
+  n'est pas publiée sur Arfro (page « À propos », services, solutions professionnelles, blog)
+  reste masqué tout seul, et s'affiche dès que la page est publiée sur Arfro.
+- **Textes automatiques** : dans les textes, `{horaires}` (horaires de Réglages), `{visite}`
+  (prix de la visite technique, « 300 Dhs »), `{telephone}` (numéro « Conseil ») et `{carte}`
+  (ajoute « ou en ligne par carte bancaire » quand le paiement CMI d'Arfro est actif) sont
+  remplacés par les valeurs à jour. Changez l'horaire ou le prix dans Réglages : la page suit.
+
+**Photos.** Chaque photo a deux champs : **Image** (votre fichier, prioritaire) et **Photo du
+site** (une photo déjà en place : le salon à Marrakech ou le hall d'hôtel). Sans l'un ni
+l'autre, la section passe en mise en page typographique, sans image vide. Formats conseillés :
+
+| Emplacement | Format |
+|---|---|
+| Bandeau, Espaces, Professionnels, Final (pleine largeur) | paysage, 2000 px de large au moins (2400 px idéal), WebP ou JPEG, moins de 1 Mo si possible |
+| Manifeste, Technologie, Services, Réalisations (demi-largeur) | paysage ou portrait, 1200 px de large au moins, WebP ou JPEG |
+| Témoignages | carré, 600 px au moins |
+
+Fichiers acceptés : WebP, JPEG ou PNG, 8 Mo au plus. Utilisez uniquement de vraies photos
+(intérieurs, chantiers, équipe Ariha Froid) dont vous avez les droits : pas d'image générée par
+intelligence artificielle sans l'accord de la direction, pas de photo d'un autre site. Placez le
+sujet au centre : l'image est recadrée selon l'écran (téléphone ou ordinateur).
+
+**Les sections une par une :**
+
+- **Espaces** : un élément par espace (Maison, Bureaux, Hôtellerie, Restauration…), avec son
+  texte, son lien et sa grande photo. Glissez les éléments pour changer l'ordre.
+- **Technologie** : uniquement ce que les fiches produits indiquent réellement (Inverter, fluide
+  R32, Wi-Fi LG ThinQ, tropical T3…). Chaque point peut renvoyer vers un produit ou une gamme.
+  N'ajoutez pas d'argument (classe énergétique, décibels, filtration…) qui ne figure pas sur une
+  fiche produit.
+- **Produits** : chaque collection est un onglet (Climatisation, Chauffe-eau, Ventilation,
+  Solutions professionnelles). Choisissez une ou plusieurs **gammes** et, si besoin, des
+  **produits à placer en premier** ; la liste est complétée par les produits publiés de la gamme
+  (8 au plus). Avec une seule gamme, le lien « Voir tout » mène à sa page. Une collection sans
+  produit visible sur Arfro est masquée.
+- **Services (ARFRO Care)** : seulement les services réellement proposés (installation sur devis,
+  visite technique, conseil). N'ajoutez pas « Entretien » ou « Réparation » tant que ces services
+  ne sont pas confirmés par la direction.
+- **Conseiller** : titre et texte de l'outil « Le bon climatiseur pour le bon espace » ; l'outil
+  lui-même est automatique.
+- **Marques** : titre et texte seulement ; les logos sont ceux de l'onglet « Produits et menus ».
+- **Confiance** : informations réelles uniquement (livraison, paiement, installation,
+  disponibilité). Pas de note, d'avis ou de chiffre inventé.
+- **Conseils (journal)** : les derniers articles publiés sur Arfro s'affichent seuls ; la section
+  est masquée tant qu'aucun article n'est publié sur Arfro.
+
+**Réalisations et témoignages.** Ces deux sections restent masquées tant qu'aucune entrée n'est
+**publiée**. Pour publier un projet :
+
+1. Onglet **Réalisations** › « Ajouter un projet » : titre, lieu, type (villa, hôtel,
+   restaurant…), produits utilisés, description et une photo réelle du chantier ;
+2. cochez **Publié** seulement pour un projet réel, terminé, que le client accepte de montrer ;
+3. cliquez sur « Enregistrer ».
+
+Pour un témoignage (onglet **Témoignages**) : nom du client tel qu'il accepte de le voir publié
+(par exemple « Karim B. »), ville, type de projet, produits, et ses mots exacts. Cochez **Publié**
+uniquement avec l'accord du client. Ne rédigez jamais un témoignage à la place d'un client.
+Décochez « Publié » pour retirer une entrée sans la supprimer.
+
+Chaque enregistrement met à jour arfro.com en quelques secondes.
 
 ### Paiement en ligne par carte
 

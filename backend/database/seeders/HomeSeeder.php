@@ -34,9 +34,10 @@ class HomeSeeder extends Seeder
         $settings->ducts_product_ids = [];
         // "Cuivre, gaz et pièces de rechange".
         $settings->supplies_product_ids = $this->families(['CUIV0005', 'CUIV0006', 'CUIV0018', 'GAZ00042', 'CLIM00076', 'CLIM00080']);
-        $settings->brand_ids = Brand::query()
-            ->whereIn('slug', ['lg', 'carrier', 'ciat', 'fitco', 'simsek', 'gs', 'lafarga', 'alpha', 'arfro'])
-            ->orderBy('position')->pluck('id')->all();
+        // Brand marquee in the design order (independent of the listings' brand order).
+        $marquee = ['lg', 'carrier', 'ciat', 'fitco', 'simsek', 'gs', 'lafarga', 'alpha', 'arfro'];
+        $brandIds = Brand::query()->whereIn('slug', $marquee)->pluck('id', 'slug');
+        $settings->brand_ids = collect($marquee)->map(fn (string $slug) => $brandIds[$slug] ?? null)->filter()->values()->all();
         // Mega menu featured product per range.
         $settings->mega_featured = array_filter([
             'climatisation' => $this->families(['D13AJH.N'])[0] ?? null,

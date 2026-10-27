@@ -22,6 +22,9 @@ class ReferenceSeeder extends Seeder
     private const CITIES = ['Agadir', 'Béni Mellal', 'Casablanca', 'El Jadida', 'Essaouira', 'Fès', 'Kénitra', 'Marrakech', 'Meknès',
         'Mohammedia', 'Ouarzazate', 'Oujda', 'Rabat', 'Safi', 'Salé', 'Tanger', 'Tétouan'];
 
+    /** Brand order of the listings: the owner's « Clim mural » order first (2026-10-27). */
+    public const BRAND_ORDER = ['lg', 'carrier', 'fitco', 'ciat', 'simsek', 'gs', 'lafarga', 'alpha', 'arfro'];
+
     /** Cities of the "Villes" silo (Structure et navigation board); pages stay unpublished until written. */
     private const CITY_PAGES = ['Marrakech', 'Casablanca', 'Rabat', 'Agadir', 'Tanger', 'Fès'];
 
@@ -47,8 +50,9 @@ class ReferenceSeeder extends Seeder
 
     private function brands(): void
     {
-        // Design order (Accueil marquee, Espace professionnel), then the other catalogue brands.
-        $designOrder = ['lg', 'carrier', 'ciat', 'fitco', 'simsek', 'gs', 'lafarga', 'alpha', 'arfro'];
+        // Owner order (2026-10-27: LG, Carrier, Fitco, CIAT), then the design's other brands and the
+        // other catalogue brands. Set on creation only: the team reorders brands in the back office.
+        $designOrder = self::BRAND_ORDER;
         $aspect = ['lg' => 2.05, 'carrier' => 2.52, 'ciat' => 2.01, 'fitco' => 0.69, 'simsek' => 3.47, 'gs' => 1.23, 'lafarga' => 4.64, 'alpha' => 3.09, 'arfro' => 3.38];
         $caption = ['lg' => 'Climatisation', 'carrier' => 'Climatisation', 'ciat' => 'Climatisation', 'fitco' => 'Climatisation', 'simsek' => 'Chauffe-eau'];
 
@@ -65,7 +69,11 @@ class ReferenceSeeder extends Seeder
             }
             $position = array_search($slug, $designOrder, true);
 
-            Brand::query()->updateOrCreate(['slug' => $slug], [
+            $brand = Brand::query()->firstOrNew(['slug' => $slug]);
+            if (! $brand->exists) {
+                $brand->position = $position === false ? 100 + (int) $b['id'] : $position;
+            }
+            $brand->fill([
                 'name' => $b['name'],
                 'logo' => $logo,
                 'logo_aspect' => $aspect[$slug] ?? null,
@@ -74,9 +82,8 @@ class ReferenceSeeder extends Seeder
                 'intro' => $slug === 'lg'
                     ? 'Ariha Froid est distributeur officiel LG au Maroc. Muraux, gainables et cassettes Inverter, livrés gratuitement partout au Maroc et posés par nos techniciens sur devis.'
                     : null,
-                'position' => $position === false ? 100 + (int) $b['id'] : $position,
                 'is_active' => true,
-            ]);
+            ])->save();
         }
 
         $lg = Brand::query()->where('slug', 'lg')->firstOrFail();
@@ -168,6 +175,12 @@ class ReferenceSeeder extends Seeder
                 $this->category($parent, $cSlug, $cName, $cShort, $cTemplate, $cAttrs, $childPosition, $legacy);
             }
         }
+
+        // « Clim mural » brand order requested by the owner (2026-10-27); kept once the team edits it.
+        $wall = Brand::query()->whereIn('slug', array_slice(self::BRAND_ORDER, 0, 4))->pluck('id', 'slug');
+        Category::query()->where('path', 'climatisation/mural')->whereNull('brand_order')->update([
+            'brand_order' => json_encode(collect(array_slice(self::BRAND_ORDER, 0, 4))->map(fn (string $slug) => $wall[$slug] ?? null)->filter()->values()->all()),
+        ]);
     }
 
     /**

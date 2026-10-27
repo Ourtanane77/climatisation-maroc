@@ -5,7 +5,11 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    alias: [
+      // next/dynamic split module (production): tests render its eager version synchronously.
+      { find: /^@\/components\/arfro\/motion$/, replacement: fileURLToPath(new URL("./src/components/arfro/motion/eager.ts", import.meta.url)) },
+      { find: "@", replacement: fileURLToPath(new URL("./src", import.meta.url)) },
+    ],
   },
   test: {
     environment: "jsdom",

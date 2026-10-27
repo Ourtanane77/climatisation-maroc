@@ -27,7 +27,8 @@ export const SORTS = [
   { value: "pertinence", api: "relevance", label: "Pertinence" },
 ] as const;
 
-export const DEFAULT_SORT = "prix-croissant";
+/** « Pertinence »: the brand order set in the back office (owner request, 2026-10-27). */
+export const DEFAULT_SORT = "pertinence";
 
 export function first(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? "";
@@ -53,7 +54,7 @@ export function listingApiQuery(params: SearchParams, perPage = 12): string {
   for (const [param, values] of Object.entries(selected)) {
     if (values.length) q.set(FACET_PARAMS[param as FacetParam], values.join(","));
   }
-  const sort = SORTS.find((s) => s.value === first(params.tri)) ?? SORTS[0];
+  const sort = SORTS.find((s) => s.value === first(params.tri)) ?? SORTS.find((s) => s.value === DEFAULT_SORT) ?? SORTS[0];
   q.set("sort", sort.api);
   const page = Number.parseInt(first(params.page), 10);
   if (page > 1) q.set("page", String(page));

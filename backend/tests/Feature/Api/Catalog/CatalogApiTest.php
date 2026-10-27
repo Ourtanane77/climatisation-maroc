@@ -13,7 +13,7 @@ it('builds the navigation from the category tree and settings', function () {
     expect(collect($nav['ranges'])->pluck('href')->all())
         ->toBe(['/climatisation', '/chauffe-eau', '/ventilation', '/gaines', '/cuivre-et-gaz', '/pieces-de-rechange'])
         ->and($nav['ranges'][0]['mega']['subs'][0])->toBe(['label' => 'Mural', 'href' => '/climatisation/mural'])
-        ->and(collect($nav['ranges'][0]['mega']['brands'])->pluck('label')->all())->toBe(['LG', 'Carrier', 'CIAT', 'Fitco'])
+        ->and(collect($nav['ranges'][0]['mega']['brands'])->pluck('label')->all())->toBe(['LG', 'Carrier', 'Fitco', 'CIAT'])
         ->and($nav['ranges'][0]['mega']['featured']['sku'])->toBe('D10AWH.NW0')
         ->and($nav['salesPhone']['href'])->toBe('tel:+212666854184')
         ->and(collect($nav['footer']['socials'])->pluck('name')->all())->toBe(['Facebook', 'Instagram', 'TikTok', 'WhatsApp'])
@@ -62,7 +62,7 @@ it('filters a listing and counts facets disjunctively', function () {
     expect($lg['meta']['total'])->toBe(3)
         ->and(collect($lg['data'])->pluck('brand')->unique()->all())->toBe(['LG'])
         // Other brands keep their own counts (the brand facet ignores its own filter).
-        ->and(collect($brands)->pluck('count', 'value')->all())->toBe(['lg' => 3, 'carrier' => 3, 'ciat' => 1, 'fitco' => 3])
+        ->and(collect($brands)->pluck('count', 'value')->all())->toBe(['lg' => 3, 'carrier' => 3, 'fitco' => 3, 'ciat' => 1])
         ->and(collect($brands)->firstWhere('value', 'lg')['selected'])->toBeTrue();
 
     $power = $this->getJson('/api/v1/categories/climatisation/mural/products?power=24000&tech=Inverter')->json();

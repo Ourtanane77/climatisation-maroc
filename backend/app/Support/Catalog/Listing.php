@@ -3,6 +3,7 @@
 namespace App\Support\Catalog;
 
 use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Support\Api\Audience;
@@ -43,7 +44,25 @@ class Listing
         'plus-6000' => ['Plus de 6 000 Dhs', 600000, PHP_INT_MAX],
     ];
 
+    /** `relevance` (« Pertinence », the default) follows the brand order, then the catalogue order. */
     public const SORTS = ['price_asc', 'price_desc', 'name', 'relevance'];
+
+    public const DEFAULT_SORT = 'relevance';
+
+    /**
+     * Rank of a brand in the listing order: the category's « Ordre des marques » first (when set),
+     * then the general brand order (Marques, drag and drop), then no brand.
+     *
+     * @return \Closure(Brand|null): array{int, int, int}
+     */
+    public static function brandRank(?Category $category = null): \Closure
+    {
+        $override = array_flip($category?->brandOrder() ?? []);
+
+        return fn (?Brand $brand) => $brand === null
+            ? [2, PHP_INT_MAX, PHP_INT_MAX]
+            : (isset($override[$brand->id]) ? [0, $override[$brand->id], 0] : [1, (int) $brand->position, $brand->id]);
+    }
 
     /**
      * Families visible on the current site with what cards and filters need.
@@ -245,14 +264,15 @@ class Listing
      *
      * @param  Collection<int, Product>  $all
      * @param  array<string, list<string>>  $filters
+     * @param  Category|null  $category  for the brand order of the « Marque » values
      * @return list<array{key: string, label: string, values: list<array{value: string, label: string, count: int|null, selected: bool}>}>
      */
-    public static function facets(Collection $all, array $filters): array
+    public static function facets(Collection $all, array $filters, ?Category $category = null): array
     {
         $reseller = Audience::isReseller();
         $facets = [];
         foreach (self::FACETS as $key => $label) {
-            $available = self::valuesOf($all, $key, $reseller);
+            $available = self::valuesOf($all, $key, $reseller, $category);
             // A selected value absent from this listing (e.g. a brand from another range) stays
             // visible with a zero count, so it can be removed (design: `?empty=1`, "Simsek 0").
             foreach ($filters[$key] ?? [] as $selected) {
@@ -285,7 +305,7 @@ class Listing
      * @param  Collection<int, Product>  $all
      * @return array<string, string> value => label, in display order
      */
-    private static function valuesOf(Collection $all, string $key, bool $reseller): array
+    private static function valuesOf(Collection $all, string $key, bool $reseller, ?Category $category = null): array
     {
         $variants = $all->flatMap(fn (Product $p) => $p->variants);
 
@@ -295,7 +315,7 @@ class Listing
             'size' => $all->flatMap(fn (Product $p) => $p->variants->map(fn (ProductVariant $v) => self::sizeOf($v, $p)))
                 ->filter()->unique()->sortBy(fn (string $s) => self::sizeRank($s))
                 ->mapWithKeys(fn (string $s) => [$s => self::sizeLabel($s)])->all(),
-            'brand' => $all->pluck('brand')->filter()->unique('id')->sortBy('position')
+            'brand' => $all->pluck('brand')->filter()->unique('id')->sortBy(self::brandRank($category))
                 ->mapWithKeys(fn ($b) => [$b->slug => $b->name])->all(),
             'tech' => $all->pluck('technology')->filter()->unique()
                 ->sortBy(fn ($t) => $t === 'Inverter' ? 0 : 1)->mapWithKeys(fn ($t) => [$t => $t])->all(),
@@ -343,11 +363,13 @@ class Listing
 
     /**
      * @param  Collection<int, Product>  $families
+     * @param  Category|null  $category  whose « Ordre des marques » the default sort follows
      * @return Collection<int, Product>
      */
-    public static function sort(Collection $families, string $sort): Collection
+    public static function sort(Collection $families, string $sort, ?Category $category = null): Collection
     {
         $reseller = Audience::isReseller();
+        $rank = self::brandRank($category);
         // Lowest real price; families « Prix sur demande » only (price 0) go last in both orders.
         $price = fn (Product $p) => $p->variants->reject(fn (ProductVariant $v) => $v->isOnRequest())
             ->map(fn (ProductVariant $v) => $v->priceFor($reseller))->min();
@@ -356,7 +378,10 @@ class Listing
             'price_asc' => $families->sortBy(fn (Product $p) => [$price($p) === null ? 1 : 0, $price($p) ?? 0])->values(),
             'price_desc' => $families->sortBy(fn (Product $p) => [$price($p) === null ? 1 : 0, -($price($p) ?? 0)])->values(),
             'name' => $families->sortBy(fn (Product $p) => mb_strtolower((string) $p->siteText('name')))->values(),
-            default => $families->values(),
+            // Brand order, then the catalogue order within a brand (Listing::query()).
+            default => $families->sortBy(function (Product $p) use ($rank) {
+                return [...$rank($p->brand), (int) $p->position, $p->id];
+            })->values(),
         };
     }
 
