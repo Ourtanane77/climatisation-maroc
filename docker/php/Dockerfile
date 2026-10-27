@@ -3,13 +3,22 @@
 # ---- base: PHP runtime with the extensions Laravel and Filament need ----
 FROM php:8.4-fpm-alpine AS base
 
+ARG PHPREDIS_VERSION=6.2.0
+
 # mariadb-connector-c: MySQL 8 authentication plugin for mysqldump (php artisan app:backup).
+# phpredis is pinned (PHPREDIS_VERSION). pecl.php.net is sometimes unreachable: one retry, then the
+# same release from GitHub, so a short outage never blocks a deploy.
 RUN apk add --no-cache icu-libs libzip libpng libjpeg-turbo libwebp freetype mysql-client mariadb-connector-c \
     && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS icu-dev libzip-dev libpng-dev \
         libjpeg-turbo-dev libwebp-dev freetype-dev linux-headers \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql intl zip gd bcmath exif pcntl opcache \
-    && pecl install redis \
+    && (pecl install redis-${PHPREDIS_VERSION} || (sleep 10 && pecl install redis-${PHPREDIS_VERSION}) \
+        || (mkdir -p /tmp/phpredis \
+            && curl -fsSL --retry 3 "https://github.com/phpredis/phpredis/archive/refs/tags/${PHPREDIS_VERSION}.tar.gz" \
+               | tar xz -C /tmp/phpredis --strip-components=1 \
+            && cd /tmp/phpredis && phpize && ./configure && make -j"$(nproc)" && make install \
+            && cd / && rm -rf /tmp/phpredis)) \
     && docker-php-ext-enable redis \
     && apk del .build-deps
 
